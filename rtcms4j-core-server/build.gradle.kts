@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
 apply {
     plugin("org.springframework.boot")
 }
@@ -33,11 +31,11 @@ dependencies {
     testImplementation("io.zonky.test:embedded-database-spring-test")
 }
 
-tasks.getByName<BootJar>("bootJar") {
+tasks.bootJar {
     enabled = true
 }
 
-tasks.getByName<Jar>("jar") {
+tasks.jar {
     enabled = false
 }
 

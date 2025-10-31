@@ -1,6 +1,8 @@
-name: Build
+name: Build and Publish on main
 
-on: push
+on:
+  push:
+    branches: [ main, develop ]
 
 jobs:
   build:
@@ -32,8 +34,9 @@ jobs:
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#    - name: Publish to GitHub Packages
-#      run: ./gradlew publish
-#      env:
-#        GITHUB_ACTOR: ${{ github.actor }}
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish to GitHub Packages
+      if: github.ref == 'refs/heads/main'
+      run: ./gradlew publish
+      env:
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

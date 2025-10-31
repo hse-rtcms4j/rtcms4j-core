@@ -12,7 +12,7 @@ paths:
   /namespace:
     get:
       tags:
-        - Namespace
+        - Core
       summary: Get all namespaces
       operationId: findAllNamespaces
       parameters:
@@ -46,7 +46,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Namespace
+        - Core
       summary: Create new namespace
       operationId: createNamespace
       requestBody:
@@ -76,7 +76,7 @@ paths:
   /namespace/{nid}:
     get:
       tags:
-        - Namespace
+        - Core
       summary: Get namespace
       operationId: getNamespace
       parameters:
@@ -112,7 +112,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Namespace
+        - Core
       summary: Update namespace
       operationId: updateNamespace
       parameters:
@@ -154,7 +154,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Namespace
+        - Core
       summary: Delete namespace
       operationId: deleteNamespace
       parameters:
@@ -188,7 +188,7 @@ paths:
   /namespace/{nid}/admin:
     get:
       tags:
-        - Namespace
+        - Core
       summary: Get namespace admins
       operationId: getNamespaceAdmins
       parameters:
@@ -222,7 +222,7 @@ paths:
   /namespace/{nid}/admin/{uid}:
     post:
       tags:
-        - Namespace
+        - Core
       summary: Add namespace admin
       operationId: addNamespaceAdmin
       parameters:
@@ -259,7 +259,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Namespace
+        - Core
       summary: Remove namespace admin
       operationId: removeNamespaceAdmin
       parameters:
@@ -303,7 +303,7 @@ paths:
   /namespace/{nid}/application:
     get:
       tags:
-        - Application
+        - Core
       summary: Get all namespace applications
       operationId: findAllApplications
       parameters:
@@ -344,7 +344,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Application
+        - Core
       summary: Create new namespace application
       operationId: createApplication
       parameters:
@@ -382,7 +382,7 @@ paths:
   /namespace/{nid}/application/{aid}:
     get:
       tags:
-        - Application
+        - Core
       summary: Get namespace application
       operationId: getApplication
       parameters:
@@ -425,7 +425,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Application
+        - Core
       summary: Update namespace application
       operationId: updateApplication
       parameters:
@@ -474,7 +474,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Application
+        - Core
       summary: Delete namespace application
       operationId: deleteApplication
       parameters:
@@ -515,7 +515,7 @@ paths:
   /namespace/{nid}/application/{aid}/manager:
     get:
       tags:
-        - Application
+        - Core
       summary: Get namespace application managers
       operationId: getApplicationManagers
       parameters:
@@ -556,7 +556,7 @@ paths:
   /namespace/{nid}/application/{aid}/manager/{uid}:
     post:
       tags:
-        - Application
+        - Core
       summary: Add namespace application manager
       operationId: addApplicationManager
       parameters:
@@ -600,7 +600,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Application
+        - Core
       summary: Remove namespace application manager
       operationId: removeApplicationManager
       parameters:
@@ -648,7 +648,7 @@ paths:
   /namespace/{nid}/application/{aid}/access-token:
     get:
       tags:
-        - Application
+        - Core
       summary: Get namespace application token
       operationId: getApplicationAccessToken
       parameters:
@@ -685,7 +685,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Application
+        - Core
       summary: Update namespace application token
       operationId: updateApplicationAccessToken
       parameters:
@@ -733,7 +733,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration:
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configurations
       operationId: findAllConfigurations
       parameters:
@@ -781,7 +781,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Configuration
+        - Core
       summary: Create new namespace application configuration
       operationId: createConfiguration
       parameters:
@@ -826,7 +826,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}:
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configuration
       operationId: getConfiguration
       parameters:
@@ -876,7 +876,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Configuration
+        - Core
       summary: Update namespace application configuration
       operationId: updateConfiguration
       parameters:
@@ -926,7 +926,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Configuration
+        - Core
       summary: Delete namespace application configuration
       operationId: deleteConfiguration
       parameters:
@@ -974,7 +974,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}/values:
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configuration values
       operationId: getConfigurationValues
       parameters:
@@ -1024,7 +1024,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Configuration
+        - Core
       summary: Update namespace application configuration values
       operationId: updateConfigurationValues
       parameters:
@@ -1076,7 +1076,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}/schema:
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configuration schema
       operationId: getConfigurationSchema
       parameters:
@@ -1126,7 +1126,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Configuration
+        - Core
       summary: Update namespace application configuration schema
       operationId: updateConfigurationSchema
       parameters:
@@ -1178,7 +1178,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}/version/{commitHash}:
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configuration version
       operationId: getConfigurationVersion
       parameters:
@@ -1234,7 +1234,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Configuration
+        - Core
       summary: Switch namespace application configuration to version
       operationId: switchConfigurationVersion
       parameters:
@@ -1286,7 +1286,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Configuration
+        - Core
       summary: Delete namespace application configuration version
       operationId: deleteConfigurationVersion
       parameters:
@@ -1340,7 +1340,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}/ack:
     post:
       tags:
-        - Configuration
+        - Core
       summary: Acknowledge namespace application configuration schema
       operationId: acknowledgeConfiguration
       parameters:
@@ -1388,7 +1388,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}/stream-state:
     put:
       tags:
-        - Internal
+        - Core
       summary: Support core with real stream state
       operationId: updateStreamStateConfiguration
       parameters:

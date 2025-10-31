@@ -25,7 +25,7 @@ fun extractPagedModelComponents(
     val components = (spec["components"] as? Map<*, *>)?.get("schemas") as? Map<*, *>
     val mappings = mutableMapOf<String, String>()
 
-    components?.forEach { (key, value) ->
+    components?.forEach { (key, _) ->
         val componentName = key.toString()
 
         when {
@@ -94,4 +94,8 @@ sourceSets {
 
 tasks.bootJar {
     enabled = false
+}
+
+tasks.jar {
+    enabled = true
 }

@@ -1,13 +1,11 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
 dependencies {
-//    api(project(":frame-voice-client"))
+    api(project(":rtcms4j-core-client"))
 }
 
-tasks.getByName<BootJar>("bootJar") {
+tasks.bootJar {
     enabled = false
 }
 
-tasks.getByName<Jar>("jar") {
+tasks.jar {
     enabled = true
 }

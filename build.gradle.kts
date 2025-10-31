@@ -4,7 +4,7 @@ import java.net.URI
 
 fun RepositoryHandler.github(repo: String) = maven {
     name = "GitHubPackages"
-    url = URI.create("https://maven.pkg.github.com/hse-rtcms4j/$repo")
+    url = URI.create("https://maven.pkg.github.com/$repo")
     credentials {
         // picks from: .../user/.gradle/gradle.properties
         username = System.getenv("GITHUB_ACTOR") ?: findProperty("GITHUB_LOGIN") as String?

@@ -727,6 +727,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+############################
+# Managing configurations: #
+############################
   /namespace/{nid}/application/{aid}/configuration:
     get:
       tags:
@@ -1232,7 +1235,7 @@ paths:
     post:
       tags:
         - Configuration
-      summary: Delete namespace application configuration version
+      summary: Switch namespace application configuration to version
       operationId: switchConfigurationVersion
       parameters:
         - name: nid

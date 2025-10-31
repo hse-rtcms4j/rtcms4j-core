@@ -61,7 +61,7 @@ tasks.openApiGenerate {
             "exceptionHandler" to "false",
             "useSwaggerUI" to "false",
             "useResponseEntity" to "false",
-            "requestMappingMode" to "api_interface",
+            "requestMappingMode" to "none",
         ),
     )
 

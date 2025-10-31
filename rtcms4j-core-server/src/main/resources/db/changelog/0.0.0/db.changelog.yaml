@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - logicalFilePath: db/changelog/0.0.0/db.changelog.yaml
+  - changeSet:
+      id: 0.0.0
+      author: Enzhine
+      changes:
+        - tagDatabase:
+            tag: 0.0.0

@@ -42,3 +42,7 @@ tasks.jar {
 tasks.withType<PublishToMavenRepository> {
     enabled = false
 }
+
+tasks.test {
+    useJUnitPlatform()
+}

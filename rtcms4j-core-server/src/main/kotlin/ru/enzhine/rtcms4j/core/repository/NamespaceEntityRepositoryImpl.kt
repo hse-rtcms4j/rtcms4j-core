@@ -33,10 +33,11 @@ class NamespaceEntityRepositoryImpl(
         pageable: Pageable,
     ): Page<NamespaceEntity> {
         val total = countAllNamespacesByName(name, pageable)
-        if (total == 0L) {
-            return PageImpl(emptyList(), pageable, total)
+        var content = emptyList<NamespaceEntity>()
+        if (total != 0L) {
+            content = findAllNamespacesByName(name, pageable)
         }
-        val content = findAllNamespacesByName(name, pageable)
+
         return PageImpl(content, pageable, total)
     }
 
@@ -70,8 +71,7 @@ class NamespaceEntityRepositoryImpl(
             select count(*) from namespace
             where deleted = false and (
                   (:name::text is null) or (name ilike '%' || :name::text || '%')
-                  )
-            offset :offset limit :limit;
+                  );
             """.trimIndent(),
             mapOf(
                 "name" to name,

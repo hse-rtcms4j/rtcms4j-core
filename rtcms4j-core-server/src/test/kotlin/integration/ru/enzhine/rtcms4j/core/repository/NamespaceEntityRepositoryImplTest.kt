@@ -106,40 +106,119 @@ class NamespaceEntityRepositoryImplTest {
     }
 
     @Test
-    fun findAllByName_nameProvided_success() {
-        val created1 =
+    fun findAllByName_manyResultsByName_paginationCorrect() {
+        val allValues = listOf(
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "Apple",
+                    description = "",
+                ),
+            ),
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "Banana",
+                    description = "",
+                ),
+            ),
             namespaceEntityRepository.save(
                 newNamespaceEntity(
                     creatorSub = sub,
                     name = "BCR Team",
-                    description = "Broker reports serving team",
+                    description = "",
                 ),
-            )
-
-        val created2 =
+            ),
             namespaceEntityRepository.save(
                 newNamespaceEntity(
                     creatorSub = sub,
                     name = "BPH Team",
-                    description = "Broker data allocation team",
+                    description = "",
+                ),
+            ),
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "Cake",
+                    description = "",
                 ),
             )
+        )
 
-        val allPage = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 2))
-        Assertions.assertEquals(0, allPage.number)
-        Assertions.assertEquals(2, allPage.size)
-        Assertions.assertEquals(2, allPage.content.size)
-        Assertions.assertTrue(allPage.content.containsAll(listOf(created1, created2)))
-        Assertions.assertEquals(2, allPage.totalElements)
-        Assertions.assertEquals(1, allPage.totalPages)
+        val emptyPage = namespaceEntityRepository.findAllByName("Spring", PageRequest.of(0, 2))
+        Assertions.assertEquals(0, emptyPage.number)
+        Assertions.assertEquals(2, emptyPage.size)
+        Assertions.assertTrue(emptyPage.isEmpty)
+        Assertions.assertEquals(0, emptyPage.totalElements)
+        Assertions.assertEquals(0, emptyPage.totalPages)
 
-        val bphPage = namespaceEntityRepository.findAllByName("BPH", PageRequest.of(0, 2))
-        Assertions.assertEquals(0, bphPage.number)
-        Assertions.assertEquals(2, bphPage.size)
-        Assertions.assertEquals(1, bphPage.content.size)
-        Assertions.assertEquals(created2, bphPage.content[0])
-        Assertions.assertEquals(1, bphPage.totalElements)
-        Assertions.assertEquals(1, bphPage.totalPages)
+        val page0 = namespaceEntityRepository.findAllByName("Apple", PageRequest.of(0, 2))
+        Assertions.assertEquals(0, page0.number)
+        Assertions.assertEquals(2, page0.size)
+        val expectedPage0Content = allValues.filter { it.name.contains("Apple") }
+        Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
+        Assertions.assertTrue(page0.content.containsAll(expectedPage0Content))
+        Assertions.assertEquals(expectedPage0Content.size.toLong(), page0.totalElements)
+        Assertions.assertEquals(1, page0.totalPages)
+    }
+
+    @Test
+    fun findAllByName_manyResults_paginationCorrect() {
+        val allValues = listOf(
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "Apple",
+                    description = "",
+                ),
+            ),
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "Banana",
+                    description = "",
+                ),
+            ),
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "BCR Team",
+                    description = "",
+                ),
+            ),
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "BPH Team",
+                    description = "",
+                ),
+            ),
+            namespaceEntityRepository.save(
+                newNamespaceEntity(
+                    creatorSub = sub,
+                    name = "Cake",
+                    description = "",
+                ),
+            )
+        )
+
+        val page0 = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 2))
+        Assertions.assertEquals(0, page0.number)
+        Assertions.assertEquals(2, page0.size)
+        val expectedPage0Content = allValues.subList(0, 2)
+        Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
+        Assertions.assertTrue(page0.content.containsAll(expectedPage0Content))
+        Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
+        Assertions.assertEquals(3, page0.totalPages)
+
+        val page1 = namespaceEntityRepository.findAllByName(null, PageRequest.of(1, 2))
+        Assertions.assertEquals(0, page0.number)
+        Assertions.assertEquals(2, page0.size)
+        val expectedPage1Content = allValues.subList(2, 4)
+        Assertions.assertEquals(expectedPage1Content.size, page1.content.size)
+        Assertions.assertTrue(page1.content.containsAll(expectedPage1Content))
+        Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
+        Assertions.assertEquals(3, page0.totalPages)
     }
 
     @Test

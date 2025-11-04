@@ -39,7 +39,7 @@ jobs:
       if: always()
       with:
         name: test-reports
-        path: build/reports/tests/
+        path: rtcms4j-core-server/build/reports/tests/
 
     - name: Publish to GitHub Packages
       if: github.ref == 'refs/heads/main'

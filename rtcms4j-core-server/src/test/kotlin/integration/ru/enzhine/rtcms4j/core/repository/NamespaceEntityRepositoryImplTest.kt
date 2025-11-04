@@ -2,6 +2,7 @@ package integration.ru.enzhine.rtcms4j.core.repository
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
+import org.assertj.core.api.Assertions as AssertionsJ
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -209,7 +210,7 @@ class NamespaceEntityRepositoryImplTest {
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.subList(0, 2)
         Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
-        Assertions.assertTrue(page0.content.containsAll(expectedPage0Content))
+        AssertionsJ.assertThat(page0.content).containsAll(expectedPage0Content)
         Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
         Assertions.assertEquals(3, page0.totalPages)
 

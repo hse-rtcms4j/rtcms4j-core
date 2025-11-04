@@ -15,3 +15,16 @@ fun newNamespaceEntity(
     name = name,
     description = description,
 )
+
+fun newNamespaceAdminEntity(
+    namespaceId: Long,
+    assignerSub: UUID,
+    userSub: UUID,
+) = NamespaceAdminEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    updatedAt = OffsetDateTime.MIN,
+    namespaceId = namespaceId,
+    assignerSub = assignerSub,
+    userSub = userSub,
+)

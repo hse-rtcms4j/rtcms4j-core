@@ -1,5 +1,6 @@
 package ru.enzhine.rtcms4j.core.repository
 
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.jvm.Throws
 
 @Repository
 class NamespaceEntityRepositoryImpl(
@@ -48,9 +50,8 @@ class NamespaceEntityRepositoryImpl(
         npJdbc.query(
             """
             select * from namespace
-            where deleted = false and (
-                  (:name::text is null) or (name ilike '%' || :name::text || '%')
-                  )
+            where (:name::text is null) or
+                  (name ilike '%' || :name::text || '%')
             order by name
             offset :offset limit :limit;
             """.trimIndent(),
@@ -69,9 +70,8 @@ class NamespaceEntityRepositoryImpl(
         npJdbc.queryForObject(
             """
             select count(*) from namespace
-            where deleted = false and (
-                  (:name::text is null) or (name ilike '%' || :name::text || '%')
-                  );
+            where (:name::text is null) or
+                  (name ilike '%' || :name::text || '%');
             """.trimIndent(),
             mapOf(
                 "name" to name,
@@ -86,8 +86,7 @@ class NamespaceEntityRepositoryImpl(
             .query(
                 """
                 select * from namespace
-                where deleted = false and
-                      id = :id;
+                where id = :id;
                 """.trimIndent(),
                 mapOf(
                     "id" to id,
@@ -95,11 +94,10 @@ class NamespaceEntityRepositoryImpl(
                 ROW_MAPPER,
             ).firstOrNull()
 
-    /** Creating new entity with fields:
-     * - creator_sub
-     * - name
-     * - description
+    /**
+     * @throws DuplicateKeyException name duplication
      */
+    @Throws(DuplicateKeyException::class)
     override fun save(namespaceEntity: NamespaceEntity): NamespaceEntity =
         npJdbc
             .query(
@@ -116,10 +114,10 @@ class NamespaceEntityRepositoryImpl(
                 ROW_MAPPER,
             ).first()
 
-    /** Updates existing entity fields:
-     * - name
-     * - description
+    /**
+     * @throws DuplicateKeyException name duplication
      */
+    @Throws(DuplicateKeyException::class)
     override fun update(namespaceEntity: NamespaceEntity): NamespaceEntity =
         npJdbc
             .query(
@@ -128,8 +126,7 @@ class NamespaceEntityRepositoryImpl(
                 set name = :name,
                     description = :description,
                     updated_at = now()
-                where deleted = false and
-                      id = :id
+                where id = :id
                 returning *;
                 """.trimIndent(),
                 mapOf(
@@ -143,10 +140,8 @@ class NamespaceEntityRepositoryImpl(
     override fun removeById(id: Long): Boolean =
         npJdbc.update(
             """
-            update namespace
-            set deleted = true
-            where deleted = false and
-                  id = :id;
+            delete from namespace
+            where id = :id;
             """.trimIndent(),
             mapOf(
                 "id" to id,

@@ -2,7 +2,6 @@ package integration.ru.enzhine.rtcms4j.core.repository
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
-import org.assertj.core.api.Assertions as AssertionsJ
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +19,7 @@ import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
+import org.assertj.core.api.Assertions as AssertionsJ
 
 @SpringBootTest(classes = [NamespaceEntityRepositoryImpl::class])
 @ImportAutoConfiguration(

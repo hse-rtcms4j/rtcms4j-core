@@ -209,7 +209,7 @@ class NamespaceEntityRepositoryImplTest {
             )
 
         val allPage = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 6))
-        AssertionsJ.assertThat(allPage.content).containsAll(allValues)
+        throw RuntimeException(allPage.content.joinToString(","))
 
         val page0 = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)

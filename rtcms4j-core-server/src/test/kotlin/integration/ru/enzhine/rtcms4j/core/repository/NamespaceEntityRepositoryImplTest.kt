@@ -35,7 +35,6 @@ import org.assertj.core.api.Assertions as AssertionsJ
 )
 @ActiveProfiles("test")
 class NamespaceEntityRepositoryImplTest {
-
     private val logger = LoggerFactory.getLogger(NamespaceEntityRepositoryImplTest::class.java)
 
     @Autowired

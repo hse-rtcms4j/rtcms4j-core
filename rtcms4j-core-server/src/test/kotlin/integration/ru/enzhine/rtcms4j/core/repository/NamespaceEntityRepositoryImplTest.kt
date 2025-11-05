@@ -210,8 +210,8 @@ class NamespaceEntityRepositoryImplTest {
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.subList(0, 2)
         Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
-        AssertionsJ.assertThat(page0.content).containsAll(expectedPage0Content)
         Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
+        AssertionsJ.assertThat(page0.content).containsAll(expectedPage0Content)
         Assertions.assertEquals(3, page0.totalPages)
 
         val page1 = namespaceEntityRepository.findAllByName(null, PageRequest.of(1, 2))

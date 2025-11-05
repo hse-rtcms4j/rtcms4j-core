@@ -4,6 +4,7 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -34,6 +35,9 @@ import org.assertj.core.api.Assertions as AssertionsJ
 )
 @ActiveProfiles("test")
 class NamespaceEntityRepositoryImplTest {
+
+    private val logger = LoggerFactory.getLogger(NamespaceEntityRepositoryImplTest::class.java)
+
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -205,13 +209,15 @@ class NamespaceEntityRepositoryImplTest {
                 ),
             )
 
+        logger.warn("All created: " + namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 6)).joinToString(","))
+
         val page0 = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.subList(0, 2)
         Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
-        Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
         AssertionsJ.assertThat(page0.content).containsAll(expectedPage0Content)
+        Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
         Assertions.assertEquals(3, page0.totalPages)
 
         val page1 = namespaceEntityRepository.findAllByName(null, PageRequest.of(1, 2))

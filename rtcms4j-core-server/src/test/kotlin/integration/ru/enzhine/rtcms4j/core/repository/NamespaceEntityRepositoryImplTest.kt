@@ -18,6 +18,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceEntity
+import java.text.Collator
+import java.util.Locale
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ
@@ -169,6 +171,8 @@ class NamespaceEntityRepositoryImplTest {
 
     @Test
     fun findAllByName_manyResults_paginationCorrect() {
+        val collator = Collator.getInstance(Locale.US)
+
         val allValues =
             listOf(
                 namespaceEntityRepository.save(
@@ -206,10 +210,7 @@ class NamespaceEntityRepositoryImplTest {
                         description = "",
                     ),
                 ),
-            )
-
-        val allPage = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 6))
-        throw RuntimeException(allPage.content.joinToString(","))
+            ).sortedWith(compareBy(collator) { it.name })
 
         val page0 = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)

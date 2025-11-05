@@ -208,7 +208,8 @@ class NamespaceEntityRepositoryImplTest {
                 ),
             )
 
-        logger.warn("All created: " + namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 6)).joinToString(","))
+        val allPage = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 6))
+        AssertionsJ.assertThat(allPage.content).containsAll(allValues)
 
         val page0 = namespaceEntityRepository.findAllByName(null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)

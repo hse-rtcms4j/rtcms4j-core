@@ -1,5 +1,6 @@
 package ru.enzhine.rtcms4j.core.repository
 
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -29,8 +30,9 @@ class NamespaceAdminEntityRepositoryImpl(
 
     /**
      * @throws DuplicateKeyException user already assigned to namespace
+     * @throws DataIntegrityViolationException namespace does not exist
      */
-    @Throws(DuplicateKeyException::class)
+    @Throws(DuplicateKeyException::class, DataIntegrityViolationException::class)
     override fun save(namespaceAdminEntity: NamespaceAdminEntity): NamespaceAdminEntity =
         npJdbc
             .query(

@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
@@ -105,6 +106,19 @@ class NamespaceEntityAdminRepositoryImplTest {
                     namespaceId = namespace.id,
                     assignerSub = sub,
                     userSub = userSub,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun save_namespaceDoesNotExist_error() {
+        Assertions.assertThrows(DataIntegrityViolationException::class.java) {
+            namespaceAdminEntityRepository.save(
+                newNamespaceAdminEntity(
+                    namespaceId = 10,
+                    assignerSub = sub,
+                    userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b"),
                 ),
             )
         }

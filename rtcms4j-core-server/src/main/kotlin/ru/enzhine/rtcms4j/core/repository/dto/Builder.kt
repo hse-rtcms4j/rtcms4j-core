@@ -28,3 +28,20 @@ fun newNamespaceAdminEntity(
     assignerSub = assignerSub,
     userSub = userSub,
 )
+
+fun newApplicationEntity(
+    namespaceId: Long,
+    creatorSub: UUID,
+    name: String,
+    description: String,
+    accessToken: String
+) = ApplicationEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    updatedAt = OffsetDateTime.MIN,
+    namespaceId = namespaceId,
+    creatorSub = creatorSub,
+    name = name,
+    description = description,
+    accessToken = accessToken
+)

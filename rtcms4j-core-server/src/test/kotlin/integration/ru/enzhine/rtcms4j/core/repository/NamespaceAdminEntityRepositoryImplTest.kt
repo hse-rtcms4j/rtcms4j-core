@@ -17,10 +17,12 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.repository.NamespaceAdminEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
+import org.assertj.core.api.Assertions as AssertionsJ
 
 @SpringBootTest(
     classes = [
@@ -39,7 +41,7 @@ import kotlin.jvm.java
     type = AutoConfigureEmbeddedDatabase.DatabaseType.POSTGRES,
 )
 @ActiveProfiles("test")
-class NamespaceEntityAdminRepositoryImplTest {
+class NamespaceAdminEntityRepositoryImplTest {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -51,15 +53,14 @@ class NamespaceEntityAdminRepositoryImplTest {
 
     private val sub = UUID.fromString("fb9fff20-52d8-4fa0-9b24-35a85303e70b")
 
+    private lateinit var namespace: NamespaceEntity
+
     @BeforeEach
     fun clearTable() {
         jdbcTemplate.execute("truncate table namespace restart identity cascade;")
         jdbcTemplate.execute("truncate table namespace_admin restart identity cascade;")
-    }
 
-    @Test
-    fun save_positive_success() {
-        val namespace =
+        namespace =
             namespaceEntityRepository.save(
                 newNamespaceEntity(
                     creatorSub = sub,
@@ -67,7 +68,10 @@ class NamespaceEntityAdminRepositoryImplTest {
                     description = "Broker reports serving team",
                 ),
             )
+    }
 
+    @Test
+    fun save_positive_success() {
         val adminEntity =
             newNamespaceAdminEntity(
                 namespaceId = namespace.id,
@@ -83,15 +87,6 @@ class NamespaceEntityAdminRepositoryImplTest {
 
     @Test
     fun save_repeatedAttempt_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b")
         namespaceAdminEntityRepository.save(
             newNamespaceAdminEntity(
@@ -126,24 +121,12 @@ class NamespaceEntityAdminRepositoryImplTest {
 
     @Test
     fun findAllByNamespaceId_positive_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports production and delivery team",
-                ),
-            )
-
-        val user1Sub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b")
-        val user2Sub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e711")
-
         val admin1 =
             namespaceAdminEntityRepository.save(
                 newNamespaceAdminEntity(
                     namespaceId = namespace.id,
                     assignerSub = sub,
-                    userSub = user1Sub,
+                    userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b"),
                 ),
             )
         val admin2 =
@@ -151,27 +134,17 @@ class NamespaceEntityAdminRepositoryImplTest {
                 newNamespaceAdminEntity(
                     namespaceId = namespace.id,
                     assignerSub = sub,
-                    userSub = user2Sub,
+                    userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e711"),
                 ),
             )
 
         val admins = namespaceAdminEntityRepository.findAllByNamespaceId(namespace.id)
         Assertions.assertEquals(2, admins.size)
-        Assertions.assertTrue(admins.contains(admin1))
-        Assertions.assertTrue(admins.contains(admin2))
+        AssertionsJ.assertThat(admins).contains(admin1, admin2)
     }
 
     @Test
     fun findByNamespaceIdAndUserSub_defaultBehavior_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports production and delivery team",
-                ),
-            )
-
         val user1Sub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b")
         val user2Sub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e711")
 
@@ -193,15 +166,6 @@ class NamespaceEntityAdminRepositoryImplTest {
 
     @Test
     fun findById_positive_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports production and delivery team",
-                ),
-            )
-
         val admin =
             namespaceAdminEntityRepository.save(
                 newNamespaceAdminEntity(
@@ -217,15 +181,6 @@ class NamespaceEntityAdminRepositoryImplTest {
 
     @Test
     fun removeById_defaultBehavior_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports production and delivery team",
-                ),
-            )
-
         val userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b")
         val admin =
             namespaceAdminEntityRepository.save(

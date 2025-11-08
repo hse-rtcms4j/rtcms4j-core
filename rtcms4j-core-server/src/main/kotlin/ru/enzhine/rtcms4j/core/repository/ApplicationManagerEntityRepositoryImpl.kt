@@ -5,23 +5,22 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
+import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.jvm.Throws
 
 @Repository
-class NamespaceAdminEntityRepositoryImpl(
+class ApplicationManagerEntityRepositoryImpl(
     private val npJdbc: NamedParameterJdbcTemplate,
-) : NamespaceAdminEntityRepository {
+) : ApplicationManagerEntityRepository {
     companion object {
         private val ROW_MAPPER =
-            RowMapper<NamespaceAdminEntity> { rs, _ ->
-                NamespaceAdminEntity(
+            RowMapper<ApplicationManagerEntity> { rs, _ ->
+                ApplicationManagerEntity(
                     id = rs.getLong("id"),
                     createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
                     updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
-                    namespaceId = rs.getLong("namespace_id"),
+                    applicationId = rs.getLong("application_id"),
                     assignerSub = rs.getObject("assigner_sub", UUID::class.java),
                     userSub = rs.getObject("user_sub", UUID::class.java),
                 )
@@ -29,62 +28,61 @@ class NamespaceAdminEntityRepositoryImpl(
     }
 
     /**
-     * @throws DuplicateKeyException user already assigned as namespace admin
-     * @throws DataIntegrityViolationException namespace does not exist
+     * @throws DuplicateKeyException user already assigned as application manager
+     * @throws DataIntegrityViolationException application does not exist
      */
-    @Throws(DuplicateKeyException::class, DataIntegrityViolationException::class)
-    override fun save(namespaceAdminEntity: NamespaceAdminEntity): NamespaceAdminEntity =
+    override fun save(applicationManagerEntity: ApplicationManagerEntity): ApplicationManagerEntity =
         npJdbc
             .query(
                 """
-                insert into namespace_admin (namespace_id, assigner_sub, user_sub)
-                values (:namespace_id, :assigner_sub, :user_sub)
+                insert into application_manager (application_id, assigner_sub, user_sub)
+                values (:application_id, :assigner_sub, :user_sub)
                 returning *;
                 """.trimIndent(),
                 mapOf(
-                    "namespace_id" to namespaceAdminEntity.namespaceId,
-                    "assigner_sub" to namespaceAdminEntity.assignerSub,
-                    "user_sub" to namespaceAdminEntity.userSub,
+                    "application_id" to applicationManagerEntity.applicationId,
+                    "assigner_sub" to applicationManagerEntity.assignerSub,
+                    "user_sub" to applicationManagerEntity.userSub,
                 ),
                 ROW_MAPPER,
             ).first()
 
-    override fun findAllByNamespaceId(namespaceId: Long): List<NamespaceAdminEntity> =
+    override fun findAllByApplicationId(applicationId: Long): List<ApplicationManagerEntity> =
         npJdbc
             .query(
                 """
-                select * from namespace_admin
-                where namespace_id = :namespace_id;
+                select * from application_manager
+                where application_id = :application_id;
                 """.trimIndent(),
                 mapOf(
-                    "namespace_id" to namespaceId,
+                    "application_id" to applicationId,
                 ),
                 ROW_MAPPER,
             )
 
-    override fun findByNamespaceIdAndUserSub(
-        namespaceId: Long,
+    override fun findByApplicationIdAndUserSub(
+        applicationId: Long,
         userSub: UUID,
-    ): NamespaceAdminEntity? =
+    ): ApplicationManagerEntity? =
         npJdbc
             .query(
                 """
-                select * from namespace_admin
-                where namespace_id = :namespace_id and
+                select * from application_manager
+                where application_id = :application_id and
                       user_sub = :user_sub;
                 """.trimIndent(),
                 mapOf(
-                    "namespace_id" to namespaceId,
+                    "application_id" to applicationId,
                     "user_sub" to userSub,
                 ),
                 ROW_MAPPER,
             ).firstOrNull()
 
-    override fun findById(id: Long): NamespaceAdminEntity? =
+    override fun findById(id: Long): ApplicationManagerEntity? =
         npJdbc
             .query(
                 """
-                select * from namespace_admin
+                select * from application_manager
                 where id = :id;
                 """.trimIndent(),
                 mapOf(
@@ -97,7 +95,7 @@ class NamespaceAdminEntityRepositoryImpl(
         npJdbc
             .update(
                 """
-                delete from namespace_admin
+                delete from application_manager
                 where id = :id;
                 """.trimIndent(),
                 mapOf(

@@ -45,3 +45,16 @@ fun newApplicationEntity(
     description = description,
     accessToken = accessToken,
 )
+
+fun newApplicationManagerEntity(
+    applicationId: Long,
+    assignerSub: UUID,
+    userSub: UUID,
+) = ApplicationManagerEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    updatedAt = OffsetDateTime.MIN,
+    applicationId = applicationId,
+    assignerSub = assignerSub,
+    userSub = userSub,
+)

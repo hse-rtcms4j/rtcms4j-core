@@ -18,6 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.dto.newApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceEntity
 import java.text.Collator
@@ -56,15 +57,14 @@ class ApplicationEntityRepositoryImplTest {
     private val sub = UUID.fromString("fb9fff20-52d8-4fa0-9b24-35a85303e70b")
     private val accessToken = "kashdvn817t17envoaidjjvna75as65aios9y"
 
+    private lateinit var namespace: NamespaceEntity
+
     @BeforeEach
     fun clearTable() {
         jdbcTemplate.execute("truncate table namespace restart identity cascade;")
         jdbcTemplate.execute("truncate table application restart identity cascade;")
-    }
 
-    @Test
-    fun save_positive_success() {
-        val namespace =
+        namespace =
             namespaceEntityRepository.save(
                 newNamespaceEntity(
                     creatorSub = sub,
@@ -72,6 +72,10 @@ class ApplicationEntityRepositoryImplTest {
                     description = "Broker reports serving team",
                 ),
             )
+    }
+
+    @Test
+    fun save_positive_success() {
         val templateEntity =
             newApplicationEntity(
                 namespaceId = namespace.id,
@@ -92,15 +96,6 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun save_repeatedName_error() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val name = "Registry"
         applicationEntityRepositoryImpl.save(
             newApplicationEntity(
@@ -142,15 +137,6 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun findAllByName_positive_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val created =
             applicationEntityRepositoryImpl.save(
                 newApplicationEntity(
@@ -173,15 +159,6 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun findAllByName_manyResultsByName_paginationCorrect() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val allValues =
             listOf(
                 applicationEntityRepositoryImpl.save(
@@ -250,15 +227,6 @@ class ApplicationEntityRepositoryImplTest {
     fun findAllByName_manyResults_paginationCorrect() {
         val collator = Collator.getInstance(Locale.US)
 
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val allValues =
             listOf(
                 applicationEntityRepositoryImpl.save(
@@ -320,15 +288,6 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun findById_positive_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val created =
             applicationEntityRepositoryImpl.save(
                 newApplicationEntity(
@@ -346,15 +305,6 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun removeById_positive_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val created =
             applicationEntityRepositoryImpl.save(
                 newApplicationEntity(
@@ -384,15 +334,6 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun removeById_nameIsFreed_success() {
-        val namespace =
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = "BCR Team",
-                    description = "Broker reports serving team",
-                ),
-            )
-
         val templateEntity =
             newApplicationEntity(
                 namespaceId = namespace.id,

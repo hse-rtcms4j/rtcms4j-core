@@ -9,12 +9,11 @@ import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationUpdateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationAcknowledge
+import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDtoCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDtoUpdateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationStreamState
-import ru.enzhine.rtcms4j.core.api.dto.ConfigurationVersion
-import ru.enzhine.rtcms4j.core.api.dto.ConfigurationVersionWithState
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceUpdateRequest
@@ -167,7 +166,7 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         commitHash: String,
-    ): ResponseEntity<ConfigurationVersionWithState> {
+    ): ResponseEntity<ConfigurationCommit> {
         TODO("Not yet implemented")
     }
 
@@ -233,7 +232,7 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         body: String,
-    ): ResponseEntity<ConfigurationVersion> {
+    ): ResponseEntity<ConfigurationCommit> {
         TODO("Not yet implemented")
     }
 
@@ -242,7 +241,7 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         body: String,
-    ): ResponseEntity<ConfigurationVersion> {
+    ): ResponseEntity<ConfigurationCommit> {
         TODO("Not yet implemented")
     }
 

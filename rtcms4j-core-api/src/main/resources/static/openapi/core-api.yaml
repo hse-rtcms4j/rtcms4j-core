@@ -6,9 +6,9 @@ servers:
   - url: /api/v1
 
 paths:
-########################
-# Managing namespaces: #
-########################
+  ########################
+  # Managing namespaces: #
+  ########################
   /namespace:
     get:
       tags:
@@ -297,9 +297,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-##########################
-# Managing applications: #
-##########################
+  ##########################
+  # Managing applications: #
+  ##########################
   /namespace/{nid}/application:
     get:
       tags:
@@ -727,9 +727,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-############################
-# Managing configurations: #
-############################
+  ############################
+  # Managing configurations: #
+  ############################
   /namespace/{nid}/application/{aid}/configuration:
     get:
       tags:
@@ -1061,7 +1061,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationVersion'
+                $ref: '#/components/schemas/ConfigurationCommit'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1163,7 +1163,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationVersion'
+                $ref: '#/components/schemas/ConfigurationCommit'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1215,7 +1215,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationVersionWithState'
+                $ref: '#/components/schemas/ConfigurationCommit'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1724,22 +1724,22 @@ components:
       description: Json schema
       type: string
 
-    ConfigurationVersion:
+    ConfigurationCommit:
       type: object
       required:
         - commitHash
-      properties:
-        commitHash:
-          description: Exact version identifier
-          type: string
-
-    ConfigurationVersionWithState:
-      type: object
-      required:
-        - commitHash
+        - sourceType
+        - sourceIdentity
       properties:
         # not null
         commitHash:
+          type: string
+        sourceType:
+          type: string
+          enum:
+            - USER
+            - SERVICE
+        sourceIdentity:
           type: string
         # nullable
         valuesData:

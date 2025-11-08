@@ -1,0 +1,16 @@
+package ru.enzhine.rtcms4j.core.repository.dto
+
+import java.time.OffsetDateTime
+import java.util.UUID
+
+data class ConfigurationEntity(
+    val id: Long,
+    val createdAt: OffsetDateTime,
+    val updatedAt: OffsetDateTime,
+    val applicationId: Long,
+    val creatorSub: UUID,
+    val name: String,
+    val usedCommitHash: String,
+    val streamKey: String,
+    val schemaSourceType: SourceType,
+)

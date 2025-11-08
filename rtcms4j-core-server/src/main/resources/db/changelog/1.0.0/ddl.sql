@@ -64,3 +64,70 @@ create table application_manager(
 
 create unique index uix_application_manager__application_id_user_sub on application_manager (application_id, user_sub);
 --rollback drop index if exists uix_application_manager__application_id_user_sub;
+
+create table configuration(
+    ---- tech fields
+    id bigserial primary key not null,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    ---- entity fields
+    application_id bigint not null references application (id) on delete cascade,
+    creator_sub uuid not null,
+    name varchar(64) not null,
+    used_commit_hash varchar(64),
+    stream_key varchar(64),
+    ---- settings
+    schema_source_type varchar(16) not null
+);
+--rollback drop table if exists configuration;
+
+create unique index uix_configuration__application_id_name on configuration (application_id, name);
+--rollback drop index if exists uix_configuration__application_id_name;
+
+create table configuration_commit(
+    ---- tech fields
+    id bigserial primary key not null,
+    created_at timestamptz not null default now(),
+    ---- entity fields
+    configuration_id bigint not null references configuration (id) on delete cascade,
+    source_type varchar(16) not null,
+    source_identity varchar(64) not null,
+    commit_hash varchar(64) not null,
+    json_values jsonb,
+    json_schema jsonb
+);
+--rollback drop table if exists configuration_commit;
+
+create unique index ix_configuration_commit__configuration_id_commit_hash on configuration_commit (configuration_id, commit_hash);
+--rollback drop index if exists ix_configuration_commit__configuration_id_commit_hash;
+
+create table configuration_commit_applied(
+    ---- tech fields
+    id bigserial primary key not null,
+    created_at timestamptz not null default now(),
+    ---- entity fields
+    configuration_id bigint not null references configuration (id) on delete cascade,
+    configuration_commit_id bigint not null references configuration_commit (id) on delete cascade,
+    commit_hash varchar(64) not null,
+    source_type varchar(16) not null,
+    source_identity varchar(64) not null
+);
+--rollback drop table if exists configuration_commit_applied;
+
+create index ix_configuration_commit_applied__configuration_id on configuration_commit_applied (configuration_id);
+--rollback drop index if exists ix_configuration_commit_applied__configuration_id;
+
+create index ix_configuration_commit_applied__configuration_commit_id on configuration_commit_applied (configuration_commit_id);
+--rollback drop index if exists ix_configuration_commit_applied__configuration_commit_id;
+
+create table configuration_sync_state(
+    ---- tech fields
+    id bigserial primary key not null,
+    created_at timestamptz not null default now(),
+    ---- entity fields
+    configuration_id bigint not null references configuration (id) on delete cascade,
+    source_identity varchar(64) not null,
+    commit_hash varchar(64),
+    is_online boolean
+);
+--rollback drop table if exists configuration_sync_state;

@@ -3,7 +3,6 @@ package ru.enzhine.rtcms4j.core.repository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 
 interface ApplicationEntityRepository {
     fun findAllByName(
@@ -12,21 +11,11 @@ interface ApplicationEntityRepository {
         pageable: Pageable,
     ): Page<ApplicationEntity>
 
-    fun findById(
-        namespaceId: Long,
-        id: Long
-    ): ApplicationEntity?
+    fun findById(id: Long): ApplicationEntity?
 
-    fun save(
-        namespaceEntity: ApplicationEntity
-    ): ApplicationEntity
+    fun save(namespaceEntity: ApplicationEntity): ApplicationEntity
 
-    fun update(
-        namespaceEntity: NamespaceEntity
-    ): NamespaceEntity
+    fun update(namespaceEntity: ApplicationEntity): ApplicationEntity
 
-    fun removeById(
-        namespaceId: Long,
-        id: Long
-    ): Boolean
+    fun removeById(id: Long): Boolean
 }

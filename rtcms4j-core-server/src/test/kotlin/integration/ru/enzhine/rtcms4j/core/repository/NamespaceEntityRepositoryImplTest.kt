@@ -4,7 +4,6 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -37,8 +36,6 @@ import org.assertj.core.api.Assertions as AssertionsJ
 )
 @ActiveProfiles("test")
 class NamespaceEntityRepositoryImplTest {
-    private val logger = LoggerFactory.getLogger(NamespaceEntityRepositoryImplTest::class.java)
-
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 

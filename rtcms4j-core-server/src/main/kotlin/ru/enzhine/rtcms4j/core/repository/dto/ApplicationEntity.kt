@@ -11,5 +11,5 @@ data class ApplicationEntity(
     val creatorSub: UUID,
     val name: String,
     val description: String,
-    val accessToken: String
+    val accessToken: String,
 )

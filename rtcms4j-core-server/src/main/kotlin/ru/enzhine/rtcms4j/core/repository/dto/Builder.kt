@@ -34,7 +34,7 @@ fun newApplicationEntity(
     creatorSub: UUID,
     name: String,
     description: String,
-    accessToken: String
+    accessToken: String,
 ) = ApplicationEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
@@ -43,5 +43,5 @@ fun newApplicationEntity(
     creatorSub = creatorSub,
     name = name,
     description = description,
-    accessToken = accessToken
+    accessToken = accessToken,
 )

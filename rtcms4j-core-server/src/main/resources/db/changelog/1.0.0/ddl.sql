@@ -15,9 +15,6 @@ create table namespace(
 );
 --rollback drop table if exists namespace;
 
-create index ix_namespace__id on namespace (id);
---rollback drop index if exists ix_namespace__id;
-
 create unique index uix_namespace__name on namespace (name);
 --rollback drop index if exists uix_namespace__name;
 
@@ -49,3 +46,6 @@ create table application(
     access_token varchar(64) not null
 );
 --rollback drop table if exists application;
+
+create unique index uix_application__namespace_id_name on application (namespace_id, name);
+--rollback drop index if exists uix_application__namespace_id_name;

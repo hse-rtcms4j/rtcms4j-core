@@ -8,7 +8,10 @@ interface ConfigurationCommitEntityRepository {
 
     fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitAppliedEntity>
 
-    fun findAllByConfigurationIdAndCommitHash(configurationId: Long, commitHash: String): ConfigurationCommitEntity?
+    fun findAllByConfigurationIdAndCommitHash(
+        configurationId: Long,
+        commitHash: String,
+    ): ConfigurationCommitEntity?
 
     fun findById(id: Long): ConfigurationCommitEntity?
 

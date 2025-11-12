@@ -8,7 +8,7 @@ interface ConfigurationSyncStateEntityRepository {
 
     fun findAllByConfigurationIdAndAfterTimestamp(
         configurationId: Long,
-        timestamp: OffsetDateTime
+        timestamp: OffsetDateTime,
     ): List<ConfigurationSyncStateEntity>
 
     fun findById(id: Long): ConfigurationSyncStateEntity?
@@ -17,6 +17,6 @@ interface ConfigurationSyncStateEntityRepository {
 
     fun removeAllByConfigurationIdAndBeforeTimestamp(
         configurationId: Long,
-        timestamp: OffsetDateTime
+        timestamp: OffsetDateTime,
     ): Int
 }

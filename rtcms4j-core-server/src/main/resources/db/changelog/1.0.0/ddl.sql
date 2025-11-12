@@ -107,18 +107,15 @@ create table configuration_commit_applied(
     created_at timestamptz not null default now(),
     ---- entity fields
     configuration_id bigint not null references configuration (id) on delete cascade,
-    configuration_commit_id bigint not null references configuration_commit (id) on delete cascade,
-    commit_hash varchar(64) not null,
     source_type varchar(16) not null,
     source_identity varchar(64) not null
+    commit_hash varchar(64) not null,
+    configuration_commit_id bigint not null
 );
 --rollback drop table if exists configuration_commit_applied;
 
 create index ix_configuration_commit_applied__configuration_id on configuration_commit_applied (configuration_id);
 --rollback drop index if exists ix_configuration_commit_applied__configuration_id;
-
-create index ix_configuration_commit_applied__configuration_commit_id on configuration_commit_applied (configuration_commit_id);
---rollback drop index if exists ix_configuration_commit_applied__configuration_commit_id;
 
 create table configuration_sync_state(
     ---- tech fields
@@ -131,3 +128,6 @@ create table configuration_sync_state(
     is_online boolean
 );
 --rollback drop table if exists configuration_sync_state;
+
+create index ix_configuration_sync_state__configuration_id_created_at on configuration_sync_state (configuration_id, created_at);
+--rollback drop index if exists ix_configuration_sync_state__configuration_id_created_at;

@@ -10,7 +10,7 @@ data class ConfigurationEntity(
     val applicationId: Long,
     val creatorSub: UUID,
     val name: String,
-    val usedCommitHash: String,
-    val streamKey: String,
+    val usedCommitHash: String?,
+    val streamKey: String?,
     val schemaSourceType: SourceType,
 )

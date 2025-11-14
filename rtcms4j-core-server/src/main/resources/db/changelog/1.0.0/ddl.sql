@@ -108,7 +108,7 @@ create table configuration_commit_applied(
     ---- entity fields
     configuration_id bigint not null references configuration (id) on delete cascade,
     source_type varchar(16) not null,
-    source_identity varchar(64) not null
+    source_identity varchar(64) not null,
     commit_hash varchar(64) not null,
     configuration_commit_id bigint not null
 );

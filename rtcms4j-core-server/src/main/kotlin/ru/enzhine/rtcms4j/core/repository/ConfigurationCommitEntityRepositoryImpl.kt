@@ -1,5 +1,7 @@
 package ru.enzhine.rtcms4j.core.repository
 
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -27,26 +29,82 @@ class ConfigurationCommitEntityRepositoryImpl(
             }
     }
 
-    override fun save(configurationCommitEntity: ConfigurationCommitEntity): ConfigurationCommitEntity {
-        TODO("Not yet implemented")
-    }
+    /**
+     * @throws DuplicateKeyException commit hash duplication
+     * @throws DataIntegrityViolationException configuration does not exist
+     */
+    override fun save(configurationCommitEntity: ConfigurationCommitEntity): ConfigurationCommitEntity =
+        npJdbc
+            .query(
+                """
+                insert into configuration_commit (configuration_id, source_type, source_identity, commit_hash, json_values, json_schema)
+                values (:configuration_id, :source_type, :source_identity, :commit_hash, :json_values, :json_schema)
+                returning *;
+                """.trimIndent(),
+                mapOf(
+                    "configuration_id" to configurationCommitEntity.configurationId,
+                    "source_type" to configurationCommitEntity.sourceType,
+                    "source_identity" to configurationCommitEntity.sourceIdentity,
+                    "commit_hash" to configurationCommitEntity.commitHash,
+                    "json_values" to configurationCommitEntity.jsonValues,
+                    "json_schema" to configurationCommitEntity.jsonSchema,
+                ),
+                ROW_MAPPER,
+            ).first()
 
-    override fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitEntity> {
-        TODO("Not yet implemented")
-    }
+    override fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitEntity> =
+        npJdbc
+            .query(
+                """
+                select * from configuration_commit
+                where configuration_id = :configuration_id;
+                """.trimIndent(),
+                mapOf(
+                    "configuration_id" to configurationId,
+                ),
+                ROW_MAPPER,
+            )
 
-    override fun findAllByConfigurationIdAndCommitHash(
+    override fun findByConfigurationIdAndCommitHash(
         configurationId: Long,
         commitHash: String,
-    ): ConfigurationCommitEntity? {
-        TODO("Not yet implemented")
-    }
+    ): ConfigurationCommitEntity? =
+        npJdbc
+            .query(
+                """
+                select * from configuration_commit
+                where configuration_id = :configuration_id and
+                      commit_hash = :commit_hash;
+                """.trimIndent(),
+                mapOf(
+                    "configuration_id" to configurationId,
+                    "configuration_id" to commitHash,
+                ),
+                ROW_MAPPER,
+            ).firstOrNull()
 
-    override fun findById(id: Long): ConfigurationCommitEntity? {
-        TODO("Not yet implemented")
-    }
+    override fun findById(id: Long): ConfigurationCommitEntity? =
+        npJdbc
+            .query(
+                """
+                select * from configuration_commit
+                where id = :id;
+                """.trimIndent(),
+                mapOf(
+                    "id" to id,
+                ),
+                ROW_MAPPER,
+            ).firstOrNull()
 
-    override fun removeById(id: Long): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun removeById(id: Long): Boolean =
+        npJdbc
+            .update(
+                """
+                delete from configuration_commit
+                where id = :id;
+                """.trimIndent(),
+                mapOf(
+                    "id" to id,
+                ),
+            ) != 0
 }

@@ -87,22 +87,16 @@ class NamespaceAdminEntityRepositoryImplTest {
 
     @Test
     fun save_repeatedAttempt_success() {
-        val userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b")
-        namespaceAdminEntityRepository.save(
+        val templateEntity =
             newNamespaceAdminEntity(
                 namespaceId = namespace.id,
                 assignerSub = sub,
-                userSub = userSub,
-            ),
-        )
-        Assertions.assertThrows(DuplicateKeyException::class.java) {
-            namespaceAdminEntityRepository.save(
-                newNamespaceAdminEntity(
-                    namespaceId = namespace.id,
-                    assignerSub = sub,
-                    userSub = userSub,
-                ),
+                userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b"),
             )
+
+        namespaceAdminEntityRepository.save(templateEntity)
+        Assertions.assertThrows(DuplicateKeyException::class.java) {
+            namespaceAdminEntityRepository.save(templateEntity)
         }
     }
 

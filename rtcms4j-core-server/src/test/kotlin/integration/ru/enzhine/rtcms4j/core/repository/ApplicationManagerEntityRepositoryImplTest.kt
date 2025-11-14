@@ -108,23 +108,16 @@ class ApplicationManagerEntityRepositoryImplTest {
 
     @Test
     fun save_repeatedAttempt_success() {
-        val userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b")
-        applicationManagerEntityRepository.save(
+        val templateEntity =
             newApplicationManagerEntity(
                 applicationId = application.id,
                 assignerSub = sub,
-                userSub = userSub,
-            ),
-        )
-
-        Assertions.assertThrows(DuplicateKeyException::class.java) {
-            applicationManagerEntityRepository.save(
-                newApplicationManagerEntity(
-                    applicationId = application.id,
-                    assignerSub = sub,
-                    userSub = userSub,
-                ),
+                userSub = UUID.fromString("449fff20-52d8-4fa0-9b24-35a85303e70b"),
             )
+
+        applicationManagerEntityRepository.save(templateEntity)
+        Assertions.assertThrows(DuplicateKeyException::class.java) {
+            applicationManagerEntityRepository.save(templateEntity)
         }
     }
 

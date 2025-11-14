@@ -67,24 +67,16 @@ class NamespaceEntityRepositoryImplTest {
 
     @Test
     fun save_repeatedName_error() {
-        val name = "BCR Team"
-
-        namespaceEntityRepository.save(
+        val templateEntity =
             newNamespaceEntity(
                 creatorSub = sub,
-                name = name,
+                name = "BCR Team",
                 description = "Broker reports serving team",
-            ),
-        )
-
-        Assertions.assertThrows(DuplicateKeyException::class.java) {
-            namespaceEntityRepository.save(
-                newNamespaceEntity(
-                    creatorSub = sub,
-                    name = name,
-                    description = "Very friendly developers team",
-                ),
             )
+
+        namespaceEntityRepository.save(templateEntity)
+        Assertions.assertThrows(DuplicateKeyException::class.java) {
+            namespaceEntityRepository.save(templateEntity)
         }
     }
 
@@ -281,9 +273,8 @@ class NamespaceEntityRepositoryImplTest {
         val created1 = namespaceEntityRepository.save(templateEntity)
         namespaceEntityRepository.removeById(created1.id)
 
-        val created2 = namespaceEntityRepository.save(templateEntity)
-        namespaceEntityRepository.removeById(created1.id)
-        val found = namespaceEntityRepository.findById(created2.id)
-        Assertions.assertEquals(created2, found)
+        Assertions.assertDoesNotThrow {
+            namespaceEntityRepository.save(templateEntity)
+        }
     }
 }

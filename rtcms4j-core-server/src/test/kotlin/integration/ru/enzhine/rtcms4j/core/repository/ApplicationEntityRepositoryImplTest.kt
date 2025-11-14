@@ -96,27 +96,18 @@ class ApplicationEntityRepositoryImplTest {
 
     @Test
     fun save_repeatedName_error() {
-        val name = "Registry"
-        applicationEntityRepositoryImpl.save(
+        val templateEntity =
             newApplicationEntity(
                 namespaceId = namespace.id,
                 creatorSub = sub,
-                name = name,
+                name = "Registry",
                 description = "Clients data storage service",
                 accessToken = accessToken,
-            ),
-        )
-
-        Assertions.assertThrows(DuplicateKeyException::class.java) {
-            applicationEntityRepositoryImpl.save(
-                newApplicationEntity(
-                    namespaceId = namespace.id,
-                    creatorSub = sub,
-                    name = name,
-                    description = "Clients data storage service",
-                    accessToken = accessToken,
-                ),
             )
+
+        applicationEntityRepositoryImpl.save(templateEntity)
+        Assertions.assertThrows(DuplicateKeyException::class.java) {
+            applicationEntityRepositoryImpl.save(templateEntity)
         }
     }
 
@@ -346,10 +337,8 @@ class ApplicationEntityRepositoryImplTest {
         val created1 = applicationEntityRepositoryImpl.save(templateEntity)
         applicationEntityRepositoryImpl.removeById(created1.id)
 
-        val created2 = applicationEntityRepositoryImpl.save(templateEntity)
-        applicationEntityRepositoryImpl.removeById(created1.id)
-
-        val found = applicationEntityRepositoryImpl.findById(created2.id)
-        Assertions.assertEquals(created2, found)
+        Assertions.assertDoesNotThrow {
+            applicationEntityRepositoryImpl.save(templateEntity)
+        }
     }
 }

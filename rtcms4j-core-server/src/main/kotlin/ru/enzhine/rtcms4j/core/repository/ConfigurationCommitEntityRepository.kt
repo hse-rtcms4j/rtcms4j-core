@@ -1,12 +1,11 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitAppliedEntity
 import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitEntity
 
 interface ConfigurationCommitEntityRepository {
     fun save(configurationCommitEntity: ConfigurationCommitEntity): ConfigurationCommitEntity
 
-    fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitAppliedEntity>
+    fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitEntity>
 
     fun findAllByConfigurationIdAndCommitHash(
         configurationId: Long,

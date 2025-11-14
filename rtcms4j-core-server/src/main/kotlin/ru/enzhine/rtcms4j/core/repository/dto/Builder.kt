@@ -58,3 +58,70 @@ fun newApplicationManagerEntity(
     assignerSub = assignerSub,
     userSub = userSub,
 )
+
+fun newConfigurationEntity(
+    applicationId: Long,
+    creatorSub: UUID,
+    name: String,
+    usedCommitHash: String?,
+    streamKey: String?,
+    schemaSourceType: SourceType,
+) = ConfigurationEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    updatedAt = OffsetDateTime.MIN,
+    applicationId = applicationId,
+    creatorSub = creatorSub,
+    name = name,
+    usedCommitHash = usedCommitHash,
+    streamKey = streamKey,
+    schemaSourceType = schemaSourceType,
+)
+
+fun newConfigurationCommitEntity(
+    configurationId: Long,
+    sourceType: SourceType,
+    sourceIdentity: String,
+    commitHash: String,
+    jsonValues: String?,
+    jsonSchema: String?,
+) = ConfigurationCommitEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    configurationId = configurationId,
+    sourceType = sourceType,
+    sourceIdentity = sourceIdentity,
+    commitHash = commitHash,
+    jsonValues = jsonValues,
+    jsonSchema = jsonSchema,
+)
+
+fun newConfigurationCommitAppliedEntity(
+    configurationId: Long,
+    sourceType: SourceType,
+    sourceIdentity: String,
+    commitHash: String,
+    configurationCommitId: Long,
+) = ConfigurationCommitAppliedEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    configurationId = configurationId,
+    sourceType = sourceType,
+    sourceIdentity = sourceIdentity,
+    commitHash = commitHash,
+    configurationCommitId = configurationCommitId,
+)
+
+fun newConfigurationSyncStateEntity(
+    configurationId: Long,
+    sourceIdentity: String,
+    commitHash: String?,
+    isOnline: Boolean?,
+) = ConfigurationSyncStateEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    configurationId = configurationId,
+    sourceIdentity = sourceIdentity,
+    commitHash = commitHash,
+    isOnline = isOnline,
+)

@@ -95,17 +95,3 @@ fun newConfigurationCommitEntity(
     jsonValues = jsonValues,
     jsonSchema = jsonSchema,
 )
-
-fun newConfigurationSyncStateEntity(
-    configurationId: Long,
-    sourceIdentity: String,
-    commitHash: String?,
-    isOnline: Boolean?,
-) = ConfigurationSyncStateEntity(
-    id = 0L,
-    createdAt = OffsetDateTime.MIN,
-    configurationId = configurationId,
-    sourceIdentity = sourceIdentity,
-    commitHash = commitHash,
-    isOnline = isOnline,
-)

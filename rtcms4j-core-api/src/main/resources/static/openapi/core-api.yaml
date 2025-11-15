@@ -1410,13 +1410,18 @@ components:
     ErrorResponse:
       type: object
       required:
-        - messageCode
-        - message
+        - httpCode
+        - httpStatus
       properties:
-        messageCode:
+        httpCode:
           type: integer
           format: int32
-        message:
+        httpStatus:
+          type: string
+        detailCode:
+          type: integer
+          format: int32
+        detailMessage:
           type: string
 
     PagedModelNamespaceDto:

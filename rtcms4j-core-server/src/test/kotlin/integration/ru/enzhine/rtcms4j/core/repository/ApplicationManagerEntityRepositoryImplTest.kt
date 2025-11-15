@@ -20,9 +20,9 @@ import ru.enzhine.rtcms4j.core.repository.ApplicationManagerEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.dto.newApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.newApplicationManagerEntity
-import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceEntity
+import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
+import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ

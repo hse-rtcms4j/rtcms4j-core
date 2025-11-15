@@ -1,5 +1,12 @@
-package ru.enzhine.rtcms4j.core.repository.dto
+package ru.enzhine.rtcms4j.core.builder
 
+import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
+import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.dto.SourceType
 import java.time.OffsetDateTime
 import java.util.UUID
 

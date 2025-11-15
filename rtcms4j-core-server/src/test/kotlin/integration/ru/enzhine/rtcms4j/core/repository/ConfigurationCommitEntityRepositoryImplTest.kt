@@ -24,10 +24,10 @@ import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.dto.SourceType
-import ru.enzhine.rtcms4j.core.repository.dto.newApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.newConfigurationCommitEntity
-import ru.enzhine.rtcms4j.core.repository.dto.newConfigurationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.newNamespaceEntity
+import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
+import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ

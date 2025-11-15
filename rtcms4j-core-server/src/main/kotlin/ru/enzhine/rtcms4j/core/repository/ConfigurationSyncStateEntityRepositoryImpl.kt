@@ -20,7 +20,7 @@ class ConfigurationSyncStateEntityRepositoryImpl(
                     configurationId = rs.getLong("configuration_id"),
                     sourceIdentity = rs.getString("source_identity"),
                     commitHash = rs.getString("commit_hash"),
-                    isOnline = rs.getBoolean("json_values"),
+                    isOnline = rs.getBoolean("is_online"),
                 )
             }
     }
@@ -54,7 +54,7 @@ class ConfigurationSyncStateEntityRepositoryImpl(
                 """
                 select * from configuration_sync_state
                 where configuration_id = :configuration_id and
-                      created_at > :created_at;
+                      created_at >= :created_at;
                 """.trimIndent(),
                 mapOf(
                     "configuration_id" to configurationId,
@@ -97,7 +97,7 @@ class ConfigurationSyncStateEntityRepositoryImpl(
                 """
                 delete from configuration_sync_state
                 where configuration_id = :configuration_id and
-                      created_at <= :created_at;
+                      created_at < :created_at;
                 """.trimIndent(),
                 mapOf(
                     "configuration_id" to configurationId,

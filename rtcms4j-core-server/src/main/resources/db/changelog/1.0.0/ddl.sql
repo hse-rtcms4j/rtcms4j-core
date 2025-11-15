@@ -74,7 +74,7 @@ create table configuration(
     application_id bigint not null references application (id) on delete cascade,
     creator_sub uuid not null,
     name varchar(64) not null,
-    used_commit_hash varchar(64),
+    commit_hash varchar(64),
     stream_key varchar(64),
     ---- settings
     schema_source_type varchar(16) not null
@@ -100,22 +100,6 @@ create table configuration_commit(
 
 create unique index ix_configuration_commit__configuration_id_commit_hash on configuration_commit (configuration_id, commit_hash);
 --rollback drop index if exists ix_configuration_commit__configuration_id_commit_hash;
-
-create table configuration_commit_applied(
-    ---- tech fields
-    id bigserial primary key not null,
-    created_at timestamptz not null default now(),
-    ---- entity fields
-    configuration_id bigint not null references configuration (id) on delete cascade,
-    source_type varchar(16) not null,
-    source_identity varchar(64) not null,
-    commit_hash varchar(64) not null,
-    configuration_commit_id bigint not null
-);
---rollback drop table if exists configuration_commit_applied;
-
-create index ix_configuration_commit_applied__configuration_id on configuration_commit_applied (configuration_id);
---rollback drop index if exists ix_configuration_commit_applied__configuration_id;
 
 create table configuration_sync_state(
     ---- tech fields

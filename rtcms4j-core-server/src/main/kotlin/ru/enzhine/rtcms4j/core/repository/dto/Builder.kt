@@ -73,7 +73,7 @@ fun newConfigurationEntity(
     applicationId = applicationId,
     creatorSub = creatorSub,
     name = name,
-    usedCommitHash = usedCommitHash,
+    commitHash = usedCommitHash,
     streamKey = streamKey,
     schemaSourceType = schemaSourceType,
 )
@@ -94,22 +94,6 @@ fun newConfigurationCommitEntity(
     commitHash = commitHash,
     jsonValues = jsonValues,
     jsonSchema = jsonSchema,
-)
-
-fun newConfigurationCommitAppliedEntity(
-    configurationId: Long,
-    sourceType: SourceType,
-    sourceIdentity: String,
-    commitHash: String,
-    configurationCommitId: Long,
-) = ConfigurationCommitAppliedEntity(
-    id = 0L,
-    createdAt = OffsetDateTime.MIN,
-    configurationId = configurationId,
-    sourceType = sourceType,
-    sourceIdentity = sourceIdentity,
-    commitHash = commitHash,
-    configurationCommitId = configurationCommitId,
 )
 
 fun newConfigurationSyncStateEntity(

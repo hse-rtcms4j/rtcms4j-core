@@ -38,12 +38,12 @@ class ConfigurationCommitEntityRepositoryImpl(
             .query(
                 """
                 insert into configuration_commit (configuration_id, source_type, source_identity, commit_hash, json_values, json_schema)
-                values (:configuration_id, :source_type, :source_identity, :commit_hash, :json_values, :json_schema)
+                values (:configuration_id, :source_type, :source_identity, :commit_hash, :json_values::jsonb, :json_schema::jsonb)
                 returning *;
                 """.trimIndent(),
                 mapOf(
                     "configuration_id" to configurationCommitEntity.configurationId,
-                    "source_type" to configurationCommitEntity.sourceType,
+                    "source_type" to configurationCommitEntity.sourceType.toString(),
                     "source_identity" to configurationCommitEntity.sourceIdentity,
                     "commit_hash" to configurationCommitEntity.commitHash,
                     "json_values" to configurationCommitEntity.jsonValues,
@@ -78,7 +78,7 @@ class ConfigurationCommitEntityRepositoryImpl(
                 """.trimIndent(),
                 mapOf(
                     "configuration_id" to configurationId,
-                    "configuration_id" to commitHash,
+                    "commit_hash" to commitHash,
                 ),
                 ROW_MAPPER,
             ).firstOrNull()

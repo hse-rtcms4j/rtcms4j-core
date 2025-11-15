@@ -24,7 +24,7 @@ class ConfigurationEntityRepositoryImpl(
                     applicationId = rs.getLong("application_id"),
                     creatorSub = rs.getObject("creator_sub", UUID::class.java),
                     name = rs.getString("name"),
-                    usedCommitHash = rs.getString("used_commit_hash"),
+                    commitHash = rs.getString("commit_hash"),
                     streamKey = rs.getString("stream_key"),
                     schemaSourceType = SourceType.valueOf(rs.getString("schema_source_type")),
                 )
@@ -39,15 +39,15 @@ class ConfigurationEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                insert into configuration (application_id, creator_sub, name, used_commit_hash, stream_key, schema_source_type)
-                values (:application_id, :creator_sub, :name, :used_commit_hash, :stream_key, :schema_source_type)
+                insert into configuration (application_id, creator_sub, name, commit_hash, stream_key, schema_source_type)
+                values (:application_id, :creator_sub, :name, :commit_hash, :stream_key, :schema_source_type)
                 returning *;
                 """.trimIndent(),
                 mapOf(
                     "application_id" to configurationEntity.applicationId,
                     "creator_sub" to configurationEntity.creatorSub,
                     "name" to configurationEntity.name,
-                    "used_commit_hash" to configurationEntity.usedCommitHash,
+                    "commit_hash" to configurationEntity.commitHash,
                     "stream_key" to configurationEntity.streamKey,
                     "schema_source_type" to configurationEntity.schemaSourceType.toString(),
                 ),

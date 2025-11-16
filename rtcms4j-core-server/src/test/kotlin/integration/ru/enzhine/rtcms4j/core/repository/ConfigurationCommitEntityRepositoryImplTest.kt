@@ -16,6 +16,11 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
+import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
+import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
+import ru.enzhine.rtcms4j.core.mapper.toUndetailed
 import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.ConfigurationCommitEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.ConfigurationEntityRepositoryImpl
@@ -24,10 +29,6 @@ import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.dto.SourceType
-import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
-import ru.enzhine.rtcms4j.core.builder.newConfigurationCommitEntity
-import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
-import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ
@@ -178,26 +179,28 @@ class ConfigurationCommitEntityRepositoryImplTest {
     fun findAllByConfigurationId_positive_success() {
         val created =
             listOf(
-                configurationCommitEntityRepository.save(
-                    newConfigurationCommitEntity(
-                        configuration.id,
-                        sourceType = SourceType.SERVICE,
-                        sourceIdentity = "App-1",
-                        commitHash = "a1b1",
-                        jsonValues = jsonValues,
-                        jsonSchema = jsonSchema,
-                    ),
-                ),
-                configurationCommitEntityRepository.save(
-                    newConfigurationCommitEntity(
-                        configuration.id,
-                        sourceType = SourceType.SERVICE,
-                        sourceIdentity = "App-1",
-                        commitHash = "a2b2",
-                        jsonValues = jsonValues,
-                        jsonSchema = jsonSchema,
-                    ),
-                ),
+                configurationCommitEntityRepository
+                    .save(
+                        newConfigurationCommitEntity(
+                            configuration.id,
+                            sourceType = SourceType.SERVICE,
+                            sourceIdentity = "App-1",
+                            commitHash = "a1b1",
+                            jsonValues = jsonValues,
+                            jsonSchema = jsonSchema,
+                        ),
+                    ).toUndetailed(),
+                configurationCommitEntityRepository
+                    .save(
+                        newConfigurationCommitEntity(
+                            configuration.id,
+                            sourceType = SourceType.SERVICE,
+                            sourceIdentity = "App-1",
+                            commitHash = "a2b2",
+                            jsonValues = jsonValues,
+                            jsonSchema = jsonSchema,
+                        ),
+                    ).toUndetailed(),
             )
 
         val list = configurationCommitEntityRepository.findAllByConfigurationId(configuration.id)

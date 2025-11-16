@@ -811,7 +811,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationDto'
+                $ref: '#/components/schemas/ConfigurationDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -857,7 +857,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationDto'
+                $ref: '#/components/schemas/ConfigurationDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -913,7 +913,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationDto'
+                $ref: '#/components/schemas/ConfigurationDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1061,7 +1061,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationCommit'
+                $ref: '#/components/schemas/ConfigurationCommitDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1163,7 +1163,55 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationCommit'
+                $ref: '#/components/schemas/ConfigurationCommitDetailedDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /namespace/{nid}/application/{aid}/configuration/{cid}/version:
+    get:
+      tags:
+        - Core
+      summary: Get namespace application configuration versions
+      operationId: getConfigurationVersions
+      parameters:
+        - name: nid
+          description: Namespace id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: aid
+          description: Application id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: cid
+          description: Container id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigurationCommitDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1215,7 +1263,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationCommit'
+                $ref: '#/components/schemas/ConfigurationCommitDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1600,6 +1648,34 @@ components:
         # nullable
         commitHash:
           type: string
+        stream-key:
+          type: string
+
+    ConfigurationDetailedDto:
+      type: object
+      required:
+        - id
+        - namespaceId
+        - applicationId
+        - name
+      properties:
+        # not null
+        id:
+          type: integer
+          format: int64
+        namespaceId:
+          type: integer
+          format: int64
+        applicationId:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        # nullable
+        commitHash:
+          type: string
         valuesData:
           $ref: '#/components/schemas/ConfigurationValuesData'
         schemaData:
@@ -1633,7 +1709,25 @@ components:
       description: Json schema
       type: string
 
-    ConfigurationCommit:
+    ConfigurationCommitDto:
+      type: object
+      required:
+        - commitHash
+        - sourceType
+        - sourceIdentity
+      properties:
+        # not null
+        commitHash:
+          type: string
+        sourceType:
+          type: string
+          enum:
+            - USER
+            - SERVICE
+        sourceIdentity:
+          type: string
+
+    ConfigurationCommitDetailedDto:
       type: object
       required:
         - commitHash

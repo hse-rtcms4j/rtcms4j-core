@@ -13,17 +13,20 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.data.domain.PageRequest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
+import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
+import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.ConfigurationEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.dto.SourceType
-import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
-import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
-import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
+import java.text.Collator
+import java.util.Locale
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ
@@ -149,7 +152,7 @@ class ConfigurationEntityRepositoryImplTest {
     }
 
     @Test
-    fun findAllByApplicationId_positive_success() {
+    fun findAllByApplicationIdAndName_positive_success() {
         val created =
             configurationEntityRepository.save(
                 newConfigurationEntity(
@@ -162,8 +165,130 @@ class ConfigurationEntityRepositoryImplTest {
                 ),
             )
 
-        val list = configurationEntityRepository.findAllByApplicationId(application.id)
-        AssertionsJ.assertThat(list).contains(created)
+        val page = configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
+        Assertions.assertEquals(0, page.number)
+        Assertions.assertEquals(2, page.size)
+        Assertions.assertEquals(1, page.content.size)
+        Assertions.assertEquals(created, page.content[0])
+        Assertions.assertEquals(1, page.totalElements)
+        Assertions.assertEquals(1, page.totalPages)
+    }
+
+    @Test
+    fun findAllByApplicationIdAndName_manyResultsByName_paginationCorrect() {
+        val allValues =
+            listOf(
+                configurationEntityRepository.save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "MainDto",
+                        usedCommitHash = null,
+                        streamKey = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ),
+                configurationEntityRepository.save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "BasicDto",
+                        usedCommitHash = null,
+                        streamKey = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ),
+                configurationEntityRepository.save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "RandomDto",
+                        usedCommitHash = null,
+                        streamKey = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ),
+            )
+
+        val nonExistingPage = configurationEntityRepository.findAllByApplicationIdAndName(10, null, PageRequest.of(0, 2))
+        Assertions.assertEquals(0, nonExistingPage.number)
+        Assertions.assertEquals(2, nonExistingPage.size)
+        Assertions.assertTrue(nonExistingPage.isEmpty)
+        Assertions.assertEquals(0, nonExistingPage.totalElements)
+        Assertions.assertEquals(0, nonExistingPage.totalPages)
+
+        val emptyPage = configurationEntityRepository.findAllByApplicationIdAndName(application.id, "Crucial", PageRequest.of(0, 2))
+        Assertions.assertEquals(0, emptyPage.number)
+        Assertions.assertEquals(2, emptyPage.size)
+        Assertions.assertTrue(emptyPage.isEmpty)
+        Assertions.assertEquals(0, emptyPage.totalElements)
+        Assertions.assertEquals(0, emptyPage.totalPages)
+
+        val page0 = configurationEntityRepository.findAllByApplicationIdAndName(application.id, "Random", PageRequest.of(0, 2))
+        Assertions.assertEquals(0, page0.number)
+        Assertions.assertEquals(2, page0.size)
+        val expectedPage0Content = allValues.filter { it.name.contains("Random") }
+        Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
+        Assertions.assertTrue(page0.content.containsAll(expectedPage0Content))
+        Assertions.assertEquals(expectedPage0Content.size.toLong(), page0.totalElements)
+        Assertions.assertEquals(1, page0.totalPages)
+    }
+
+    @Test
+    fun findAllByApplicationIdAndName_manyResults_paginationCorrect() {
+        val collator = Collator.getInstance(Locale.US)
+
+        val allValues =
+            listOf(
+                configurationEntityRepository.save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "DtoC",
+                        usedCommitHash = null,
+                        streamKey = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ),
+                configurationEntityRepository.save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "DtoA",
+                        usedCommitHash = null,
+                        streamKey = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ),
+                configurationEntityRepository.save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "DtoB",
+                        usedCommitHash = null,
+                        streamKey = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ),
+            ).sortedWith(compareBy(collator) { it.name })
+
+        val page0 = configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
+        Assertions.assertEquals(0, page0.number)
+        Assertions.assertEquals(2, page0.size)
+        val expectedPage0Content = allValues.subList(0, 2)
+        Assertions.assertEquals(expectedPage0Content.size, page0.content.size)
+        AssertionsJ.assertThat(page0.content).containsAll(expectedPage0Content)
+        Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
+        Assertions.assertEquals(2, page0.totalPages)
+
+        val page1 = configurationEntityRepository.findAllByApplicationIdAndName(namespace.id, null, PageRequest.of(1, 2))
+        Assertions.assertEquals(0, page0.number)
+        Assertions.assertEquals(2, page0.size)
+        val expectedPage1Content = allValues.subList(2, allValues.size)
+        Assertions.assertEquals(expectedPage1Content.size, page1.content.size)
+        Assertions.assertTrue(page1.content.containsAll(expectedPage1Content))
+        Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
+        Assertions.assertEquals(2, page0.totalPages)
     }
 
     @Test
@@ -206,7 +331,7 @@ class ConfigurationEntityRepositoryImplTest {
         val found = configurationEntityRepository.findById(created.id)
         Assertions.assertNull(found)
 
-        val list = configurationEntityRepository.findAllByApplicationId(application.id)
+        val list = configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
         AssertionsJ.assertThat(list).isEmpty()
     }
 

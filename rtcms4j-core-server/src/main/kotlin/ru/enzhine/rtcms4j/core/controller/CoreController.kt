@@ -8,7 +8,9 @@ import ru.enzhine.rtcms4j.core.api.dto.AccessTokenDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationUpdateRequest
-import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommit
+import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDetailedDto
+import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDto
+import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDetailedDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDtoCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDtoUpdateRequest
@@ -142,7 +144,7 @@ class CoreController : CoreApi {
         nid: Long,
         aid: Long,
         configurationDtoCreateRequest: ConfigurationDtoCreateRequest,
-    ): ResponseEntity<ConfigurationDto> {
+    ): ResponseEntity<ConfigurationDetailedDto> {
         TODO("Not yet implemented")
     }
 
@@ -151,7 +153,7 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         configurationDtoUpdateRequest: ConfigurationDtoUpdateRequest,
-    ): ResponseEntity<ConfigurationDto> {
+    ): ResponseEntity<ConfigurationDetailedDto> {
         TODO("Not yet implemented")
     }
 
@@ -159,7 +161,7 @@ class CoreController : CoreApi {
         nid: Long,
         aid: Long,
         cid: Long,
-    ): ResponseEntity<ConfigurationDto> {
+    ): ResponseEntity<ConfigurationDetailedDto> {
         TODO("Not yet implemented")
     }
 
@@ -193,7 +195,7 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         body: String,
-    ): ResponseEntity<ConfigurationCommit> {
+    ): ResponseEntity<ConfigurationCommitDetailedDto> {
         TODO("Not yet implemented")
     }
 
@@ -210,7 +212,7 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         body: String,
-    ): ResponseEntity<ConfigurationCommit> {
+    ): ResponseEntity<ConfigurationCommitDetailedDto> {
         TODO("Not yet implemented")
     }
 
@@ -219,7 +221,15 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         commitHash: String,
-    ): ResponseEntity<ConfigurationCommit> {
+    ): ResponseEntity<ConfigurationCommitDetailedDto> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getConfigurationVersions(
+        nid: Long,
+        aid: Long,
+        cid: Long,
+    ): ResponseEntity<List<ConfigurationCommitDto>> {
         TODO("Not yet implemented")
     }
 

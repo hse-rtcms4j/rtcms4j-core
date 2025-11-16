@@ -2,7 +2,7 @@ package ru.enzhine.rtcms4j.core.builder
 
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
@@ -92,7 +92,7 @@ fun newConfigurationCommitEntity(
     commitHash: String,
     jsonValues: String?,
     jsonSchema: String?,
-) = ConfigurationCommitEntity(
+) = ConfigurationCommitDetailedEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
     configurationId = configurationId,

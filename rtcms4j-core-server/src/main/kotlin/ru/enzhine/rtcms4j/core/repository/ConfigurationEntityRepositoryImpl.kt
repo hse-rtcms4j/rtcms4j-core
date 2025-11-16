@@ -2,6 +2,9 @@ package ru.enzhine.rtcms4j.core.repository
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -54,18 +57,63 @@ class ConfigurationEntityRepositoryImpl(
                 ROW_MAPPER,
             ).first()
 
-    override fun findAllByApplicationId(applicationId: Long): List<ConfigurationEntity> =
-        npJdbc
-            .query(
-                """
-                select * from configuration
-                where application_id = :application_id;
-                """.trimIndent(),
-                mapOf(
-                    "application_id" to applicationId,
-                ),
-                ROW_MAPPER,
-            )
+    override fun findAllByApplicationIdAndName(
+        applicationId: Long,
+        name: String?,
+        pageable: Pageable,
+    ): Page<ConfigurationEntity> {
+        val total = countAllConfigurationsByApplicationIdAndName(applicationId, name, pageable)
+        var content = emptyList<ConfigurationEntity>()
+        if (total != 0L) {
+            content = findAllConfigurationsByApplicationIdAndName(applicationId, name, pageable)
+        }
+
+        return PageImpl(content, pageable, total)
+    }
+
+    private fun findAllConfigurationsByApplicationIdAndName(
+        applicationId: Long,
+        name: String?,
+        pageable: Pageable,
+    ): List<ConfigurationEntity> =
+        npJdbc.query(
+            """
+            select * from configuration
+            where application_id = :application_id and
+                  ((:name::text is null) or
+                  (name ilike '%' || :name::text || '%'))
+            order by name
+            offset :offset limit :limit;
+            """.trimIndent(),
+            mapOf(
+                "application_id" to applicationId,
+                "name" to name,
+                "offset" to pageable.offset,
+                "limit" to pageable.pageSize,
+            ),
+            ROW_MAPPER,
+        )
+
+    private fun countAllConfigurationsByApplicationIdAndName(
+        applicationId: Long,
+        name: String?,
+        pageable: Pageable,
+    ): Long =
+        npJdbc.queryForObject(
+            """
+            select count(*) from configuration
+            where application_id = :application_id and
+                  ((:name::text is null) or
+                  (name ilike '%' || :name::text || '%'));
+            """.trimIndent(),
+            mapOf(
+                "application_id" to applicationId,
+                "name" to name,
+                "offset" to pageable.offset,
+                "limit" to pageable.pageSize,
+            ),
+            Long::class.java,
+        ) ?: 0L
 
     override fun findById(id: Long): ConfigurationEntity? =
         npJdbc

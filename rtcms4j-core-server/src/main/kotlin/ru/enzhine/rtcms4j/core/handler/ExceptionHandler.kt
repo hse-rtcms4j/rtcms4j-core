@@ -11,6 +11,5 @@ import ru.enzhine.rtcms4j.core.controller.CoreController
 @RestControllerAdvice(basePackageClasses = [CoreController::class])
 class ExceptionHandler {
     @ExceptionHandler
-    fun anyHandler(ex: Throwable): ResponseEntity<ErrorResponse> =
-        newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun anyHandler(ex: Throwable): ResponseEntity<ErrorResponse> = newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
 }

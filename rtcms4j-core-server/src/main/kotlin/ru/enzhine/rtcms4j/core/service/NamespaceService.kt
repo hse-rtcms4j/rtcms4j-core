@@ -6,19 +6,32 @@ import ru.enzhine.rtcms4j.core.service.dto.Namespace
 import java.util.UUID
 
 interface NamespaceService {
-    fun createNamespace(creator: UUID, name: String, description: String): Namespace
+    fun createNamespace(
+        creator: UUID,
+        name: String,
+        description: String,
+    ): Namespace
 
-    fun getNamespaceById(id: Long): Namespace
+    fun getNamespaceById(id: Long): Namespace?
 
     fun updateNamespace(namespace: Namespace): Namespace
 
-    fun findNamespaces(name: String?, pageable: Pageable?): Page<Namespace>
+    fun findNamespaces(
+        name: String?,
+        pageable: Pageable?,
+    ): Page<Namespace>
 
-    fun deleteNamespace(namespace: Namespace): Boolean
+    fun deleteNamespace(id: Long): Boolean
 
     fun listAdmins(namespace: Namespace): List<UUID>
 
-    fun addAdmin(namespace: Namespace, sub: UUID): Boolean
+    fun addAdmin(
+        namespace: Namespace,
+        sub: UUID,
+    ): Boolean
 
-    fun removeAdmin(namespace: Namespace, sub: UUID): Boolean
+    fun removeAdmin(
+        namespace: Namespace,
+        sub: UUID,
+    ): Boolean
 }

@@ -13,7 +13,7 @@ fun newErrorResponseEntity(
         httpCode = httpStatus.value(),
         httpStatus = httpStatus.reasonPhrase,
         detailCode = detailCode,
-        detailMessage = detailMessage
+        detailMessage = detailMessage,
     ),
-    httpStatus
+    httpStatus,
 )

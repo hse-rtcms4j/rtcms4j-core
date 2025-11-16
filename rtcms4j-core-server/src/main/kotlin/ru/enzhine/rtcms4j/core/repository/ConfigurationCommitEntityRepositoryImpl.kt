@@ -5,6 +5,7 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitEntity
 import ru.enzhine.rtcms4j.core.repository.dto.SourceType
 import java.time.OffsetDateTime
@@ -15,8 +16,8 @@ class ConfigurationCommitEntityRepositoryImpl(
 ) : ConfigurationCommitEntityRepository {
     companion object {
         private val ROW_MAPPER =
-            RowMapper<ConfigurationCommitEntity> { rs, _ ->
-                ConfigurationCommitEntity(
+            RowMapper<ConfigurationCommitDetailedEntity> { rs, _ ->
+                ConfigurationCommitDetailedEntity(
                     id = rs.getLong("id"),
                     createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
                     configurationId = rs.getLong("configuration_id"),
@@ -27,13 +28,25 @@ class ConfigurationCommitEntityRepositoryImpl(
                     jsonSchema = rs.getString("json_schema"),
                 )
             }
+
+        private val ROW_MAPPER_CROPPED =
+            RowMapper<ConfigurationCommitEntity> { rs, _ ->
+                ConfigurationCommitEntity(
+                    id = rs.getLong("id"),
+                    createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
+                    configurationId = rs.getLong("configuration_id"),
+                    sourceType = SourceType.valueOf(rs.getString("source_type")),
+                    sourceIdentity = rs.getString("source_identity"),
+                    commitHash = rs.getString("commit_hash"),
+                )
+            }
     }
 
     /**
      * @throws DuplicateKeyException commit hash duplication
      * @throws DataIntegrityViolationException configuration does not exist
      */
-    override fun save(configurationCommitEntity: ConfigurationCommitEntity): ConfigurationCommitEntity =
+    override fun save(configurationCommitDetailedEntity: ConfigurationCommitDetailedEntity): ConfigurationCommitDetailedEntity =
         npJdbc
             .query(
                 """
@@ -42,12 +55,12 @@ class ConfigurationCommitEntityRepositoryImpl(
                 returning *;
                 """.trimIndent(),
                 mapOf(
-                    "configuration_id" to configurationCommitEntity.configurationId,
-                    "source_type" to configurationCommitEntity.sourceType.toString(),
-                    "source_identity" to configurationCommitEntity.sourceIdentity,
-                    "commit_hash" to configurationCommitEntity.commitHash,
-                    "json_values" to configurationCommitEntity.jsonValues,
-                    "json_schema" to configurationCommitEntity.jsonSchema,
+                    "configuration_id" to configurationCommitDetailedEntity.configurationId,
+                    "source_type" to configurationCommitDetailedEntity.sourceType.toString(),
+                    "source_identity" to configurationCommitDetailedEntity.sourceIdentity,
+                    "commit_hash" to configurationCommitDetailedEntity.commitHash,
+                    "json_values" to configurationCommitDetailedEntity.jsonValues,
+                    "json_schema" to configurationCommitDetailedEntity.jsonSchema,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -56,19 +69,19 @@ class ConfigurationCommitEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                select * from configuration_commit
+                select id, created_at, configuration_id, source_type, source_identity, commit_hash from configuration_commit
                 where configuration_id = :configuration_id;
                 """.trimIndent(),
                 mapOf(
                     "configuration_id" to configurationId,
                 ),
-                ROW_MAPPER,
+                ROW_MAPPER_CROPPED,
             )
 
     override fun findByConfigurationIdAndCommitHash(
         configurationId: Long,
         commitHash: String,
-    ): ConfigurationCommitEntity? =
+    ): ConfigurationCommitDetailedEntity? =
         npJdbc
             .query(
                 """
@@ -83,7 +96,7 @@ class ConfigurationCommitEntityRepositoryImpl(
                 ROW_MAPPER,
             ).firstOrNull()
 
-    override fun findById(id: Long): ConfigurationCommitEntity? =
+    override fun findById(id: Long): ConfigurationCommitDetailedEntity? =
         npJdbc
             .query(
                 """

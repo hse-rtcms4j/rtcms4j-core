@@ -1,7 +1,5 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -27,10 +25,6 @@ class ApplicationManagerEntityRepositoryImpl(
             }
     }
 
-    /**
-     * @throws DuplicateKeyException user already assigned as application manager
-     * @throws DataIntegrityViolationException application does not exist
-     */
     override fun save(applicationManagerEntity: ApplicationManagerEntity): ApplicationManagerEntity =
         npJdbc
             .query(

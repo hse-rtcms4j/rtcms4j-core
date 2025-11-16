@@ -1518,9 +1518,6 @@ components:
 
     NamespaceUpdateRequest:
       type: object
-      required:
-        - name
-        - description
       properties:
         name:
           type: string
@@ -1590,9 +1587,6 @@ components:
 
     ApplicationUpdateRequest:
       type: object
-      required:
-        - name
-        - description
       properties:
         name:
           type: string
@@ -1694,8 +1688,6 @@ components:
 
     ConfigurationDtoUpdateRequest:
       type: object
-      required:
-        - name
       properties:
         name:
           type: string

@@ -1,7 +1,5 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -103,11 +101,6 @@ class ApplicationEntityRepositoryImpl(
                 ROW_MAPPER,
             ).firstOrNull()
 
-    /**
-     * @throws DuplicateKeyException name already exists in namespace
-     * @throws DataIntegrityViolationException namespace does not exist
-     */
-    @Throws(DuplicateKeyException::class, DataIntegrityViolationException::class)
     override fun save(namespaceEntity: ApplicationEntity): ApplicationEntity =
         npJdbc
             .query(
@@ -126,10 +119,6 @@ class ApplicationEntityRepositoryImpl(
                 ROW_MAPPER,
             ).first()
 
-    /**
-     * @throws DuplicateKeyException name already exists in namespace
-     */
-    @Throws(DuplicateKeyException::class)
     override fun update(namespaceEntity: ApplicationEntity): ApplicationEntity =
         npJdbc
             .query(

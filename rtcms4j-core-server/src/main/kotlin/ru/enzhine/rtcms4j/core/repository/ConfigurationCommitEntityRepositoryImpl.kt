@@ -1,7 +1,5 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -42,10 +40,6 @@ class ConfigurationCommitEntityRepositoryImpl(
             }
     }
 
-    /**
-     * @throws DuplicateKeyException commit hash duplication
-     * @throws DataIntegrityViolationException configuration does not exist
-     */
     override fun save(configurationCommitDetailedEntity: ConfigurationCommitDetailedEntity): ConfigurationCommitDetailedEntity =
         npJdbc
             .query(

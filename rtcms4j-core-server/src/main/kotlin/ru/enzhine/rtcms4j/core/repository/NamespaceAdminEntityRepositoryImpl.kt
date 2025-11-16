@@ -1,14 +1,11 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.jvm.Throws
 
 @Repository
 class NamespaceAdminEntityRepositoryImpl(
@@ -28,11 +25,6 @@ class NamespaceAdminEntityRepositoryImpl(
             }
     }
 
-    /**
-     * @throws DuplicateKeyException user already assigned as namespace admin
-     * @throws DataIntegrityViolationException namespace does not exist
-     */
-    @Throws(DuplicateKeyException::class, DataIntegrityViolationException::class)
     override fun save(namespaceAdminEntity: NamespaceAdminEntity): NamespaceAdminEntity =
         npJdbc
             .query(
@@ -65,13 +57,15 @@ class NamespaceAdminEntityRepositoryImpl(
     override fun findByNamespaceIdAndUserSub(
         namespaceId: Long,
         userSub: UUID,
+        querySuffix: String,
     ): NamespaceAdminEntity? =
         npJdbc
             .query(
                 """
                 select * from namespace_admin
                 where namespace_id = :namespace_id and
-                      user_sub = :user_sub;
+                      user_sub = :user_sub
+                $querySuffix;
                 """.trimIndent(),
                 mapOf(
                     "namespace_id" to namespaceId,

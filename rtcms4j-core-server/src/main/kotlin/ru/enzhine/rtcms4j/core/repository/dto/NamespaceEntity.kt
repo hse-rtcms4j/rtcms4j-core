@@ -8,6 +8,6 @@ data class NamespaceEntity(
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
     val creatorSub: UUID,
-    val name: String,
-    val description: String,
+    var name: String,
+    var description: String,
 )

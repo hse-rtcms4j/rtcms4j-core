@@ -1,6 +1,5 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.jvm.Throws
 
 @Repository
 class NamespaceEntityRepositoryImpl(
@@ -81,12 +79,16 @@ class NamespaceEntityRepositoryImpl(
             Long::class.java,
         ) ?: 0L
 
-    override fun findById(id: Long): NamespaceEntity? =
+    override fun findById(
+        id: Long,
+        querySuffix: String,
+    ): NamespaceEntity? =
         npJdbc
             .query(
                 """
                 select * from namespace
-                where id = :id;
+                where id = :id
+                $querySuffix;
                 """.trimIndent(),
                 mapOf(
                     "id" to id,
@@ -94,10 +96,6 @@ class NamespaceEntityRepositoryImpl(
                 ROW_MAPPER,
             ).firstOrNull()
 
-    /**
-     * @throws DuplicateKeyException name duplication
-     */
-    @Throws(DuplicateKeyException::class)
     override fun save(namespaceEntity: NamespaceEntity): NamespaceEntity =
         npJdbc
             .query(
@@ -114,10 +112,6 @@ class NamespaceEntityRepositoryImpl(
                 ROW_MAPPER,
             ).first()
 
-    /**
-     * @throws DuplicateKeyException name duplication
-     */
-    @Throws(DuplicateKeyException::class)
     override fun update(namespaceEntity: NamespaceEntity): NamespaceEntity =
         npJdbc
             .query(

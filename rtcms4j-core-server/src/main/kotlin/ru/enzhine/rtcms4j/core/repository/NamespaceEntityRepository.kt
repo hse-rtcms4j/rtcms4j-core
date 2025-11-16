@@ -1,8 +1,10 @@
 package ru.enzhine.rtcms4j.core.repository
 
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.util.QuerySuffixes
 
 interface NamespaceEntityRepository {
     fun findAllByName(
@@ -10,10 +12,21 @@ interface NamespaceEntityRepository {
         pageable: Pageable,
     ): Page<NamespaceEntity>
 
-    fun findById(id: Long): NamespaceEntity?
+    fun findById(
+        id: Long,
+        querySuffix: String = QuerySuffixes.None,
+    ): NamespaceEntity?
 
+    /**
+     * @throws DuplicateKeyException name duplication
+     */
+    @Throws(DuplicateKeyException::class)
     fun save(namespaceEntity: NamespaceEntity): NamespaceEntity
 
+    /**
+     * @throws DuplicateKeyException name duplication
+     */
+    @Throws(DuplicateKeyException::class)
     fun update(namespaceEntity: NamespaceEntity): NamespaceEntity
 
     fun removeById(id: Long): Boolean

@@ -1,7 +1,5 @@
 package ru.enzhine.rtcms4j.core.repository
 
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -34,10 +32,6 @@ class ConfigurationEntityRepositoryImpl(
             }
     }
 
-    /**
-     * @throws DuplicateKeyException name duplication
-     * @throws DataIntegrityViolationException application does not exist
-     */
     override fun save(configurationEntity: ConfigurationEntity): ConfigurationEntity =
         npJdbc
             .query(

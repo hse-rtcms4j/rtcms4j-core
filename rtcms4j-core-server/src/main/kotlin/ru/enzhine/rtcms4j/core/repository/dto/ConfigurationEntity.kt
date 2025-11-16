@@ -9,8 +9,8 @@ data class ConfigurationEntity(
     val updatedAt: OffsetDateTime,
     val applicationId: Long,
     val creatorSub: UUID,
-    val name: String,
-    val commitHash: String?,
-    val streamKey: String?,
-    val schemaSourceType: SourceType,
+    var name: String,
+    var commitHash: String?,
+    var streamKey: String?,
+    var schemaSourceType: SourceType,
 )

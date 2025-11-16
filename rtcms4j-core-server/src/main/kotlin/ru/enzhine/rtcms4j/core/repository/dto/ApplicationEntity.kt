@@ -9,7 +9,7 @@ data class ApplicationEntity(
     val updatedAt: OffsetDateTime,
     val namespaceId: Long,
     val creatorSub: UUID,
-    val name: String,
-    val description: String,
-    val accessToken: String,
+    var name: String,
+    var description: String,
+    var accessToken: String,
 )

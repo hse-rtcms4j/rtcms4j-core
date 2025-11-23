@@ -19,36 +19,53 @@ interface ConfigurationService {
     fun getConfigurationById(
         namespaceId: Long,
         applicationId: Long,
-        id: Long,
-    ): ConfigurationDetailed?
+        configurationId: Long,
+    ): ConfigurationDetailed
 
-    fun updateConfiguration(configuration: Configuration): Configuration
+    fun updateConfiguration(
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
+    ): Configuration
 
     fun findConfigurations(
         namespaceId: Long,
         applicationId: Long,
+        configurationId: Long,
         name: String?,
         pageable: Pageable?,
     ): Page<Configuration>
 
-    fun deleteConfiguration(id: Long): Boolean
+    fun deleteConfiguration(
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
+    ): Boolean
 
     fun applyConfigurationByCommit(
+        namespaceId: Long,
+        applicationId: Long,
         configurationId: Long,
         commitHash: String,
-    ): Configuration?
+    ): Configuration
 
     fun getConfigurationCommitByHash(
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
         commitHash: String,
-    ): ConfigurationCommitDetailed?
+    ): ConfigurationCommitDetailed
 
-    fun getConfigurationCommits(configuration: Configuration): List<ConfigurationCommit>
+    fun getConfigurationCommits(
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
+    ): List<ConfigurationCommit>
 
     fun commitValuesAndSchema(
-        configuration: Configuration,
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
         valuesData: String?,
         schemaData: String?,
     ): ConfigurationCommitDetailed

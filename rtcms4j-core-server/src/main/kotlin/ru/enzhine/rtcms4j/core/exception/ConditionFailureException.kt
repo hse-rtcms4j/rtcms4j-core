@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.service.exception
+package ru.enzhine.rtcms4j.core.exception
 
 import org.springframework.dao.DuplicateKeyException
 import java.lang.RuntimeException
@@ -6,14 +6,16 @@ import java.lang.RuntimeException
 open class ConditionFailureException(
     message: String,
     cause: Throwable?,
+    val detailCode: Int?,
 ) : RuntimeException(message, cause) {
     class KeyDuplicated(
-        keyName: String,
+        message: String,
         cause: DuplicateKeyException,
-    ) : ConditionFailureException("$keyName should be unique", cause)
+        detailCode: Int?,
+    ) : ConditionFailureException(message, cause, detailCode)
 
     class NotFound(
-        entity: String,
-        id: Long,
-    ) : ConditionFailureException("$entity with id $id not found", null)
+        message: String,
+        detailCode: Int?,
+    ) : ConditionFailureException(message, null, detailCode)
 }

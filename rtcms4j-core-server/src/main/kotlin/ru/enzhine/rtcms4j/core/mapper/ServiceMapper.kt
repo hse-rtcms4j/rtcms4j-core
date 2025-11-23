@@ -1,6 +1,8 @@
 package ru.enzhine.rtcms4j.core.mapper
 
+import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.service.dto.Application
 import ru.enzhine.rtcms4j.core.service.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommitDetailed
@@ -34,4 +36,13 @@ fun NamespaceEntity.toService() =
         id = id,
         name = name,
         description = description,
+    )
+
+fun ApplicationEntity.toService() =
+    Application(
+        id = id,
+        namespaceId = namespaceId,
+        name = name,
+        description = description,
+        accessToken = accessToken,
     )

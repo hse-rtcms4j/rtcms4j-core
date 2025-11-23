@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -57,13 +58,15 @@ class ApplicationManagerEntityRepositoryImpl(
     override fun findByApplicationIdAndUserSub(
         applicationId: Long,
         userSub: UUID,
+        modifier: QueryModifier,
     ): ApplicationManagerEntity? =
         npJdbc
             .query(
                 """
                 select * from application_manager
                 where application_id = :application_id and
-                      user_sub = :user_sub;
+                      user_sub = :user_sub
+                ${modifier.suffix};
                 """.trimIndent(),
                 mapOf(
                     "application_id" to applicationId,

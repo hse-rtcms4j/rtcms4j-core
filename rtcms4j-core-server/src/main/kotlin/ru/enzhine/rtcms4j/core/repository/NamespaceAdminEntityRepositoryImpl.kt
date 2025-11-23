@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -57,7 +58,7 @@ class NamespaceAdminEntityRepositoryImpl(
     override fun findByNamespaceIdAndUserSub(
         namespaceId: Long,
         userSub: UUID,
-        querySuffix: String,
+        modifier: QueryModifier,
     ): NamespaceAdminEntity? =
         npJdbc
             .query(
@@ -65,7 +66,7 @@ class NamespaceAdminEntityRepositoryImpl(
                 select * from namespace_admin
                 where namespace_id = :namespace_id and
                       user_sub = :user_sub
-                $querySuffix;
+                ${modifier.suffix};
                 """.trimIndent(),
                 mapOf(
                     "namespace_id" to namespaceId,

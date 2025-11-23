@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -81,14 +82,14 @@ class NamespaceEntityRepositoryImpl(
 
     override fun findById(
         id: Long,
-        querySuffix: String,
+        modifier: QueryModifier,
     ): NamespaceEntity? =
         npJdbc
             .query(
                 """
                 select * from namespace
                 where id = :id
-                $querySuffix;
+                ${modifier.suffix};
                 """.trimIndent(),
                 mapOf(
                     "id" to id,
@@ -117,9 +118,9 @@ class NamespaceEntityRepositoryImpl(
             .query(
                 """
                 update namespace
-                set name = :name,
-                    description = :description,
-                    updated_at = now()
+                set updated_at = now(),
+                    name = :name,
+                    description = :description
                 where id = :id
                 returning *;
                 """.trimIndent(),

@@ -2,10 +2,12 @@ package ru.enzhine.rtcms4j.core.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.service.dto.Application
 import java.util.UUID
 
 interface ApplicationService {
+    @Throws(ConditionFailureException.KeyDuplicated::class)
     fun createApplication(
         creator: UUID,
         namespaceId: Long,
@@ -13,12 +15,20 @@ interface ApplicationService {
         description: String,
     ): Application
 
+    @Throws(ConditionFailureException.NotFound::class)
     fun getApplicationById(
         namespaceId: Long,
-        id: Long,
-    ): Application?
+        applicationId: Long,
+    ): Application
 
-    fun updateApplication(application: Application): Application
+    @Throws(ConditionFailureException.NotFound::class, ConditionFailureException.KeyDuplicated::class)
+    fun updateApplication(
+        namespaceId: Long,
+        applicationId: Long,
+        name: String?,
+        description: String?,
+        accessToken: String?,
+    ): Application
 
     fun findApplications(
         namespaceId: Long,
@@ -26,17 +36,26 @@ interface ApplicationService {
         pageable: Pageable?,
     ): Page<Application>
 
-    fun deleteApplication(id: Long): Boolean
+    fun deleteApplication(
+        namespaceId: Long,
+        applicationId: Long,
+    ): Boolean
 
-    fun listManagers(application: Application): List<UUID>
+    fun listManagers(
+        namespaceId: Long,
+        applicationId: Long,
+    ): List<UUID>
 
     fun addManager(
-        application: Application,
+        assigner: UUID,
+        namespaceId: Long,
+        applicationId: Long,
         sub: UUID,
     ): Boolean
 
     fun removeManager(
-        application: Application,
+        namespaceId: Long,
+        applicationId: Long,
         sub: UUID,
     ): Boolean
 }

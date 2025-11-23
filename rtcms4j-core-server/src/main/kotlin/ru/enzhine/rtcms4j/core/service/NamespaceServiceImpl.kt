@@ -7,15 +7,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
+import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.builder.newNamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.NamespaceAdminEntityRepository
 import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepository
-import ru.enzhine.rtcms4j.core.repository.util.QuerySuffixes
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import ru.enzhine.rtcms4j.core.service.dto.Namespace
-import ru.enzhine.rtcms4j.core.service.exception.ConditionFailureException
 import java.util.UUID
 
 @Service
@@ -41,26 +42,23 @@ class NamespaceServiceImpl(
 
             return namespaceEntity.toService()
         } catch (ex: DuplicateKeyException) {
-            throw ConditionFailureException.KeyDuplicated("name", ex)
+            throw nameKeyDuplicatedException(ex)
         }
     }
 
-    override fun getNamespaceById(id: Long): Namespace? {
-        val namespaceEntity =
-            namespaceEntityRepository.findById(id)
-
-        return namespaceEntity?.toService()
-    }
+    override fun getNamespaceById(namespaceId: Long): Namespace =
+        namespaceEntityRepository.findById(namespaceId)?.toService()
+            ?: throw namespaceNotFoundException(namespaceId)
 
     @Transactional
     override fun updateNamespace(
-        id: Long,
+        namespaceId: Long,
         name: String?,
         description: String?,
     ): Namespace {
         val namespaceEntity =
-            namespaceEntityRepository.findById(id, QuerySuffixes.ForUpdate)
-                ?: throw ConditionFailureException.NotFound("Namespace", id)
+            namespaceEntityRepository.findById(namespaceId, QueryModifier.FOR_UPDATE)
+                ?: throw namespaceNotFoundException(namespaceId)
 
         if (name == null && description == null) {
             return namespaceEntity.toService()
@@ -75,7 +73,7 @@ class NamespaceServiceImpl(
 
             return updatedNamespaceEntity.toService()
         } catch (ex: DuplicateKeyException) {
-            throw ConditionFailureException.KeyDuplicated("name", ex)
+            throw nameKeyDuplicatedException(ex)
         }
     }
 
@@ -90,25 +88,19 @@ class NamespaceServiceImpl(
         return namespaceEntityRepository.findAllByName(name, pageable).map { it.toService() }
     }
 
-    @Transactional
-    override fun deleteNamespace(id: Long): Boolean {
-        namespaceEntityRepository.findById(id, QuerySuffixes.ForUpdate)
-            ?: throw ConditionFailureException.NotFound("Namespace", id)
-
-        return namespaceEntityRepository.removeById(id)
-    }
+    override fun deleteNamespace(namespaceId: Long): Boolean = namespaceEntityRepository.removeById(namespaceId)
 
     override fun listAdmins(id: Long): List<UUID> = namespaceAdminEntityRepository.findAllByNamespaceId(id).map { it.userSub }
 
     override fun addAdmin(
         assigner: UUID,
-        id: Long,
+        namespaceId: Long,
         sub: UUID,
     ): Boolean {
         try {
             namespaceAdminEntityRepository.save(
                 newNamespaceAdminEntity(
-                    namespaceId = id,
+                    namespaceId = namespaceId,
                     assignerSub = assigner,
                     userSub = sub,
                 ),
@@ -117,20 +109,20 @@ class NamespaceServiceImpl(
         } catch (_: DuplicateKeyException) {
             return false
         } catch (_: DataIntegrityViolationException) {
-            throw ConditionFailureException.NotFound("Namespace", id)
+            throw namespaceNotFoundException(namespaceId)
         }
     }
 
     @Transactional
     override fun removeAdmin(
-        id: Long,
+        namespaceId: Long,
         sub: UUID,
     ): Boolean {
-        namespaceEntityRepository.findById(id)
-            ?: throw ConditionFailureException.NotFound("Namespace", id)
+        namespaceEntityRepository.findById(namespaceId)
+            ?: throw namespaceNotFoundException(namespaceId)
 
         val admin =
-            namespaceAdminEntityRepository.findByNamespaceIdAndUserSub(id, sub, QuerySuffixes.ForUpdate)
+            namespaceAdminEntityRepository.findByNamespaceIdAndUserSub(namespaceId, sub, QueryModifier.FOR_UPDATE)
                 ?: return false
 
         return namespaceAdminEntityRepository.removeById(admin.id)

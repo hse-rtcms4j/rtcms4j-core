@@ -3,7 +3,7 @@ package ru.enzhine.rtcms4j.core.repository
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
-import ru.enzhine.rtcms4j.core.repository.util.QuerySuffixes
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import java.util.UUID
 
 interface NamespaceAdminEntityRepository {
@@ -19,7 +19,7 @@ interface NamespaceAdminEntityRepository {
     fun findByNamespaceIdAndUserSub(
         namespaceId: Long,
         userSub: UUID,
-        querySuffix: String = QuerySuffixes.None,
+        modifier: QueryModifier = QueryModifier.NONE,
     ): NamespaceAdminEntity?
 
     fun findById(id: Long): NamespaceAdminEntity?

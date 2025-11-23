@@ -3,6 +3,7 @@ package ru.enzhine.rtcms4j.core.repository
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import java.util.UUID
 import kotlin.jvm.Throws
 
@@ -19,6 +20,7 @@ interface ApplicationManagerEntityRepository {
     fun findByApplicationIdAndUserSub(
         applicationId: Long,
         userSub: UUID,
+        modifier: QueryModifier = QueryModifier.NONE,
     ): ApplicationManagerEntity?
 
     fun findById(id: Long): ApplicationManagerEntity?

@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -88,12 +89,16 @@ class ApplicationEntityRepositoryImpl(
             Long::class.java,
         ) ?: 0L
 
-    override fun findById(id: Long): ApplicationEntity? =
+    override fun findById(
+        id: Long,
+        modifier: QueryModifier,
+    ): ApplicationEntity? =
         npJdbc
             .query(
                 """
                 select * from application
-                where id = :id;
+                where id = :id
+                ${modifier.suffix};
                 """.trimIndent(),
                 mapOf(
                     "id" to id,
@@ -101,7 +106,7 @@ class ApplicationEntityRepositoryImpl(
                 ROW_MAPPER,
             ).firstOrNull()
 
-    override fun save(namespaceEntity: ApplicationEntity): ApplicationEntity =
+    override fun save(applicationEntity: ApplicationEntity): ApplicationEntity =
         npJdbc
             .query(
                 """
@@ -110,30 +115,31 @@ class ApplicationEntityRepositoryImpl(
                 returning *;
                 """.trimIndent(),
                 mapOf(
-                    "namespace_id" to namespaceEntity.namespaceId,
-                    "creator_sub" to namespaceEntity.creatorSub,
-                    "name" to namespaceEntity.name,
-                    "description" to namespaceEntity.description,
-                    "access_token" to namespaceEntity.accessToken,
+                    "namespace_id" to applicationEntity.namespaceId,
+                    "creator_sub" to applicationEntity.creatorSub,
+                    "name" to applicationEntity.name,
+                    "description" to applicationEntity.description,
+                    "access_token" to applicationEntity.accessToken,
                 ),
                 ROW_MAPPER,
             ).first()
 
-    override fun update(namespaceEntity: ApplicationEntity): ApplicationEntity =
+    override fun update(applicationEntity: ApplicationEntity): ApplicationEntity =
         npJdbc
             .query(
                 """
                 update application
-                set name = :name,
+                set updated_at = now(),
+                    name = :name,
                     description = :description,
                     access_token = :access_token
                 where id = :id
                 returning *;
                 """.trimIndent(),
                 mapOf(
-                    "name" to namespaceEntity.name,
-                    "description" to namespaceEntity.description,
-                    "access_token" to namespaceEntity.accessToken,
+                    "name" to applicationEntity.name,
+                    "description" to applicationEntity.description,
+                    "access_token" to applicationEntity.accessToken,
                 ),
                 ROW_MAPPER,
             ).first()

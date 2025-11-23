@@ -5,6 +5,7 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 
 interface ApplicationEntityRepository {
     fun findAllByName(
@@ -13,20 +14,23 @@ interface ApplicationEntityRepository {
         pageable: Pageable,
     ): Page<ApplicationEntity>
 
-    fun findById(id: Long): ApplicationEntity?
+    fun findById(
+        id: Long,
+        modifier: QueryModifier = QueryModifier.NONE,
+    ): ApplicationEntity?
 
     /**
      * @throws DuplicateKeyException name already exists in namespace
      * @throws DataIntegrityViolationException namespace does not exist
      */
     @Throws(DuplicateKeyException::class, DataIntegrityViolationException::class)
-    fun save(namespaceEntity: ApplicationEntity): ApplicationEntity
+    fun save(applicationEntity: ApplicationEntity): ApplicationEntity
 
     /**
      * @throws DuplicateKeyException name already exists in namespace
      */
     @Throws(DuplicateKeyException::class)
-    fun update(namespaceEntity: ApplicationEntity): ApplicationEntity
+    fun update(applicationEntity: ApplicationEntity): ApplicationEntity
 
     fun removeById(id: Long): Boolean
 }

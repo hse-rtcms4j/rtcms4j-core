@@ -4,7 +4,7 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.util.QuerySuffixes
+import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
 
 interface NamespaceEntityRepository {
     fun findAllByName(
@@ -14,7 +14,7 @@ interface NamespaceEntityRepository {
 
     fun findById(
         id: Long,
-        querySuffix: String = QuerySuffixes.None,
+        modifier: QueryModifier = QueryModifier.NONE,
     ): NamespaceEntity?
 
     /**

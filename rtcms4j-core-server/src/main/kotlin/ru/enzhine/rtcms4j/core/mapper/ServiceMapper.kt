@@ -1,13 +1,22 @@
 package ru.enzhine.rtcms4j.core.mapper
 
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.service.dto.Application
 import ru.enzhine.rtcms4j.core.service.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommitDetailed
 import ru.enzhine.rtcms4j.core.service.dto.ConfigurationDetailed
 import ru.enzhine.rtcms4j.core.service.dto.Namespace
+import ru.enzhine.rtcms4j.core.service.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType as RepositorySourceType
+
+fun RepositorySourceType.toService() =
+    when (this) {
+        RepositorySourceType.SERVICE -> SourceType.SERVICE
+        RepositorySourceType.USER -> SourceType.USER
+    }
 
 fun ConfigurationDetailed.toUndetailed() =
     Configuration(
@@ -16,7 +25,6 @@ fun ConfigurationDetailed.toUndetailed() =
         applicationId = applicationId,
         name = name,
         commitHash = commitHash,
-        streamKey = streamKey,
         schemaSourceType = schemaSourceType,
     )
 
@@ -46,3 +54,27 @@ fun ApplicationEntity.toService() =
         description = description,
         accessToken = accessToken,
     )
+
+fun ConfigurationEntity.toService(namespaceId: Long) =
+    Configuration(
+        id = id,
+        namespaceId = namespaceId,
+        applicationId = applicationId,
+        name = name,
+        commitHash = commitHash,
+        schemaSourceType = schemaSourceType.toService(),
+    )
+
+fun Configuration.toDetailed(
+    valuesData: String?,
+    schemaData: String?,
+) = ConfigurationDetailed(
+    id = id,
+    namespaceId = namespaceId,
+    applicationId = applicationId,
+    name = name,
+    commitHash = commitHash,
+    schemaSourceType = schemaSourceType,
+    valuesData = valuesData,
+    schemaData = schemaData,
+)

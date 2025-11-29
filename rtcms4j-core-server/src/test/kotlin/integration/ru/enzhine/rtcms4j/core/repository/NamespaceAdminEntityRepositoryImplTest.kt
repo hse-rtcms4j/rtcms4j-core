@@ -17,9 +17,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.builder.newNamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.NamespaceAdminEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ

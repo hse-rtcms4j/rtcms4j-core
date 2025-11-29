@@ -13,9 +13,9 @@ import ru.enzhine.rtcms4j.core.builder.newNamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
-import ru.enzhine.rtcms4j.core.repository.NamespaceAdminEntityRepository
-import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepository
-import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepository
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepository
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.service.dto.Namespace
 import java.util.UUID
 
@@ -46,8 +46,15 @@ class NamespaceServiceImpl(
         }
     }
 
-    override fun getNamespaceById(namespaceId: Long): Namespace =
-        namespaceEntityRepository.findById(namespaceId)?.toService()
+    override fun getNamespaceById(
+        namespaceId: Long,
+        forShare: Boolean,
+    ): Namespace =
+        namespaceEntityRepository
+            .findById(
+                id = namespaceId,
+                modifier = if (forShare) QueryModifier.FOR_SHARE else QueryModifier.NONE,
+            )?.toService()
             ?: throw namespaceNotFoundException(namespaceId)
 
     @Transactional
@@ -90,7 +97,13 @@ class NamespaceServiceImpl(
 
     override fun deleteNamespace(namespaceId: Long): Boolean = namespaceEntityRepository.removeById(namespaceId)
 
-    override fun listAdmins(id: Long): List<UUID> = namespaceAdminEntityRepository.findAllByNamespaceId(id).map { it.userSub }
+    override fun listAdmins(namespaceId: Long): List<UUID> {
+        val namespaceEntity =
+            namespaceEntityRepository.findById(namespaceId, QueryModifier.FOR_SHARE)
+                ?: throw namespaceNotFoundException(namespaceId)
+
+        return namespaceAdminEntityRepository.findAllByNamespaceId(namespaceEntity.id).map { it.userSub }
+    }
 
     override fun addAdmin(
         assigner: UUID,

@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.repository.util
+package ru.enzhine.rtcms4j.core.repository.db.util
 
 enum class QueryModifier(
     val suffix: String,

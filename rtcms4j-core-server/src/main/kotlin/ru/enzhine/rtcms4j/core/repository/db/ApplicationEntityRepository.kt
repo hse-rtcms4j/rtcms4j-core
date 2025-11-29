@@ -1,11 +1,11 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 
 interface ApplicationEntityRepository {
     fun findAllByName(

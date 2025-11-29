@@ -13,6 +13,11 @@ fun applicationNotFoundException(
     detailCode: Int? = null,
 ) = ConditionFailureException.NotFound("Application with id '$applicationId' not found.", detailCode)
 
+fun configurationNotFoundException(
+    configurationId: Long,
+    detailCode: Int? = null,
+) = ConditionFailureException.NotFound("Configuration with id '$configurationId' not found.", detailCode)
+
 fun nameKeyDuplicatedException(
     cause: DuplicateKeyException,
     detailCode: Int? = null,

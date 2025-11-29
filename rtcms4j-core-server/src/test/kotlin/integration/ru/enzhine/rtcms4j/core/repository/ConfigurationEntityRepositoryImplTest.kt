@@ -19,12 +19,12 @@ import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
 import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.ConfigurationEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.ConfigurationEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
 import java.text.Collator
 import java.util.Locale
 import java.util.UUID
@@ -103,7 +103,6 @@ class ConfigurationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "MainDto",
                 usedCommitHash = null,
-                streamKey = null,
                 schemaSourceType = SourceType.SERVICE,
             )
 
@@ -112,7 +111,6 @@ class ConfigurationEntityRepositoryImplTest {
         Assertions.assertEquals(templateEntity.applicationId, created.applicationId)
         Assertions.assertEquals(templateEntity.name, created.name)
         Assertions.assertEquals(templateEntity.commitHash, created.commitHash)
-        Assertions.assertEquals(templateEntity.streamKey, created.streamKey)
         Assertions.assertEquals(templateEntity.schemaSourceType, created.schemaSourceType)
         Assertions.assertEquals(1, created.id)
     }
@@ -125,7 +123,6 @@ class ConfigurationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "MainDto",
                 usedCommitHash = null,
-                streamKey = null,
                 schemaSourceType = SourceType.SERVICE,
             )
 
@@ -144,7 +141,6 @@ class ConfigurationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "MainDto",
                     usedCommitHash = null,
-                    streamKey = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -160,7 +156,6 @@ class ConfigurationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "MainDto",
                     usedCommitHash = null,
-                    streamKey = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -184,7 +179,6 @@ class ConfigurationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "MainDto",
                         usedCommitHash = null,
-                        streamKey = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -194,7 +188,6 @@ class ConfigurationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "BasicDto",
                         usedCommitHash = null,
-                        streamKey = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -204,7 +197,6 @@ class ConfigurationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "RandomDto",
                         usedCommitHash = null,
-                        streamKey = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -246,7 +238,6 @@ class ConfigurationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "DtoC",
                         usedCommitHash = null,
-                        streamKey = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -256,7 +247,6 @@ class ConfigurationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "DtoA",
                         usedCommitHash = null,
-                        streamKey = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -266,7 +256,6 @@ class ConfigurationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "DtoB",
                         usedCommitHash = null,
-                        streamKey = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -300,7 +289,6 @@ class ConfigurationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "MainDto",
                     usedCommitHash = null,
-                    streamKey = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -318,7 +306,6 @@ class ConfigurationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "MainDto",
                     usedCommitHash = null,
-                    streamKey = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -343,7 +330,6 @@ class ConfigurationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "MainDto",
                 usedCommitHash = null,
-                streamKey = null,
                 schemaSourceType = SourceType.SERVICE,
             )
 

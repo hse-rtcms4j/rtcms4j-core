@@ -75,7 +75,6 @@ create table configuration(
     creator_sub uuid not null,
     name varchar(64) not null,
     commit_hash varchar(64),
-    stream_key varchar(64),
     ---- settings
     schema_source_type varchar(16) not null
 );

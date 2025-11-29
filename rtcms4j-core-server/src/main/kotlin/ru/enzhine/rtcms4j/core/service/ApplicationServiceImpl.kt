@@ -14,9 +14,9 @@ import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
 import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
-import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepository
-import ru.enzhine.rtcms4j.core.repository.ApplicationManagerEntityRepository
-import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.service.dto.Application
 import java.util.UUID
 
@@ -28,17 +28,20 @@ class ApplicationServiceImpl(
     private val namespaceService: NamespaceService,
     private val accessTokenService: AccessTokenService,
 ) : ApplicationService {
+    @Transactional
     override fun createApplication(
         creator: UUID,
         namespaceId: Long,
         name: String,
         description: String,
     ): Application {
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
+
         try {
             val applicationEntity =
                 applicationEntityRepository.save(
                     newApplicationEntity(
-                        namespaceId = namespaceId,
+                        namespaceId = namespace.id,
                         creatorSub = creator,
                         name = name,
                         description = description,
@@ -57,11 +60,16 @@ class ApplicationServiceImpl(
     override fun getApplicationById(
         namespaceId: Long,
         applicationId: Long,
+        forShare: Boolean,
     ): Application {
-        val namespace = namespaceService.getNamespaceById(namespaceId)
+        val namespace = namespaceService.getNamespaceById(namespaceId, forShare)
 
         val application =
-            applicationEntityRepository.findById(applicationId)?.toService()
+            applicationEntityRepository
+                .findById(
+                    id = applicationId,
+                    modifier = if (forShare) QueryModifier.FOR_SHARE else QueryModifier.NONE,
+                )?.toService()
                 ?: throw applicationNotFoundException(applicationId)
 
         if (application.namespaceId != namespace.id) {
@@ -79,7 +87,7 @@ class ApplicationServiceImpl(
         description: String?,
         accessToken: String?,
     ): Application {
-        val namespace = namespaceService.getNamespaceById(namespaceId)
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
         val applicationEntity =
             applicationEntityRepository.findById(applicationId, QueryModifier.FOR_UPDATE)
@@ -112,7 +120,7 @@ class ApplicationServiceImpl(
         name: String?,
         pageable: Pageable?,
     ): Page<Application> {
-        namespaceService.getNamespaceById(namespaceId)
+        namespaceService.getNamespaceById(namespaceId, false)
 
         val pageable =
             pageable
@@ -125,7 +133,7 @@ class ApplicationServiceImpl(
         namespaceId: Long,
         applicationId: Long,
     ): Boolean {
-        val namespace = namespaceService.getNamespaceById(namespaceId)
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
         val applicationEntity =
             applicationEntityRepository.findById(applicationId, QueryModifier.FOR_UPDATE)
@@ -142,10 +150,10 @@ class ApplicationServiceImpl(
         namespaceId: Long,
         applicationId: Long,
     ): List<UUID> {
-        val namespace = namespaceService.getNamespaceById(namespaceId)
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
         val applicationEntity =
-            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_UPDATE)
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
                 ?: throw applicationNotFoundException(applicationId)
 
         if (applicationEntity.namespaceId != namespace.id) {
@@ -162,7 +170,7 @@ class ApplicationServiceImpl(
         applicationId: Long,
         sub: UUID,
     ): Boolean {
-        val namespace = namespaceService.getNamespaceById(namespaceId)
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
         val applicationEntity =
             applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
@@ -194,7 +202,7 @@ class ApplicationServiceImpl(
         applicationId: Long,
         sub: UUID,
     ): Boolean {
-        val namespace = namespaceService.getNamespaceById(namespaceId)
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
         val applicationEntity =
             applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
@@ -205,7 +213,11 @@ class ApplicationServiceImpl(
         }
 
         val manager =
-            applicationManagerEntityRepository.findByApplicationIdAndUserSub(applicationId, sub, QueryModifier.FOR_UPDATE)
+            applicationManagerEntityRepository.findByApplicationIdAndUserSub(
+                applicationId,
+                sub,
+                QueryModifier.FOR_UPDATE,
+            )
                 ?: return false
 
         return applicationManagerEntityRepository.removeById(manager.id)

@@ -21,14 +21,14 @@ import ru.enzhine.rtcms4j.core.builder.newConfigurationCommitEntity
 import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.mapper.toUndetailed
-import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.ConfigurationCommitEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.ConfigurationEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.ConfigurationCommitEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.ConfigurationEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ
@@ -109,7 +109,6 @@ class ConfigurationCommitEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "MainDto",
                     usedCommitHash = null,
-                    streamKey = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )

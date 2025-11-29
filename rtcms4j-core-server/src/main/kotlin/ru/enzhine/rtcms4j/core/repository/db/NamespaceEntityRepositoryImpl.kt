@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -6,61 +6,55 @@ import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import java.time.OffsetDateTime
 import java.util.UUID
 
 @Repository
-class ApplicationEntityRepositoryImpl(
+class NamespaceEntityRepositoryImpl(
     private val npJdbc: NamedParameterJdbcTemplate,
-) : ApplicationEntityRepository {
+) : NamespaceEntityRepository {
     companion object {
         private val ROW_MAPPER =
-            RowMapper<ApplicationEntity> { rs, _ ->
-                ApplicationEntity(
+            RowMapper<NamespaceEntity> { rs, _ ->
+                NamespaceEntity(
                     id = rs.getLong("id"),
                     createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
                     updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
-                    namespaceId = rs.getLong("namespace_id"),
                     creatorSub = rs.getObject("creator_sub", UUID::class.java),
                     name = rs.getString("name"),
                     description = rs.getString("description"),
-                    accessToken = rs.getString("access_token"),
                 )
             }
     }
 
     override fun findAllByName(
-        namespaceId: Long,
         name: String?,
         pageable: Pageable,
-    ): Page<ApplicationEntity> {
-        val total = countAllApplicationsByName(namespaceId, name, pageable)
-        var content = emptyList<ApplicationEntity>()
+    ): Page<NamespaceEntity> {
+        val total = countAllNamespacesByName(name, pageable)
+        var content = emptyList<NamespaceEntity>()
         if (total != 0L) {
-            content = findAllApplicationsByName(namespaceId, name, pageable)
+            content = findAllNamespacesByName(name, pageable)
         }
 
         return PageImpl(content, pageable, total)
     }
 
-    private fun findAllApplicationsByName(
-        namespaceId: Long,
+    private fun findAllNamespacesByName(
         name: String?,
         pageable: Pageable,
-    ): List<ApplicationEntity> =
+    ): List<NamespaceEntity> =
         npJdbc.query(
             """
-            select * from application
-            where namespace_id = :namespace_id and
-                  ((:name::text is null) or
-                  (name ilike '%' || :name::text || '%'))
+            select * from namespace
+            where (:name::text is null) or
+                  (name ilike '%' || :name::text || '%')
             order by name
             offset :offset limit :limit;
             """.trimIndent(),
             mapOf(
-                "namespace_id" to namespaceId,
                 "name" to name,
                 "offset" to pageable.offset,
                 "limit" to pageable.pageSize,
@@ -68,20 +62,17 @@ class ApplicationEntityRepositoryImpl(
             ROW_MAPPER,
         )
 
-    private fun countAllApplicationsByName(
-        namespaceId: Long,
+    private fun countAllNamespacesByName(
         name: String?,
         pageable: Pageable,
     ): Long =
         npJdbc.queryForObject(
             """
-            select count(*) from application
-            where namespace_id = :namespace_id and
-                  ((:name::text is null) or
-                  (name ilike '%' || :name::text || '%'));
+            select count(*) from namespace
+            where (:name::text is null) or
+                  (name ilike '%' || :name::text || '%');
             """.trimIndent(),
             mapOf(
-                "namespace_id" to namespaceId,
                 "name" to name,
                 "offset" to pageable.offset,
                 "limit" to pageable.pageSize,
@@ -92,11 +83,11 @@ class ApplicationEntityRepositoryImpl(
     override fun findById(
         id: Long,
         modifier: QueryModifier,
-    ): ApplicationEntity? =
+    ): NamespaceEntity? =
         npJdbc
             .query(
                 """
-                select * from application
+                select * from namespace
                 where id = :id
                 ${modifier.suffix};
                 """.trimIndent(),
@@ -106,40 +97,37 @@ class ApplicationEntityRepositoryImpl(
                 ROW_MAPPER,
             ).firstOrNull()
 
-    override fun save(applicationEntity: ApplicationEntity): ApplicationEntity =
+    override fun save(namespaceEntity: NamespaceEntity): NamespaceEntity =
         npJdbc
             .query(
                 """
-                insert into application (namespace_id, creator_sub, name, description, access_token)
-                values (:namespace_id, :creator_sub, :name, :description, :access_token)
+                insert into namespace (creator_sub, name, description)
+                values (:creator_sub, :name, :description)
                 returning *;
                 """.trimIndent(),
                 mapOf(
-                    "namespace_id" to applicationEntity.namespaceId,
-                    "creator_sub" to applicationEntity.creatorSub,
-                    "name" to applicationEntity.name,
-                    "description" to applicationEntity.description,
-                    "access_token" to applicationEntity.accessToken,
+                    "creator_sub" to namespaceEntity.creatorSub,
+                    "name" to namespaceEntity.name,
+                    "description" to namespaceEntity.description,
                 ),
                 ROW_MAPPER,
             ).first()
 
-    override fun update(applicationEntity: ApplicationEntity): ApplicationEntity =
+    override fun update(namespaceEntity: NamespaceEntity): NamespaceEntity =
         npJdbc
             .query(
                 """
-                update application
+                update namespace
                 set updated_at = now(),
                     name = :name,
-                    description = :description,
-                    access_token = :access_token
+                    description = :description
                 where id = :id
                 returning *;
                 """.trimIndent(),
                 mapOf(
-                    "name" to applicationEntity.name,
-                    "description" to applicationEntity.description,
-                    "access_token" to applicationEntity.accessToken,
+                    "name" to namespaceEntity.name,
+                    "description" to namespaceEntity.description,
+                    "id" to namespaceEntity.id,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -147,7 +135,7 @@ class ApplicationEntityRepositoryImpl(
     override fun removeById(id: Long): Boolean =
         npJdbc.update(
             """
-            delete from application
+            delete from namespace
             where id = :id;
             """.trimIndent(),
             mapOf(

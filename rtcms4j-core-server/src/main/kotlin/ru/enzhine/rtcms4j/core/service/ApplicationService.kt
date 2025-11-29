@@ -7,7 +7,7 @@ import ru.enzhine.rtcms4j.core.service.dto.Application
 import java.util.UUID
 
 interface ApplicationService {
-    @Throws(ConditionFailureException.KeyDuplicated::class)
+    @Throws(ConditionFailureException.NotFound::class, ConditionFailureException.KeyDuplicated::class)
     fun createApplication(
         creator: UUID,
         namespaceId: Long,
@@ -19,6 +19,7 @@ interface ApplicationService {
     fun getApplicationById(
         namespaceId: Long,
         applicationId: Long,
+        forShare: Boolean,
     ): Application
 
     @Throws(ConditionFailureException.NotFound::class, ConditionFailureException.KeyDuplicated::class)
@@ -30,22 +31,26 @@ interface ApplicationService {
         accessToken: String?,
     ): Application
 
+    @Throws(ConditionFailureException.NotFound::class)
     fun findApplications(
         namespaceId: Long,
         name: String?,
         pageable: Pageable?,
     ): Page<Application>
 
+    @Throws(ConditionFailureException.NotFound::class)
     fun deleteApplication(
         namespaceId: Long,
         applicationId: Long,
     ): Boolean
 
+    @Throws(ConditionFailureException.NotFound::class)
     fun listManagers(
         namespaceId: Long,
         applicationId: Long,
     ): List<UUID>
 
+    @Throws(ConditionFailureException.NotFound::class)
     fun addManager(
         assigner: UUID,
         namespaceId: Long,
@@ -53,6 +58,7 @@ interface ApplicationService {
         sub: UUID,
     ): Boolean
 
+    @Throws(ConditionFailureException.NotFound::class)
     fun removeManager(
         namespaceId: Long,
         applicationId: Long,

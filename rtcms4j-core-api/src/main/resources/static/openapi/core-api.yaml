@@ -1624,6 +1624,7 @@ components:
         - namespaceId
         - applicationId
         - name
+        - schemaSourceType
       properties:
         # not null
         id:
@@ -1639,6 +1640,8 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+        schemaSourceType:
+          $ref: '#/components/schemas/SourceType'
         # nullable
         commitHash:
           type: string
@@ -1646,45 +1649,26 @@ components:
           type: string
 
     ConfigurationDetailedDto:
-      type: object
-      required:
-        - id
-        - namespaceId
-        - applicationId
-        - name
-      properties:
-        # not null
-        id:
-          type: integer
-          format: int64
-        namespaceId:
-          type: integer
-          format: int64
-        applicationId:
-          type: integer
-          format: int64
-        name:
-          type: string
-          minLength: 1
-          maxLength: 64
-        # nullable
-        commitHash:
-          type: string
-        valuesData:
-          $ref: '#/components/schemas/ConfigurationValuesData'
-        schemaData:
-          $ref: '#/components/schemas/ConfigurationSchemaData'
-        stream-key:
-          type: string
+      allOf:
+        - $ref: '#/components/schemas/ConfigurationDto'
+        - type: object
+          properties:
+            valuesData:
+              $ref: '#/components/schemas/ConfigurationValuesData'
+            schemaData:
+              $ref: '#/components/schemas/ConfigurationSchemaData'
 
     ConfigurationDtoCreateRequest:
       type: object
       required:
         - name
+        - schemaSourceType
       properties:
         name:
           type: string
           minLength: 1
+        schemaSourceType:
+          $ref: '#/components/schemas/SourceType'
 
     ConfigurationDtoUpdateRequest:
       type: object
@@ -1692,6 +1676,8 @@ components:
         name:
           type: string
           minLength: 1
+        schemaSourceType:
+          $ref: '#/components/schemas/SourceType'
 
     ConfigurationValuesData:
       description: Json
@@ -1712,32 +1698,22 @@ components:
         commitHash:
           type: string
         sourceType:
-          type: string
-          enum:
-            - USER
-            - SERVICE
+          $ref: '#/components/schemas/SourceType'
         sourceIdentity:
           type: string
 
     ConfigurationCommitDetailedDto:
-      type: object
-      required:
-        - commitHash
-        - sourceType
-        - sourceIdentity
-      properties:
-        # not null
-        commitHash:
-          type: string
-        sourceType:
-          type: string
-          enum:
-            - USER
-            - SERVICE
-        sourceIdentity:
-          type: string
-        # nullable
-        valuesData:
-          $ref: '#/components/schemas/ConfigurationValuesData'
-        schemaData:
-          $ref: '#/components/schemas/ConfigurationSchemaData'
+      allOf:
+        - $ref: '#/components/schemas/ConfigurationCommitDto'
+        - type: object
+          properties:
+            valuesData:
+              $ref: '#/components/schemas/ConfigurationValuesData'
+            schemaData:
+              $ref: '#/components/schemas/ConfigurationSchemaData'
+
+    SourceType:
+      type: string
+      enum:
+        - USER
+        - SERVICE

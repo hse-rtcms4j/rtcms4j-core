@@ -18,11 +18,11 @@ import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
 import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.ApplicationEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.ApplicationManagerEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import java.util.UUID
 import kotlin.jvm.java
 import org.assertj.core.api.Assertions as AssertionsJ

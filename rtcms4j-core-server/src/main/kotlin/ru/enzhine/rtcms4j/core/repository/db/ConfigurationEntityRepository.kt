@@ -1,10 +1,11 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import kotlin.jvm.Throws
 
 interface ConfigurationEntityRepository {
@@ -15,13 +16,22 @@ interface ConfigurationEntityRepository {
     @Throws(DuplicateKeyException::class, DataIntegrityViolationException::class)
     fun save(configurationEntity: ConfigurationEntity): ConfigurationEntity
 
+    /**
+     * @throws DuplicateKeyException name already exists in namespace
+     */
+    @Throws(DuplicateKeyException::class)
+    fun update(configurationEntity: ConfigurationEntity): ConfigurationEntity
+
     fun findAllByApplicationIdAndName(
         applicationId: Long,
         name: String?,
         pageable: Pageable,
     ): Page<ConfigurationEntity>
 
-    fun findById(id: Long): ConfigurationEntity?
+    fun findById(
+        id: Long,
+        modifier: QueryModifier = QueryModifier.NONE,
+    ): ConfigurationEntity?
 
     fun removeById(id: Long): Boolean
 }

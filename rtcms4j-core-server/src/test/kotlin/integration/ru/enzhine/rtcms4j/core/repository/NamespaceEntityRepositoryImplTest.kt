@@ -16,7 +16,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.NamespaceEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepositoryImpl
 import java.text.Collator
 import java.util.Locale
 import java.util.UUID

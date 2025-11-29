@@ -1,9 +1,9 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitDetailedEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitEntity
 import kotlin.jvm.Throws
 
 interface ConfigurationCommitEntityRepository {

@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -6,8 +6,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -26,7 +27,6 @@ class ConfigurationEntityRepositoryImpl(
                     creatorSub = rs.getObject("creator_sub", UUID::class.java),
                     name = rs.getString("name"),
                     commitHash = rs.getString("commit_hash"),
-                    streamKey = rs.getString("stream_key"),
                     schemaSourceType = SourceType.valueOf(rs.getString("schema_source_type")),
                 )
             }
@@ -36,8 +36,8 @@ class ConfigurationEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                insert into configuration (application_id, creator_sub, name, commit_hash, stream_key, schema_source_type)
-                values (:application_id, :creator_sub, :name, :commit_hash, :stream_key, :schema_source_type)
+                insert into configuration (application_id, creator_sub, name, commit_hash, schema_source_type)
+                values (:application_id, :creator_sub, :name, :commit_hash, :schema_source_type)
                 returning *;
                 """.trimIndent(),
                 mapOf(
@@ -45,8 +45,27 @@ class ConfigurationEntityRepositoryImpl(
                     "creator_sub" to configurationEntity.creatorSub,
                     "name" to configurationEntity.name,
                     "commit_hash" to configurationEntity.commitHash,
-                    "stream_key" to configurationEntity.streamKey,
                     "schema_source_type" to configurationEntity.schemaSourceType.toString(),
+                ),
+                ROW_MAPPER,
+            ).first()
+
+    override fun update(configurationEntity: ConfigurationEntity): ConfigurationEntity =
+        npJdbc
+            .query(
+                """
+                update configuration
+                set updated_at = now(),
+                    name = :name,
+                    commit_hash = :commit_hash::varchar,
+                    schema_source_type = :schema_source_type
+                where id = :id
+                returning *;
+                """.trimIndent(),
+                mapOf(
+                    "name" to configurationEntity.name,
+                    "commit_hash" to configurationEntity.commitHash,
+                    "schema_source_type" to configurationEntity.schemaSourceType,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -109,12 +128,16 @@ class ConfigurationEntityRepositoryImpl(
             Long::class.java,
         ) ?: 0L
 
-    override fun findById(id: Long): ConfigurationEntity? =
+    override fun findById(
+        id: Long,
+        modifier: QueryModifier,
+    ): ConfigurationEntity? =
         npJdbc
             .query(
                 """
                 select * from configuration
-                where id = :id;
+                where id = :id
+                ${modifier.suffix};
                 """.trimIndent(),
                 mapOf(
                     "id" to id,

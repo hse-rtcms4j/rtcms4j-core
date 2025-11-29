@@ -6,4 +6,8 @@ server:
   port: 8080
 
 access-token:
-  prefix: "AT."
+  prefix: AT.
+
+key-val-repository:
+  global-prefix: RTCMS4J_CORE_SCOPE_
+  topic: NOTIFY_EVENT_TOPIC

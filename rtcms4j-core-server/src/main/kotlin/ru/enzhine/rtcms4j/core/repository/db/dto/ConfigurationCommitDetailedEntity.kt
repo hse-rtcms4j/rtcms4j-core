@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.repository.dto
+package ru.enzhine.rtcms4j.core.repository.db.dto
 
 import java.time.OffsetDateTime
 

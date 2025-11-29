@@ -1,9 +1,9 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
-import ru.enzhine.rtcms4j.core.repository.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import java.util.UUID
 import kotlin.jvm.Throws
 

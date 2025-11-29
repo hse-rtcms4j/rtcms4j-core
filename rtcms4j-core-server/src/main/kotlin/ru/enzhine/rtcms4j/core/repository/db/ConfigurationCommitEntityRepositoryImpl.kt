@@ -1,11 +1,11 @@
-package ru.enzhine.rtcms4j.core.repository
+package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitDetailedEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitEntity
-import ru.enzhine.rtcms4j.core.repository.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
 import java.time.OffsetDateTime
 
 @Repository

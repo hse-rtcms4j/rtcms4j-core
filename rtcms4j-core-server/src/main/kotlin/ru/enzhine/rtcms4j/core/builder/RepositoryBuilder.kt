@@ -1,12 +1,12 @@
 package ru.enzhine.rtcms4j.core.builder
 
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ApplicationManagerEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationCommitDetailedEntity
-import ru.enzhine.rtcms4j.core.repository.dto.ConfigurationEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceAdminEntity
-import ru.enzhine.rtcms4j.core.repository.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.repository.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceAdminEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -70,9 +70,8 @@ fun newConfigurationEntity(
     applicationId: Long,
     creatorSub: UUID,
     name: String,
-    usedCommitHash: String?,
-    streamKey: String?,
     schemaSourceType: SourceType,
+    usedCommitHash: String?,
 ) = ConfigurationEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
@@ -80,9 +79,8 @@ fun newConfigurationEntity(
     applicationId = applicationId,
     creatorSub = creatorSub,
     name = name,
-    commitHash = usedCommitHash,
-    streamKey = streamKey,
     schemaSourceType = schemaSourceType,
+    commitHash = usedCommitHash,
 )
 
 fun newConfigurationCommitEntity(

@@ -15,7 +15,10 @@ interface NamespaceService {
     ): Namespace
 
     @Throws(ConditionFailureException.NotFound::class)
-    fun getNamespaceById(namespaceId: Long): Namespace
+    fun getNamespaceById(
+        namespaceId: Long,
+        forShare: Boolean,
+    ): Namespace
 
     @Throws(ConditionFailureException.KeyDuplicated::class, ConditionFailureException.NotFound::class)
     fun updateNamespace(
@@ -29,10 +32,10 @@ interface NamespaceService {
         pageable: Pageable?,
     ): Page<Namespace>
 
-    @Throws(ConditionFailureException.NotFound::class)
     fun deleteNamespace(namespaceId: Long): Boolean
 
-    fun listAdmins(id: Long): List<UUID>
+    @Throws(ConditionFailureException.NotFound::class)
+    fun listAdmins(namespaceId: Long): List<UUID>
 
     @Throws(ConditionFailureException.NotFound::class)
     fun addAdmin(

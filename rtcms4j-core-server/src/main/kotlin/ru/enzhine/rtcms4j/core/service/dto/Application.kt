@@ -3,7 +3,7 @@ package ru.enzhine.rtcms4j.core.service.dto
 data class Application(
     val id: Long,
     val namespaceId: Long,
-    var name: String,
-    var description: String,
-    var accessToken: String,
+    val name: String,
+    val description: String,
+    val accessToken: String,
 )

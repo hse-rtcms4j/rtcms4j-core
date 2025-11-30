@@ -63,6 +63,10 @@ subprojects {
             dependency("io.zonky.test:embedded-postgres:$embeddedPostgresVersion")
             dependency("io.zonky.test:embedded-database-spring-test:$embeddedDatabaseSpringTestVersion")
 
+            val embeddedRedisVersion: String by project
+
+            dependency("com.github.codemonstur:embedded-redis:$embeddedRedisVersion")
+
             val cucumberVersion: String by project
             dependency("io.cucumber:cucumber-jvm:$cucumberVersion")
             dependency("io.cucumber:cucumber-spring:$cucumberVersion")

@@ -1,4 +1,4 @@
-package integration.ru.enzhine.rtcms4j.core.repository
+package integration.ru.enzhine.rtcms4j.core.repository.db
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
@@ -78,6 +78,27 @@ class NamespaceEntityRepositoryImplTest {
         Assertions.assertThrows(DuplicateKeyException::class.java) {
             namespaceEntityRepository.save(templateEntity)
         }
+    }
+
+    @Test
+    fun update_positive_success() {
+        val namespaceEntity =
+            namespaceEntityRepository
+                .save(
+                    newNamespaceEntity(
+                        creatorSub = sub,
+                        name = "BCR Team",
+                        description = "Broker reports serving team",
+                    ),
+                ).apply {
+                    name = "BPH Team"
+                    description = "Broker portfolio history"
+                }
+
+        val updated = namespaceEntityRepository.update(namespaceEntity)
+        Assertions.assertEquals(namespaceEntity.name, updated.name)
+        Assertions.assertEquals(namespaceEntity.description, updated.description)
+        Assertions.assertEquals(namespaceEntity.id, updated.id)
     }
 
     @Test

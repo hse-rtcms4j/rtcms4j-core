@@ -1,6 +1,10 @@
 spring:
   liquibase:
     enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6370
 
 zonky:
   test:

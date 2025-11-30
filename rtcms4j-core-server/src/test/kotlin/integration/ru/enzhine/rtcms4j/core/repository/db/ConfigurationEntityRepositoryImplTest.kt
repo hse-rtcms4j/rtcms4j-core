@@ -1,4 +1,4 @@
-package integration.ru.enzhine.rtcms4j.core.repository
+package integration.ru.enzhine.rtcms4j.core.repository.db
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
@@ -102,7 +102,7 @@ class ConfigurationEntityRepositoryImplTest {
                 application.id,
                 creatorSub = sub,
                 name = "MainDto",
-                usedCommitHash = null,
+                commitHash = null,
                 schemaSourceType = SourceType.SERVICE,
             )
 
@@ -122,7 +122,7 @@ class ConfigurationEntityRepositoryImplTest {
                 application.id,
                 creatorSub = sub,
                 name = "MainDto",
-                usedCommitHash = null,
+                commitHash = null,
                 schemaSourceType = SourceType.SERVICE,
             )
 
@@ -140,11 +140,36 @@ class ConfigurationEntityRepositoryImplTest {
                     10,
                     creatorSub = sub,
                     name = "MainDto",
-                    usedCommitHash = null,
+                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
         }
+    }
+
+    @Test
+    fun update_positive_success() {
+        val configurationEntity =
+            configurationEntityRepository
+                .save(
+                    newConfigurationEntity(
+                        application.id,
+                        creatorSub = sub,
+                        name = "MainDto",
+                        commitHash = null,
+                        schemaSourceType = SourceType.SERVICE,
+                    ),
+                ).apply {
+                    name = "Facade"
+                    schemaSourceType = SourceType.USER
+                    commitHash = "abcd1234"
+                }
+
+        val updated = configurationEntityRepository.update(configurationEntity)
+        Assertions.assertEquals(configurationEntity.name, updated.name)
+        Assertions.assertEquals(configurationEntity.schemaSourceType, updated.schemaSourceType)
+        Assertions.assertEquals(configurationEntity.commitHash, updated.commitHash)
+        Assertions.assertEquals(configurationEntity.id, updated.id)
     }
 
     @Test
@@ -155,7 +180,7 @@ class ConfigurationEntityRepositoryImplTest {
                     application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    usedCommitHash = null,
+                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -178,7 +203,7 @@ class ConfigurationEntityRepositoryImplTest {
                         application.id,
                         creatorSub = sub,
                         name = "MainDto",
-                        usedCommitHash = null,
+                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -187,7 +212,7 @@ class ConfigurationEntityRepositoryImplTest {
                         application.id,
                         creatorSub = sub,
                         name = "BasicDto",
-                        usedCommitHash = null,
+                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -196,7 +221,7 @@ class ConfigurationEntityRepositoryImplTest {
                         application.id,
                         creatorSub = sub,
                         name = "RandomDto",
-                        usedCommitHash = null,
+                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -237,7 +262,7 @@ class ConfigurationEntityRepositoryImplTest {
                         application.id,
                         creatorSub = sub,
                         name = "DtoC",
-                        usedCommitHash = null,
+                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -246,7 +271,7 @@ class ConfigurationEntityRepositoryImplTest {
                         application.id,
                         creatorSub = sub,
                         name = "DtoA",
-                        usedCommitHash = null,
+                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -255,7 +280,7 @@ class ConfigurationEntityRepositoryImplTest {
                         application.id,
                         creatorSub = sub,
                         name = "DtoB",
-                        usedCommitHash = null,
+                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
                     ),
                 ),
@@ -288,7 +313,7 @@ class ConfigurationEntityRepositoryImplTest {
                     application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    usedCommitHash = null,
+                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -305,7 +330,7 @@ class ConfigurationEntityRepositoryImplTest {
                     application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    usedCommitHash = null,
+                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )
@@ -329,7 +354,7 @@ class ConfigurationEntityRepositoryImplTest {
                 application.id,
                 creatorSub = sub,
                 name = "MainDto",
-                usedCommitHash = null,
+                commitHash = null,
                 schemaSourceType = SourceType.SERVICE,
             )
 

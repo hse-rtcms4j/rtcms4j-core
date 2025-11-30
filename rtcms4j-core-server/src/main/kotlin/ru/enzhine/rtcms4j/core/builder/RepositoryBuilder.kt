@@ -71,7 +71,7 @@ fun newConfigurationEntity(
     creatorSub: UUID,
     name: String,
     schemaSourceType: SourceType,
-    usedCommitHash: String?,
+    commitHash: String?,
 ) = ConfigurationEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
@@ -80,7 +80,7 @@ fun newConfigurationEntity(
     creatorSub = creatorSub,
     name = name,
     schemaSourceType = schemaSourceType,
-    commitHash = usedCommitHash,
+    commitHash = commitHash,
 )
 
 fun newConfigurationCommitEntity(

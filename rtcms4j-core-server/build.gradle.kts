@@ -29,6 +29,7 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("io.zonky.test:embedded-postgres")
     testImplementation("io.zonky.test:embedded-database-spring-test")
+    testImplementation("com.github.codemonstur:embedded-redis")
 }
 
 tasks.bootJar {

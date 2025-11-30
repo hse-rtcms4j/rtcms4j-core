@@ -1,4 +1,4 @@
-package integration.ru.enzhine.rtcms4j.core.repository
+package integration.ru.enzhine.rtcms4j.core.repository.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase
@@ -108,7 +108,7 @@ class ConfigurationCommitEntityRepositoryImplTest {
                     applicationId = application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    usedCommitHash = null,
+                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
                 ),
             )

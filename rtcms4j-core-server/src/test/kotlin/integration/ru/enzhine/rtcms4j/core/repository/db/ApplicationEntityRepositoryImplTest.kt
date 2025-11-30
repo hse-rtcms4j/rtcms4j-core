@@ -1,4 +1,4 @@
-package integration.ru.enzhine.rtcms4j.core.repository
+package integration.ru.enzhine.rtcms4j.core.repository.db
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import org.junit.jupiter.api.Assertions
@@ -52,7 +52,7 @@ class ApplicationEntityRepositoryImplTest {
     private lateinit var namespaceEntityRepository: NamespaceEntityRepositoryImpl
 
     @Autowired
-    private lateinit var applicationEntityRepositoryImpl: ApplicationEntityRepositoryImpl
+    private lateinit var applicationEntityRepository: ApplicationEntityRepositoryImpl
 
     private val sub = UUID.fromString("fb9fff20-52d8-4fa0-9b24-35a85303e70b")
     private val accessToken = "kashdvn817t17envoaidjjvna75as65aios9y"
@@ -85,7 +85,7 @@ class ApplicationEntityRepositoryImplTest {
                 accessToken = accessToken,
             )
 
-        val created = applicationEntityRepositoryImpl.save(templateEntity)
+        val created = applicationEntityRepository.save(templateEntity)
         Assertions.assertEquals(templateEntity.creatorSub, created.creatorSub)
         Assertions.assertEquals(templateEntity.namespaceId, created.namespaceId)
         Assertions.assertEquals(templateEntity.name, created.name)
@@ -105,16 +105,16 @@ class ApplicationEntityRepositoryImplTest {
                 accessToken = accessToken,
             )
 
-        applicationEntityRepositoryImpl.save(templateEntity)
+        applicationEntityRepository.save(templateEntity)
         Assertions.assertThrows(DuplicateKeyException::class.java) {
-            applicationEntityRepositoryImpl.save(templateEntity)
+            applicationEntityRepository.save(templateEntity)
         }
     }
 
     @Test
     fun save_namespaceDoesNotExist_error() {
         Assertions.assertThrows(DataIntegrityViolationException::class.java) {
-            applicationEntityRepositoryImpl.save(
+            applicationEntityRepository.save(
                 newApplicationEntity(
                     namespaceId = 10,
                     creatorSub = sub,
@@ -127,9 +127,34 @@ class ApplicationEntityRepositoryImplTest {
     }
 
     @Test
+    fun update_positive_success() {
+        val applicationEntity =
+            applicationEntityRepository
+                .save(
+                    newApplicationEntity(
+                        namespaceId = namespace.id,
+                        creatorSub = sub,
+                        name = "Registry",
+                        description = "Clients data storage service",
+                        accessToken = accessToken,
+                    ),
+                ).apply {
+                    name = "Facade"
+                    description = "Api gateway"
+                    accessToken = "aihscdo871236oe81xmw78eotnxa2111!"
+                }
+
+        val updated = applicationEntityRepository.update(applicationEntity)
+        Assertions.assertEquals(applicationEntity.name, updated.name)
+        Assertions.assertEquals(applicationEntity.description, updated.description)
+        Assertions.assertEquals(applicationEntity.accessToken, updated.accessToken)
+        Assertions.assertEquals(applicationEntity.id, updated.id)
+    }
+
+    @Test
     fun findAllByName_positive_success() {
         val created =
-            applicationEntityRepositoryImpl.save(
+            applicationEntityRepository.save(
                 newApplicationEntity(
                     namespaceId = namespace.id,
                     creatorSub = sub,
@@ -139,7 +164,7 @@ class ApplicationEntityRepositoryImplTest {
                 ),
             )
 
-        val page = applicationEntityRepositoryImpl.findAllByName(namespace.id, null, PageRequest.of(0, 2))
+        val page = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page.number)
         Assertions.assertEquals(2, page.size)
         Assertions.assertEquals(1, page.content.size)
@@ -152,7 +177,7 @@ class ApplicationEntityRepositoryImplTest {
     fun findAllByName_manyResultsByName_paginationCorrect() {
         val allValues =
             listOf(
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -161,7 +186,7 @@ class ApplicationEntityRepositoryImplTest {
                         accessToken = accessToken,
                     ),
                 ),
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -170,7 +195,7 @@ class ApplicationEntityRepositoryImplTest {
                         accessToken = accessToken,
                     ),
                 ),
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -179,7 +204,7 @@ class ApplicationEntityRepositoryImplTest {
                         accessToken = accessToken,
                     ),
                 ),
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -190,21 +215,21 @@ class ApplicationEntityRepositoryImplTest {
                 ),
             )
 
-        val nonExistingPage = applicationEntityRepositoryImpl.findAllByName(10, null, PageRequest.of(0, 2))
+        val nonExistingPage = applicationEntityRepository.findAllByName(10, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, nonExistingPage.number)
         Assertions.assertEquals(2, nonExistingPage.size)
         Assertions.assertTrue(nonExistingPage.isEmpty)
         Assertions.assertEquals(0, nonExistingPage.totalElements)
         Assertions.assertEquals(0, nonExistingPage.totalPages)
 
-        val emptyPage = applicationEntityRepositoryImpl.findAllByName(namespace.id, "Spring", PageRequest.of(0, 2))
+        val emptyPage = applicationEntityRepository.findAllByName(namespace.id, "Spring", PageRequest.of(0, 2))
         Assertions.assertEquals(0, emptyPage.number)
         Assertions.assertEquals(2, emptyPage.size)
         Assertions.assertTrue(emptyPage.isEmpty)
         Assertions.assertEquals(0, emptyPage.totalElements)
         Assertions.assertEquals(0, emptyPage.totalPages)
 
-        val page0 = applicationEntityRepositoryImpl.findAllByName(namespace.id, "cher", PageRequest.of(0, 2))
+        val page0 = applicationEntityRepository.findAllByName(namespace.id, "cher", PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.filter { it.name.contains("cher") }
@@ -220,7 +245,7 @@ class ApplicationEntityRepositoryImplTest {
 
         val allValues =
             listOf(
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -229,7 +254,7 @@ class ApplicationEntityRepositoryImplTest {
                         accessToken = accessToken,
                     ),
                 ),
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -238,7 +263,7 @@ class ApplicationEntityRepositoryImplTest {
                         accessToken = accessToken,
                     ),
                 ),
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -247,7 +272,7 @@ class ApplicationEntityRepositoryImplTest {
                         accessToken = accessToken,
                     ),
                 ),
-                applicationEntityRepositoryImpl.save(
+                applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
                         creatorSub = sub,
@@ -258,7 +283,7 @@ class ApplicationEntityRepositoryImplTest {
                 ),
             ).sortedWith(compareBy(collator) { it.name })
 
-        val page0 = applicationEntityRepositoryImpl.findAllByName(namespace.id, null, PageRequest.of(0, 2))
+        val page0 = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.subList(0, 2)
@@ -267,7 +292,7 @@ class ApplicationEntityRepositoryImplTest {
         Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
         Assertions.assertEquals(2, page0.totalPages)
 
-        val page1 = applicationEntityRepositoryImpl.findAllByName(namespace.id, null, PageRequest.of(1, 2))
+        val page1 = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(1, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage1Content = allValues.subList(2, 4)
@@ -280,7 +305,7 @@ class ApplicationEntityRepositoryImplTest {
     @Test
     fun findById_positive_success() {
         val created =
-            applicationEntityRepositoryImpl.save(
+            applicationEntityRepository.save(
                 newApplicationEntity(
                     namespaceId = namespace.id,
                     creatorSub = sub,
@@ -289,7 +314,7 @@ class ApplicationEntityRepositoryImplTest {
                     accessToken = accessToken,
                 ),
             )
-        val found = applicationEntityRepositoryImpl.findById(created.id)
+        val found = applicationEntityRepository.findById(created.id)
 
         Assertions.assertEquals(created, found)
     }
@@ -297,7 +322,7 @@ class ApplicationEntityRepositoryImplTest {
     @Test
     fun removeById_positive_success() {
         val created =
-            applicationEntityRepositoryImpl.save(
+            applicationEntityRepository.save(
                 newApplicationEntity(
                     namespaceId = namespace.id,
                     creatorSub = sub,
@@ -306,15 +331,15 @@ class ApplicationEntityRepositoryImplTest {
                     accessToken = accessToken,
                 ),
             )
-        val result = applicationEntityRepositoryImpl.removeById(created.id)
+        val result = applicationEntityRepository.removeById(created.id)
         Assertions.assertTrue(result)
-        val result2 = applicationEntityRepositoryImpl.removeById(created.id)
+        val result2 = applicationEntityRepository.removeById(created.id)
         Assertions.assertFalse(result2)
 
-        val found = applicationEntityRepositoryImpl.findById(created.id)
+        val found = applicationEntityRepository.findById(created.id)
         Assertions.assertNull(found)
 
-        val page = applicationEntityRepositoryImpl.findAllByName(namespace.id, null, PageRequest.of(0, 2))
+        val page = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page.number)
         Assertions.assertEquals(2, page.size)
         Assertions.assertEquals(0, page.content.size)
@@ -334,11 +359,11 @@ class ApplicationEntityRepositoryImplTest {
                 accessToken = accessToken,
             )
 
-        val created1 = applicationEntityRepositoryImpl.save(templateEntity)
-        applicationEntityRepositoryImpl.removeById(created1.id)
+        val created1 = applicationEntityRepository.save(templateEntity)
+        applicationEntityRepository.removeById(created1.id)
 
         Assertions.assertDoesNotThrow {
-            applicationEntityRepositoryImpl.save(templateEntity)
+            applicationEntityRepository.save(templateEntity)
         }
     }
 }

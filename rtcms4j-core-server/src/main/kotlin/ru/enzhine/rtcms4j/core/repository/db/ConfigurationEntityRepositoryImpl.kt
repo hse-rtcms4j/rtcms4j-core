@@ -65,7 +65,8 @@ class ConfigurationEntityRepositoryImpl(
                 mapOf(
                     "name" to configurationEntity.name,
                     "commit_hash" to configurationEntity.commitHash,
-                    "schema_source_type" to configurationEntity.schemaSourceType,
+                    "schema_source_type" to configurationEntity.schemaSourceType.toString(),
+                    "id" to configurationEntity.id,
                 ),
                 ROW_MAPPER,
             ).first()

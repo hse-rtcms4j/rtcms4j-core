@@ -140,6 +140,7 @@ class ApplicationEntityRepositoryImpl(
                     "name" to applicationEntity.name,
                     "description" to applicationEntity.description,
                     "access_token" to applicationEntity.accessToken,
+                    "id" to applicationEntity.id,
                 ),
                 ROW_MAPPER,
             ).first()

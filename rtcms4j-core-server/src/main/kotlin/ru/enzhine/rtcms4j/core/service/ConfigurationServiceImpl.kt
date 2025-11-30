@@ -53,7 +53,7 @@ class ConfigurationServiceImpl(
                         creatorSub = creator,
                         name = name,
                         schemaSourceType = schemaSourceType.toRepository(),
-                        usedCommitHash = null,
+                        commitHash = null,
                     ),
                 )
 

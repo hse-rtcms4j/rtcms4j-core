@@ -3,7 +3,7 @@ package ru.enzhine.rtcms4j.core.repository.kv
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.config.props.KeyValRepositoryProperties
-import ru.enzhine.rtcms4j.core.service.dto.Configuration
+import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 
 @Repository
 class KeyValueRepositoryImpl(

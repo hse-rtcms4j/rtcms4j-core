@@ -54,18 +54,18 @@ subprojects {
 
         dependencies {
             val springDocVersion: String by project
-
             dependency("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
 
             val embeddedPostgresVersion: String by project
             val embeddedDatabaseSpringTestVersion: String by project
-
             dependency("io.zonky.test:embedded-postgres:$embeddedPostgresVersion")
             dependency("io.zonky.test:embedded-database-spring-test:$embeddedDatabaseSpringTestVersion")
 
             val embeddedRedisVersion: String by project
-
             dependency("com.github.codemonstur:embedded-redis:$embeddedRedisVersion")
+
+            val keycloakAdminClientVersion: String by project
+            dependency("org.keycloak:keycloak-admin-client:$keycloakAdminClientVersion")
 
             val cucumberVersion: String by project
             dependency("io.cucumber:cucumber-jvm:$cucumberVersion")

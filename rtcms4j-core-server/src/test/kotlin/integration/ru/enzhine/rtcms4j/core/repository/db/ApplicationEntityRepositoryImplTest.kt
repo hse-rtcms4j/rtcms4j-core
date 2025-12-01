@@ -55,7 +55,6 @@ class ApplicationEntityRepositoryImplTest {
     private lateinit var applicationEntityRepository: ApplicationEntityRepositoryImpl
 
     private val sub = UUID.fromString("fb9fff20-52d8-4fa0-9b24-35a85303e70b")
-    private val accessToken = "kashdvn817t17envoaidjjvna75as65aios9y"
 
     private lateinit var namespace: NamespaceEntity
 
@@ -82,7 +81,6 @@ class ApplicationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "Registry",
                 description = "Clients data storage service",
-                accessToken = accessToken,
             )
 
         val created = applicationEntityRepository.save(templateEntity)
@@ -90,7 +88,6 @@ class ApplicationEntityRepositoryImplTest {
         Assertions.assertEquals(templateEntity.namespaceId, created.namespaceId)
         Assertions.assertEquals(templateEntity.name, created.name)
         Assertions.assertEquals(templateEntity.description, created.description)
-        Assertions.assertEquals(templateEntity.accessToken, created.accessToken)
         Assertions.assertEquals(1, created.id)
     }
 
@@ -102,7 +99,6 @@ class ApplicationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "Registry",
                 description = "Clients data storage service",
-                accessToken = accessToken,
             )
 
         applicationEntityRepository.save(templateEntity)
@@ -120,7 +116,6 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
-                    accessToken = accessToken,
                 ),
             )
         }
@@ -136,18 +131,15 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Registry",
                         description = "Clients data storage service",
-                        accessToken = accessToken,
                     ),
                 ).apply {
                     name = "Facade"
                     description = "Api gateway"
-                    accessToken = "aihscdo871236oe81xmw78eotnxa2111!"
                 }
 
         val updated = applicationEntityRepository.update(applicationEntity)
         Assertions.assertEquals(applicationEntity.name, updated.name)
         Assertions.assertEquals(applicationEntity.description, updated.description)
-        Assertions.assertEquals(applicationEntity.accessToken, updated.accessToken)
         Assertions.assertEquals(applicationEntity.id, updated.id)
     }
 
@@ -160,7 +152,6 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
-                    accessToken = accessToken,
                 ),
             )
 
@@ -183,7 +174,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Registry",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -192,7 +182,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Dispatcher",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -201,7 +190,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Matcher",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -210,7 +198,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Validator",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
             )
@@ -251,7 +238,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Registry",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -260,7 +246,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Dispatcher",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -269,7 +254,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Matcher",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -278,7 +262,6 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Validator",
                         description = "",
-                        accessToken = accessToken,
                     ),
                 ),
             ).sortedWith(compareBy(collator) { it.name })
@@ -311,7 +294,6 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
-                    accessToken = accessToken,
                 ),
             )
         val found = applicationEntityRepository.findById(created.id)
@@ -328,7 +310,6 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
-                    accessToken = accessToken,
                 ),
             )
         val result = applicationEntityRepository.removeById(created.id)
@@ -356,7 +337,6 @@ class ApplicationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "Registry",
                 description = "Clients data storage service",
-                accessToken = accessToken,
             )
 
         val created1 = applicationEntityRepository.save(templateEntity)

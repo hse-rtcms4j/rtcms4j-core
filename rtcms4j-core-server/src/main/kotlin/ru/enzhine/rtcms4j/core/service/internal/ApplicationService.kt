@@ -1,9 +1,9 @@
-package ru.enzhine.rtcms4j.core.service
+package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
-import ru.enzhine.rtcms4j.core.service.dto.Application
+import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import java.util.UUID
 
 interface ApplicationService {
@@ -28,7 +28,6 @@ interface ApplicationService {
         applicationId: Long,
         name: String?,
         description: String?,
-        accessToken: String?,
     ): Application
 
     @Throws(ConditionFailureException.NotFound::class)

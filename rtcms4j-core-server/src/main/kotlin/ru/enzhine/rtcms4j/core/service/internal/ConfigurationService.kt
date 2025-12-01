@@ -1,13 +1,13 @@
-package ru.enzhine.rtcms4j.core.service
+package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
-import ru.enzhine.rtcms4j.core.service.dto.Configuration
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommit
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommitDetailed
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationDetailed
-import ru.enzhine.rtcms4j.core.service.dto.SourceType
+import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import java.util.UUID
 
 interface ConfigurationService {

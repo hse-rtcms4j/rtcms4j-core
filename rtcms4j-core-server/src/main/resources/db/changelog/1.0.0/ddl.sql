@@ -42,8 +42,7 @@ create table application(
     namespace_id bigint not null references namespace (id) on delete cascade,
     creator_sub uuid not null,
     name varchar(64) not null,
-    description text not null,
-    access_token varchar(64) not null
+    description text not null
 );
 --rollback drop table if exists application;
 

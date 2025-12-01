@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.service
+package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
@@ -17,7 +17,8 @@ import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
-import ru.enzhine.rtcms4j.core.service.dto.Application
+import ru.enzhine.rtcms4j.core.service.external.KeycloakService
+import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import java.util.UUID
 
 @Service
@@ -26,7 +27,7 @@ class ApplicationServiceImpl(
     private val applicationManagerEntityRepository: ApplicationManagerEntityRepository,
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val namespaceService: NamespaceService,
-    private val accessTokenService: AccessTokenService,
+    private val keycloakService: KeycloakService,
 ) : ApplicationService {
     @Transactional
     override fun createApplication(
@@ -45,9 +46,11 @@ class ApplicationServiceImpl(
                         creatorSub = creator,
                         name = name,
                         description = description,
-                        accessToken = accessTokenService.randomAccessToken(),
                     ),
                 )
+
+            val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
+            keycloakService.createNewApplicationClient(clientId)
 
             return applicationEntity.toService()
         } catch (ex: DuplicateKeyException) {
@@ -85,7 +88,6 @@ class ApplicationServiceImpl(
         applicationId: Long,
         name: String?,
         description: String?,
-        accessToken: String?,
     ): Application {
         val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
@@ -97,13 +99,12 @@ class ApplicationServiceImpl(
             throw applicationNotFoundException(applicationId)
         }
 
-        if (name == null && description == null && accessToken == null) {
+        if (name == null && description == null) {
             return applicationEntity.toService()
         }
 
         name?.let { applicationEntity.name = name }
         description?.let { applicationEntity.description = description }
-        accessToken?.let { applicationEntity.accessToken = accessToken }
 
         try {
             val updatedApplicationEntity =

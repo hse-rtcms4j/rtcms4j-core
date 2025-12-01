@@ -98,7 +98,6 @@ class ConfigurationCommitEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
-                    accessToken = "kashdvn817t17envoaidjjvna75as65aios9y",
                 ),
             )
 

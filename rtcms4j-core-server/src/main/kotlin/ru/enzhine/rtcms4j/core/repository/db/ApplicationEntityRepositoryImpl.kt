@@ -26,7 +26,6 @@ class ApplicationEntityRepositoryImpl(
                     creatorSub = rs.getObject("creator_sub", UUID::class.java),
                     name = rs.getString("name"),
                     description = rs.getString("description"),
-                    accessToken = rs.getString("access_token"),
                 )
             }
     }
@@ -110,8 +109,8 @@ class ApplicationEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                insert into application (namespace_id, creator_sub, name, description, access_token)
-                values (:namespace_id, :creator_sub, :name, :description, :access_token)
+                insert into application (namespace_id, creator_sub, name, description)
+                values (:namespace_id, :creator_sub, :name, :description)
                 returning *;
                 """.trimIndent(),
                 mapOf(
@@ -119,7 +118,6 @@ class ApplicationEntityRepositoryImpl(
                     "creator_sub" to applicationEntity.creatorSub,
                     "name" to applicationEntity.name,
                     "description" to applicationEntity.description,
-                    "access_token" to applicationEntity.accessToken,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -131,15 +129,13 @@ class ApplicationEntityRepositoryImpl(
                 update application
                 set updated_at = now(),
                     name = :name,
-                    description = :description,
-                    access_token = :access_token
+                    description = :description
                 where id = :id
                 returning *;
                 """.trimIndent(),
                 mapOf(
                     "name" to applicationEntity.name,
                     "description" to applicationEntity.description,
-                    "access_token" to applicationEntity.accessToken,
                     "id" to applicationEntity.id,
                 ),
                 ROW_MAPPER,

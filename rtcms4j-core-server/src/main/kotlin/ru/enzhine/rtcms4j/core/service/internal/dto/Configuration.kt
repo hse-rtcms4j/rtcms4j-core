@@ -1,12 +1,10 @@
-package ru.enzhine.rtcms4j.core.service.dto
+package ru.enzhine.rtcms4j.core.service.internal.dto
 
-data class ConfigurationDetailed(
+data class Configuration(
     val id: Long,
     val namespaceId: Long,
     val applicationId: Long,
     val name: String,
     val schemaSourceType: SourceType,
     val commitHash: String?,
-    val valuesData: String?,
-    val schemaData: String?,
 )

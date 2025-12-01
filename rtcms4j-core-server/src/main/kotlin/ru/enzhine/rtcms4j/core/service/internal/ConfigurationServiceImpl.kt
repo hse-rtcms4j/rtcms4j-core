@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.service
+package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
@@ -19,11 +19,11 @@ import ru.enzhine.rtcms4j.core.repository.db.ConfigurationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.repository.kv.KeyValueRepository
 import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
-import ru.enzhine.rtcms4j.core.service.dto.Configuration
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommit
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommitDetailed
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationDetailed
-import ru.enzhine.rtcms4j.core.service.dto.SourceType
+import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import java.util.UUID
 
 @Service

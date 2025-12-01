@@ -10,8 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.repository.kv.KeyValueRepositoryImpl
-import ru.enzhine.rtcms4j.core.service.dto.Configuration
-import ru.enzhine.rtcms4j.core.service.dto.SourceType
+import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
+import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 
 @SpringBootTest(
     classes = [

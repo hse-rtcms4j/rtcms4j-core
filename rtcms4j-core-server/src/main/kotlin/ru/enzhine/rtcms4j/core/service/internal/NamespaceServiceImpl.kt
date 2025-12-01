@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.service
+package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
@@ -16,7 +16,7 @@ import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
-import ru.enzhine.rtcms4j.core.service.dto.Namespace
+import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
 import java.util.UUID
 
 @Service

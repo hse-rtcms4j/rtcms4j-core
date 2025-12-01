@@ -1,4 +1,4 @@
-package ru.enzhine.rtcms4j.core.service.dto
+package ru.enzhine.rtcms4j.core.service.internal.dto
 
 data class Namespace(
     val id: Long,

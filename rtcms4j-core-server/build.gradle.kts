@@ -19,6 +19,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
+    implementation("org.keycloak:keycloak-admin-client")
+
     runtimeOnly("org.postgresql:postgresql")
 
     // Test purposed

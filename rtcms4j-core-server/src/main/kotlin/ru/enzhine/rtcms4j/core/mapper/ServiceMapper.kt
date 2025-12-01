@@ -3,13 +3,13 @@ package ru.enzhine.rtcms4j.core.mapper
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.service.dto.Application
-import ru.enzhine.rtcms4j.core.service.dto.Configuration
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommit
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationCommitDetailed
-import ru.enzhine.rtcms4j.core.service.dto.ConfigurationDetailed
-import ru.enzhine.rtcms4j.core.service.dto.Namespace
-import ru.enzhine.rtcms4j.core.service.dto.SourceType
+import ru.enzhine.rtcms4j.core.service.internal.dto.Application
+import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
+import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType as RepositorySourceType
 
 fun RepositorySourceType.toService() =
@@ -52,7 +52,6 @@ fun ApplicationEntity.toService() =
         namespaceId = namespaceId,
         name = name,
         description = description,
-        accessToken = accessToken,
     )
 
 fun ConfigurationEntity.toService(namespaceId: Long) =

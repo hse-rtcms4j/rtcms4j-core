@@ -121,13 +121,15 @@ class ApplicationServiceImpl(
         name: String?,
         pageable: Pageable?,
     ): Page<Application> {
-        namespaceService.getNamespaceById(namespaceId, false)
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
         val pageable =
             pageable
                 ?: PageRequest.of(0, defaultPaginationProperties.pageSize)
 
-        return applicationEntityRepository.findAllByName(namespaceId, name, pageable).map { it.toService() }
+        return applicationEntityRepository
+            .findAllByNamespaceIdAndName(namespace.id, name, pageable)
+            .map { it.toService() }
     }
 
     override fun deleteApplication(

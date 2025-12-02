@@ -8,7 +8,7 @@ import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 
 interface ApplicationEntityRepository {
-    fun findAllByName(
+    fun findAllByNamespaceIdAndName(
         namespaceId: Long,
         name: String?,
         pageable: Pageable,

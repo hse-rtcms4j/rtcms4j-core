@@ -144,7 +144,7 @@ class ApplicationEntityRepositoryImplTest {
     }
 
     @Test
-    fun findAllByName_positive_success() {
+    fun findAllByNamespaceIdAndName_positive_success() {
         val created =
             applicationEntityRepository.save(
                 newApplicationEntity(
@@ -155,7 +155,7 @@ class ApplicationEntityRepositoryImplTest {
                 ),
             )
 
-        val page = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(0, 2))
+        val page = applicationEntityRepository.findAllByNamespaceIdAndName(namespace.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page.number)
         Assertions.assertEquals(2, page.size)
         Assertions.assertEquals(1, page.content.size)
@@ -165,7 +165,7 @@ class ApplicationEntityRepositoryImplTest {
     }
 
     @Test
-    fun findAllByName_manyResultsByName_paginationCorrect() {
+    fun findAllByNamespaceIdAndName_manyResultsByName_paginationCorrect() {
         val allValues =
             listOf(
                 applicationEntityRepository.save(
@@ -202,21 +202,21 @@ class ApplicationEntityRepositoryImplTest {
                 ),
             )
 
-        val nonExistingPage = applicationEntityRepository.findAllByName(10, null, PageRequest.of(0, 2))
+        val nonExistingPage = applicationEntityRepository.findAllByNamespaceIdAndName(10, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, nonExistingPage.number)
         Assertions.assertEquals(2, nonExistingPage.size)
         Assertions.assertTrue(nonExistingPage.isEmpty)
         Assertions.assertEquals(0, nonExistingPage.totalElements)
         Assertions.assertEquals(0, nonExistingPage.totalPages)
 
-        val emptyPage = applicationEntityRepository.findAllByName(namespace.id, "Spring", PageRequest.of(0, 2))
+        val emptyPage = applicationEntityRepository.findAllByNamespaceIdAndName(namespace.id, "Spring", PageRequest.of(0, 2))
         Assertions.assertEquals(0, emptyPage.number)
         Assertions.assertEquals(2, emptyPage.size)
         Assertions.assertTrue(emptyPage.isEmpty)
         Assertions.assertEquals(0, emptyPage.totalElements)
         Assertions.assertEquals(0, emptyPage.totalPages)
 
-        val page0 = applicationEntityRepository.findAllByName(namespace.id, "cher", PageRequest.of(0, 2))
+        val page0 = applicationEntityRepository.findAllByNamespaceIdAndName(namespace.id, "cher", PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.filter { it.name.contains("cher") }
@@ -227,7 +227,7 @@ class ApplicationEntityRepositoryImplTest {
     }
 
     @Test
-    fun findAllByName_manyResults_paginationCorrect() {
+    fun findAllByNamespaceIdAndName_manyResults_paginationCorrect() {
         val collator = Collator.getInstance(Locale.US)
 
         val allValues =
@@ -266,7 +266,7 @@ class ApplicationEntityRepositoryImplTest {
                 ),
             ).sortedWith(compareBy(collator) { it.name })
 
-        val page0 = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(0, 2))
+        val page0 = applicationEntityRepository.findAllByNamespaceIdAndName(namespace.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.subList(0, 2)
@@ -275,7 +275,7 @@ class ApplicationEntityRepositoryImplTest {
         Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
         Assertions.assertEquals(2, page0.totalPages)
 
-        val page1 = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(1, 2))
+        val page1 = applicationEntityRepository.findAllByNamespaceIdAndName(namespace.id, null, PageRequest.of(1, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage1Content = allValues.subList(2, 4)
@@ -320,7 +320,7 @@ class ApplicationEntityRepositoryImplTest {
         val found = applicationEntityRepository.findById(created.id)
         Assertions.assertNull(found)
 
-        val page = applicationEntityRepository.findAllByName(namespace.id, null, PageRequest.of(0, 2))
+        val page = applicationEntityRepository.findAllByNamespaceIdAndName(namespace.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page.number)
         Assertions.assertEquals(2, page.size)
         Assertions.assertEquals(0, page.content.size)

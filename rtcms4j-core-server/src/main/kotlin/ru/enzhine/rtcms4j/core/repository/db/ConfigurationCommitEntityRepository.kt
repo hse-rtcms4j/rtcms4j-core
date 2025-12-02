@@ -16,10 +16,15 @@ interface ConfigurationCommitEntityRepository {
 
     fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitEntity>
 
-    fun findByConfigurationIdAndCommitHash(
+    fun findByConfigurationIdAndCommitHashDetailed(
         configurationId: Long,
         commitHash: String,
     ): ConfigurationCommitDetailedEntity?
+
+    fun findByConfigurationIdAndCommitHash(
+        configurationId: Long,
+        commitHash: String,
+    ): ConfigurationCommitEntity?
 
     fun findById(id: Long): ConfigurationCommitDetailedEntity?
 

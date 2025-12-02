@@ -18,6 +18,15 @@ fun configurationNotFoundException(
     detailCode: Int? = null,
 ) = ConditionFailureException.NotFound("Configuration with id '$configurationId' not found.", detailCode)
 
+fun configurationCommitNotFoundException(
+    configurationId: Long,
+    commitHash: String,
+    detailCode: Int? = null,
+) = ConditionFailureException.NotFound(
+    message = "Commit with hash '$commitHash' for configuration with id '$configurationId' not found.",
+    detailCode = detailCode,
+)
+
 fun nameKeyDuplicatedException(
     cause: DuplicateKeyException,
     detailCode: Int? = null,

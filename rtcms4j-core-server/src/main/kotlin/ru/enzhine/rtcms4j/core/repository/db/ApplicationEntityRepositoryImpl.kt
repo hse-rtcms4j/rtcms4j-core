@@ -30,7 +30,7 @@ class ApplicationEntityRepositoryImpl(
             }
     }
 
-    override fun findAllByName(
+    override fun findAllByNamespaceIdAndName(
         namespaceId: Long,
         name: String?,
         pageable: Pageable,

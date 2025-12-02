@@ -206,6 +206,38 @@ class ConfigurationCommitEntityRepositoryImplTest {
     }
 
     @Test
+    fun findByConfigurationIdAndCommitHashDetailed_positive_success() {
+        val created1 =
+            configurationCommitEntityRepository.save(
+                newConfigurationCommitEntity(
+                    configuration.id,
+                    sourceType = SourceType.SERVICE,
+                    sourceIdentity = "App-1",
+                    commitHash = "a1b1",
+                    jsonValues = jsonValues,
+                    jsonSchema = jsonSchema,
+                ),
+            )
+        configurationCommitEntityRepository.save(
+            newConfigurationCommitEntity(
+                configuration.id,
+                sourceType = SourceType.SERVICE,
+                sourceIdentity = "App-1",
+                commitHash = "a2b2",
+                jsonValues = jsonValues,
+                jsonSchema = jsonSchema,
+            ),
+        )
+
+        val found =
+            configurationCommitEntityRepository.findByConfigurationIdAndCommitHashDetailed(
+                created1.id,
+                created1.commitHash,
+            )
+        Assertions.assertEquals(created1, found)
+    }
+
+    @Test
     fun findByConfigurationIdAndCommitHash_positive_success() {
         val created1 =
             configurationCommitEntityRepository.save(
@@ -234,7 +266,7 @@ class ConfigurationCommitEntityRepositoryImplTest {
                 created1.id,
                 created1.commitHash,
             )
-        Assertions.assertEquals(created1, found)
+        Assertions.assertEquals(created1.toUndetailed(), found)
     }
 
     @Test

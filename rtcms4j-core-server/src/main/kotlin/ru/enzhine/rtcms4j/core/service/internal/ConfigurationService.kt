@@ -41,7 +41,6 @@ interface ConfigurationService {
     fun findConfigurations(
         namespaceId: Long,
         applicationId: Long,
-        configurationId: Long,
         name: String?,
         pageable: Pageable?,
     ): Page<Configuration>
@@ -76,6 +75,7 @@ interface ConfigurationService {
         applicationId: Long,
         configurationId: Long,
         commitHash: String,
+        forShare: Boolean,
     ): ConfigurationCommitDetailed
 
     @Throws(ConditionFailureException.NotFound::class)

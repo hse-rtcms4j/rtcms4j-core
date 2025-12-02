@@ -13,7 +13,7 @@ class ConfigurationCommitEntityRepositoryImpl(
     private val npJdbc: NamedParameterJdbcTemplate,
 ) : ConfigurationCommitEntityRepository {
     companion object {
-        private val ROW_MAPPER =
+        private val ROW_MAPPER_DETAILED =
             RowMapper<ConfigurationCommitDetailedEntity> { rs, _ ->
                 ConfigurationCommitDetailedEntity(
                     id = rs.getLong("id"),
@@ -27,7 +27,7 @@ class ConfigurationCommitEntityRepositoryImpl(
                 )
             }
 
-        private val ROW_MAPPER_CROPPED =
+        private val ROW_MAPPER_PARTIAL =
             RowMapper<ConfigurationCommitEntity> { rs, _ ->
                 ConfigurationCommitEntity(
                     id = rs.getLong("id"),
@@ -56,7 +56,7 @@ class ConfigurationCommitEntityRepositoryImpl(
                     "json_values" to configurationCommitDetailedEntity.jsonValues,
                     "json_schema" to configurationCommitDetailedEntity.jsonSchema,
                 ),
-                ROW_MAPPER,
+                ROW_MAPPER_DETAILED,
             ).first()
 
     override fun findAllByConfigurationId(configurationId: Long): List<ConfigurationCommitEntity> =
@@ -69,10 +69,10 @@ class ConfigurationCommitEntityRepositoryImpl(
                 mapOf(
                     "configuration_id" to configurationId,
                 ),
-                ROW_MAPPER_CROPPED,
+                ROW_MAPPER_PARTIAL,
             )
 
-    override fun findByConfigurationIdAndCommitHash(
+    override fun findByConfigurationIdAndCommitHashDetailed(
         configurationId: Long,
         commitHash: String,
     ): ConfigurationCommitDetailedEntity? =
@@ -87,7 +87,25 @@ class ConfigurationCommitEntityRepositoryImpl(
                     "configuration_id" to configurationId,
                     "commit_hash" to commitHash,
                 ),
-                ROW_MAPPER,
+                ROW_MAPPER_DETAILED,
+            ).firstOrNull()
+
+    override fun findByConfigurationIdAndCommitHash(
+        configurationId: Long,
+        commitHash: String,
+    ): ConfigurationCommitEntity? =
+        npJdbc
+            .query(
+                """
+                select id, created_at, configuration_id, source_type, source_identity, commit_hash from configuration_commit
+                where configuration_id = :configuration_id and
+                      commit_hash = :commit_hash;
+                """.trimIndent(),
+                mapOf(
+                    "configuration_id" to configurationId,
+                    "commit_hash" to commitHash,
+                ),
+                ROW_MAPPER_PARTIAL,
             ).firstOrNull()
 
     override fun findById(id: Long): ConfigurationCommitDetailedEntity? =
@@ -100,7 +118,7 @@ class ConfigurationCommitEntityRepositoryImpl(
                 mapOf(
                     "id" to id,
                 ),
-                ROW_MAPPER,
+                ROW_MAPPER_DETAILED,
             ).firstOrNull()
 
     override fun removeById(id: Long): Boolean =

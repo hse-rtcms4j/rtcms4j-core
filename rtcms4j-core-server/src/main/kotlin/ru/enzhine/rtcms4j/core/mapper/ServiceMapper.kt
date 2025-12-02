@@ -1,6 +1,8 @@
 package ru.enzhine.rtcms4j.core.mapper
 
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
@@ -17,27 +19,6 @@ fun RepositorySourceType.toService() =
         RepositorySourceType.SERVICE -> SourceType.SERVICE
         RepositorySourceType.USER -> SourceType.USER
     }
-
-fun ConfigurationDetailed.toUndetailed() =
-    Configuration(
-        id = id,
-        namespaceId = namespaceId,
-        applicationId = applicationId,
-        name = name,
-        commitHash = commitHash,
-        schemaSourceType = schemaSourceType,
-    )
-
-fun ConfigurationCommitDetailed.toUndetailed() =
-    ConfigurationCommit(
-        id = id,
-        namespaceId = namespaceId,
-        applicationId = applicationId,
-        configurationId = configurationId,
-        sourceType = sourceType,
-        sourceIdentity = sourceIdentity,
-        commitHash = commitHash,
-    )
 
 fun NamespaceEntity.toService() =
     Namespace(
@@ -63,6 +44,34 @@ fun ConfigurationEntity.toService(namespaceId: Long) =
         commitHash = commitHash,
         schemaSourceType = schemaSourceType.toService(),
     )
+
+fun ConfigurationCommitEntity.toService(
+    namespaceId: Long,
+    applicationId: Long,
+) = ConfigurationCommit(
+    id = id,
+    namespaceId = namespaceId,
+    applicationId = applicationId,
+    configurationId = configurationId,
+    sourceType = sourceType.toService(),
+    sourceIdentity = sourceIdentity,
+    commitHash = commitHash,
+)
+
+fun ConfigurationCommitDetailedEntity.toService(
+    namespaceId: Long,
+    applicationId: Long,
+) = ConfigurationCommitDetailed(
+    id = id,
+    namespaceId = namespaceId,
+    applicationId = applicationId,
+    configurationId = configurationId,
+    sourceType = sourceType.toService(),
+    sourceIdentity = sourceIdentity,
+    commitHash = commitHash,
+    valuesData = jsonValues,
+    schemaData = jsonSchema,
+)
 
 fun Configuration.toDetailed(
     valuesData: String?,

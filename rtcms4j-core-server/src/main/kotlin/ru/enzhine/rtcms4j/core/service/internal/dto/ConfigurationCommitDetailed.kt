@@ -1,7 +1,5 @@
 package ru.enzhine.rtcms4j.core.service.internal.dto
 
-import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
-
 data class ConfigurationCommitDetailed(
     val id: Long,
     val namespaceId: Long,

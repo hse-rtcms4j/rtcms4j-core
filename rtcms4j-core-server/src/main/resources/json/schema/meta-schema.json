@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/meta/simple-dto-schema.json",
+  "title": "Meta-schema for simple one-layer DTO JSON Schemas",
+  "type": "object",
+
+  "required": ["type", "properties"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$id":      { "type": "string" },
+    "title":    { "type": "string" },
+    "description": { "type": "string" },
+
+    "type": {
+      "const": "object"
+    },
+
+    "properties": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/fieldSchema"
+      }
+    },
+
+    "required": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "additionalProperties": {
+      "enum": [false],
+      "description": "DTOs must not allow unknown properties"
+    }
+  },
+
+  "additionalProperties": false,
+
+  "$defs": {
+    "primitiveSchemaBase": {
+      "type": "object",
+      "description": "Single primitive field: string/integer/number/boolean (+ optional enum, etc.)",
+      "properties": {
+        "type": {
+          "enum": ["string", "integer", "number", "boolean"]
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "type": ["string", "number", "integer", "boolean", "null"]
+          }
+        },
+        "default": {},
+        "description": { "type": "string" },
+        "title": { "type": "string" },
+        "format": { "type": "string" },
+        "minimum": { "type": "number" },
+        "maximum": { "type": "number" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+
+    "primitiveOrPrimitiveArraySchema": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/primitiveSchemaBase"
+        },
+        {
+          "type": "object",
+          "description": "Array of primitive values",
+          "properties": {
+            "type": { "const": "array" },
+            "items": {
+              "$ref": "#/$defs/primitiveSchemaBase"
+            },
+            "description": { "type": "string" },
+            "title": { "type": "string" },
+            "default": {}
+          },
+          "required": ["type", "items"],
+          "additionalProperties": false
+        }
+      ]
+    },
+
+    "fieldSchema": {
+      "description": "Allowed schema for each DTO property",
+      "allOf": [
+        {
+          "$ref": "#/$defs/primitiveOrPrimitiveArraySchema"
+        },
+        {
+          "not": {
+            "anyOf": [
+              { "required": ["$ref"] },
+              { "required": ["oneOf"] },
+              { "required": ["anyOf"] },
+              { "required": ["allOf"] },
+              { "required": ["properties"] },
+              { "required": ["patternProperties"] }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -21,6 +21,8 @@ dependencies {
 
     implementation("org.keycloak:keycloak-admin-client")
 
+    implementation("com.networknt:json-schema-validator")
+
     runtimeOnly("org.postgresql:postgresql")
 
     // Test purposed

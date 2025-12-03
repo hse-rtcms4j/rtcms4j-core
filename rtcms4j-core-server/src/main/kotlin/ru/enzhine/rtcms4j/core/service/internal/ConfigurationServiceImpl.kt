@@ -13,6 +13,9 @@ import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
 import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
+import ru.enzhine.rtcms4j.core.json.CommitHashEvaluator
+import ru.enzhine.rtcms4j.core.json.JsonNormalizer
+import ru.enzhine.rtcms4j.core.json.JsonSchemaValidator
 import ru.enzhine.rtcms4j.core.mapper.toDetailed
 import ru.enzhine.rtcms4j.core.mapper.toRepository
 import ru.enzhine.rtcms4j.core.mapper.toService
@@ -32,10 +35,13 @@ import java.util.UUID
 class ConfigurationServiceImpl(
     private val configurationEntityRepository: ConfigurationEntityRepository,
     private val configurationCommitEntityRepository: ConfigurationCommitEntityRepository,
-    private val keyValueRepository: KeyValueRepository,
-    private val pubSubProducer: PubSubProducer,
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val applicationService: ApplicationService,
+    private val keyValueRepository: KeyValueRepository,
+    private val pubSubProducer: PubSubProducer,
+    private val jsonNormalizer: JsonNormalizer,
+    private val jsonSchemaValidator: JsonSchemaValidator,
+    private val commitHashEvaluator: CommitHashEvaluator,
 ) : ConfigurationService {
     @Transactional
     override fun createConfiguration(
@@ -220,6 +226,7 @@ class ConfigurationServiceImpl(
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
+        sourceIdentity: String,
         valuesData: String?,
         schemaData: String?,
     ): ConfigurationCommitDetailed {
@@ -235,6 +242,16 @@ class ConfigurationServiceImpl(
 
         // TODO: commit creation and broadcast
         TODO("WIP")
+
+//        val commitEntity =
+//            configurationCommitEntityRepository.save(
+//                newConfigurationCommitEntity(
+//                    configurationId = configurationEntity.id,
+//                    sourceType = configurationEntity.schemaSourceType,
+//                    sourceIdentity = sourceIdentity,
+//                    commitHash =
+//                )
+//            )
     }
 
     override fun getConfigurationCommitByHash(

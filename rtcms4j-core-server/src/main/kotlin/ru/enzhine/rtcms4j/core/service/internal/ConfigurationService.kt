@@ -65,6 +65,7 @@ interface ConfigurationService {
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
+        sourceIdentity: String,
         valuesData: String?,
         schemaData: String?,
     ): ConfigurationCommitDetailed

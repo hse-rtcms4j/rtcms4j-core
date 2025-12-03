@@ -67,6 +67,9 @@ subprojects {
             val keycloakAdminClientVersion: String by project
             dependency("org.keycloak:keycloak-admin-client:$keycloakAdminClientVersion")
 
+            val jsonSchemaValidatorVersion: String by project
+            dependency("com.networknt:json-schema-validator:$jsonSchemaValidatorVersion")
+
             val cucumberVersion: String by project
             dependency("io.cucumber:cucumber-jvm:$cucumberVersion")
             dependency("io.cucumber:cucumber-spring:$cucumberVersion")

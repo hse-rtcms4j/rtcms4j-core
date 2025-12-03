@@ -11,3 +11,6 @@ access-token:
 key-val-repository:
   global-prefix: RTCMS4J_CORE_SCOPE_
   topic: NOTIFY_EVENT_TOPIC
+
+json:
+  meta-schema-class-path: json/schema/meta-schema.json

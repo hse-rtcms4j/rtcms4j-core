@@ -11,8 +11,10 @@ import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationCommitNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
+import ru.enzhine.rtcms4j.core.builder.newConfigurationCommitEntity
 import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
+import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.json.CommitHashEvaluator
 import ru.enzhine.rtcms4j.core.json.JsonNormalizer
 import ru.enzhine.rtcms4j.core.json.JsonSchemaValidator
@@ -215,7 +217,7 @@ class ConfigurationServiceImpl(
             throw configurationCommitNotFoundException(configurationId, commitHash)
         }
 
-        // TODO: commit broadcast
+        // TODO: update redis cache, commit broadcast
         TODO("WIP")
 //        configurationEntity.commitHash = commitEntity.commitHash
 //        configurationEntityRepository.update(configurationEntity)
@@ -226,6 +228,7 @@ class ConfigurationServiceImpl(
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
+        sourceType: SourceType,
         sourceIdentity: String,
         valuesData: String?,
         schemaData: String?,
@@ -240,18 +243,94 @@ class ConfigurationServiceImpl(
             throw configurationNotFoundException(configurationId)
         }
 
-        // TODO: commit creation and broadcast
-        TODO("WIP")
+        if (valuesData == null && schemaData == null) {
+            throw ConditionFailureException("Schema or values must be provided.", null, null)
+        }
 
-//        val commitEntity =
-//            configurationCommitEntityRepository.save(
-//                newConfigurationCommitEntity(
-//                    configurationId = configurationEntity.id,
-//                    sourceType = configurationEntity.schemaSourceType,
-//                    sourceIdentity = sourceIdentity,
-//                    commitHash =
-//                )
-//            )
+        val configurationSchemaSourceType = configurationEntity.schemaSourceType.toService()
+        if (configurationSchemaSourceType != sourceType) {
+            throw ConditionFailureException(
+                message =
+                    "Configuration schema push by $sourceType with identity $sourceIdentity" +
+                        "is prohibited, due to config source $configurationSchemaSourceType limitation.",
+                cause = null,
+                detailCode = null,
+            )
+        }
+
+        var foundSchema: String? = null
+        // provided schema
+        if (schemaData != null) {
+            val normalizedJsonSchema = jsonNormalizer.normalize(schemaData)
+            jsonSchemaValidator.validateSchema(normalizedJsonSchema)
+            foundSchema = normalizedJsonSchema
+        }
+        // redis cache
+        if (foundSchema == null) {
+            val cached =
+                keyValueRepository.getConfigurationSchema(
+                    configuration = configurationEntity.toService(application.namespaceId),
+                )
+            foundSchema = cached
+        }
+        // actual db schema
+        val actualCommitHash = configurationEntity.commitHash
+        if (foundSchema == null && actualCommitHash != null) {
+            val actualSchema =
+                configurationCommitEntityRepository
+                    .findByConfigurationIdAndCommitHashDetailed(
+                        configurationId = configurationEntity.id,
+                        commitHash = actualCommitHash,
+                    )?.jsonSchema
+            foundSchema = actualSchema
+        }
+
+        val jsonSchema =
+            foundSchema
+                ?: throw ConditionFailureException(
+                    message = "No schema provided or ever existed for given values.",
+                    cause = null,
+                    detailCode = null,
+                )
+
+        val jsonValues =
+            valuesData?.let {
+                val normalizedJsonValues = jsonNormalizer.normalize(it)
+                jsonSchemaValidator.validateValuesBySchema(normalizedJsonValues, jsonSchema)
+                normalizedJsonValues
+            }
+
+        val currentCommitHash = commitHashEvaluator.evalCommitHash(jsonValues ?: "", jsonSchema)
+
+        try {
+            val commitEntity =
+                configurationCommitEntityRepository.save(
+                    newConfigurationCommitEntity(
+                        configurationId = configurationEntity.id,
+                        sourceType = configurationEntity.schemaSourceType,
+                        sourceIdentity = sourceIdentity,
+                        commitHash = currentCommitHash,
+                        jsonValues = jsonValues,
+                        jsonSchema = jsonSchema,
+                    ),
+                )
+
+            // TODO: update configuration commitHash, update redis cache, commit broadcast
+
+            return commitEntity
+                .toService(
+                    namespaceId = application.namespaceId,
+                    applicationId = application.id,
+                )
+        } catch (ex: DuplicateKeyException) {
+            throw ConditionFailureException(
+                message = "Commit idempotency failure.",
+                cause = ex,
+                detailCode = null,
+            )
+        } catch (_: DataIntegrityViolationException) {
+            throw configurationNotFoundException(applicationId)
+        }
     }
 
     override fun getConfigurationCommitByHash(

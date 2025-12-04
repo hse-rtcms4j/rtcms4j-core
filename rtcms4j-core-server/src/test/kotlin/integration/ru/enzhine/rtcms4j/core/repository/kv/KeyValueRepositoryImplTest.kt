@@ -35,7 +35,7 @@ class KeyValueRepositoryImplTest {
             applicationId = 3L,
             name = "DefaultDto",
             schemaSourceType = SourceType.SERVICE,
-            commitHash = null,
+            actualCommitId = null,
         )
 
     @BeforeEach

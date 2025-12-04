@@ -2,7 +2,10 @@ package ru.enzhine.rtcms4j.core.builder
 
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationManagerEntity
-import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigSchemaDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigSchemaEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
@@ -69,7 +72,7 @@ fun newConfigurationEntity(
     creatorSub: UUID,
     name: String,
     schemaSourceType: SourceType,
-    commitHash: String?,
+    actualCommitId: Long?,
 ) = ConfigurationEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
@@ -78,23 +81,61 @@ fun newConfigurationEntity(
     creatorSub = creatorSub,
     name = name,
     schemaSourceType = schemaSourceType,
-    commitHash = commitHash,
+    actualCommitId = actualCommitId,
 )
 
-fun newConfigurationCommitEntity(
+fun newConfigSchemaEntity(
     configurationId: Long,
     sourceType: SourceType,
     sourceIdentity: String,
-    commitHash: String,
-    jsonValues: String?,
-    jsonSchema: String?,
-) = ConfigurationCommitDetailedEntity(
+) = ConfigSchemaEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
     configurationId = configurationId,
     sourceType = sourceType,
     sourceIdentity = sourceIdentity,
-    commitHash = commitHash,
-    jsonValues = jsonValues,
+)
+
+fun newConfigSchemaDetailedEntity(
+    configurationId: Long,
+    sourceType: SourceType,
+    sourceIdentity: String,
+    jsonSchema: String,
+) = ConfigSchemaDetailedEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    configurationId = configurationId,
+    sourceType = sourceType,
+    sourceIdentity = sourceIdentity,
     jsonSchema = jsonSchema,
+)
+
+fun newConfigCommitEntity(
+    configSchemaId: Long,
+    configurationId: Long,
+    sourceType: SourceType,
+    sourceIdentity: String,
+) = ConfigCommitEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    configSchemaId = configSchemaId,
+    configurationId = configurationId,
+    sourceType = sourceType,
+    sourceIdentity = sourceIdentity,
+)
+
+fun newConfigCommitDetailedEntity(
+    configSchemaId: Long,
+    configurationId: Long,
+    sourceType: SourceType,
+    sourceIdentity: String,
+    jsonValues: String,
+) = ConfigCommitDetailedEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    configSchemaId = configSchemaId,
+    configurationId = configurationId,
+    sourceType = sourceType,
+    sourceIdentity = sourceIdentity,
+    jsonValues = jsonValues,
 )

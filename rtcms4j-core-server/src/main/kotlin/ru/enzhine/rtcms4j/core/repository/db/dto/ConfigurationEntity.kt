@@ -10,6 +10,6 @@ data class ConfigurationEntity(
     val applicationId: Long,
     val creatorSub: UUID,
     var name: String,
-    var commitHash: String?,
     var schemaSourceType: SourceType,
+    var actualCommitId: Long?,
 )

@@ -101,16 +101,16 @@ class ConfigurationEntityRepositoryImplTest {
                 application.id,
                 creatorSub = sub,
                 name = "MainDto",
-                commitHash = null,
                 schemaSourceType = SourceType.SERVICE,
+                actualCommitId = 10L,
             )
 
         val created = configurationEntityRepository.save(templateEntity)
         Assertions.assertEquals(templateEntity.creatorSub, created.creatorSub)
         Assertions.assertEquals(templateEntity.applicationId, created.applicationId)
         Assertions.assertEquals(templateEntity.name, created.name)
-        Assertions.assertEquals(templateEntity.commitHash, created.commitHash)
         Assertions.assertEquals(templateEntity.schemaSourceType, created.schemaSourceType)
+        Assertions.assertEquals(templateEntity.actualCommitId, created.actualCommitId)
         Assertions.assertEquals(1, created.id)
     }
 
@@ -118,11 +118,11 @@ class ConfigurationEntityRepositoryImplTest {
     fun save_repeatedName_error() {
         val templateEntity =
             newConfigurationEntity(
-                application.id,
+                applicationId = application.id,
                 creatorSub = sub,
                 name = "MainDto",
-                commitHash = null,
                 schemaSourceType = SourceType.SERVICE,
+                actualCommitId = 10L,
             )
 
         configurationEntityRepository.save(templateEntity)
@@ -136,11 +136,11 @@ class ConfigurationEntityRepositoryImplTest {
         Assertions.assertThrows(DataIntegrityViolationException::class.java) {
             configurationEntityRepository.save(
                 newConfigurationEntity(
-                    10,
+                    applicationId = 10,
                     creatorSub = sub,
                     name = "MainDto",
-                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
+                    actualCommitId = 10L,
                 ),
             )
         }
@@ -152,22 +152,25 @@ class ConfigurationEntityRepositoryImplTest {
             configurationEntityRepository
                 .save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "MainDto",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = 10L,
                     ),
-                ).apply {
+                )
+
+        val updated =
+            configurationEntityRepository.update(
+                configurationEntity.apply {
                     name = "Facade"
                     schemaSourceType = SourceType.USER
-                    commitHash = "abcd1234"
-                }
-
-        val updated = configurationEntityRepository.update(configurationEntity)
+                    actualCommitId = null
+                },
+            )
         Assertions.assertEquals(configurationEntity.name, updated.name)
         Assertions.assertEquals(configurationEntity.schemaSourceType, updated.schemaSourceType)
-        Assertions.assertEquals(configurationEntity.commitHash, updated.commitHash)
+        Assertions.assertEquals(configurationEntity.actualCommitId, updated.actualCommitId)
         Assertions.assertEquals(configurationEntity.id, updated.id)
     }
 
@@ -176,15 +179,16 @@ class ConfigurationEntityRepositoryImplTest {
         val created =
             configurationEntityRepository.save(
                 newConfigurationEntity(
-                    application.id,
+                    applicationId = application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
+                    actualCommitId = 10L,
                 ),
             )
 
-        val page = configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
+        val page =
+            configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page.number)
         Assertions.assertEquals(2, page.size)
         Assertions.assertEquals(1, page.content.size)
@@ -199,48 +203,51 @@ class ConfigurationEntityRepositoryImplTest {
             listOf(
                 configurationEntityRepository.save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "MainDto",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = null,
                     ),
                 ),
                 configurationEntityRepository.save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "BasicDto",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = null,
                     ),
                 ),
                 configurationEntityRepository.save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "RandomDto",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = null,
                     ),
                 ),
             )
 
-        val nonExistingPage = configurationEntityRepository.findAllByApplicationIdAndName(10, null, PageRequest.of(0, 2))
+        val nonExistingPage =
+            configurationEntityRepository.findAllByApplicationIdAndName(10, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, nonExistingPage.number)
         Assertions.assertEquals(2, nonExistingPage.size)
         Assertions.assertTrue(nonExistingPage.isEmpty)
         Assertions.assertEquals(0, nonExistingPage.totalElements)
         Assertions.assertEquals(0, nonExistingPage.totalPages)
 
-        val emptyPage = configurationEntityRepository.findAllByApplicationIdAndName(application.id, "Crucial", PageRequest.of(0, 2))
+        val emptyPage =
+            configurationEntityRepository.findAllByApplicationIdAndName(application.id, "Crucial", PageRequest.of(0, 2))
         Assertions.assertEquals(0, emptyPage.number)
         Assertions.assertEquals(2, emptyPage.size)
         Assertions.assertTrue(emptyPage.isEmpty)
         Assertions.assertEquals(0, emptyPage.totalElements)
         Assertions.assertEquals(0, emptyPage.totalPages)
 
-        val page0 = configurationEntityRepository.findAllByApplicationIdAndName(application.id, "Random", PageRequest.of(0, 2))
+        val page0 =
+            configurationEntityRepository.findAllByApplicationIdAndName(application.id, "Random", PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.filter { it.name.contains("Random") }
@@ -258,34 +265,35 @@ class ConfigurationEntityRepositoryImplTest {
             listOf(
                 configurationEntityRepository.save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "DtoC",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = null,
                     ),
                 ),
                 configurationEntityRepository.save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "DtoA",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = null,
                     ),
                 ),
                 configurationEntityRepository.save(
                     newConfigurationEntity(
-                        application.id,
+                        applicationId = application.id,
                         creatorSub = sub,
                         name = "DtoB",
-                        commitHash = null,
                         schemaSourceType = SourceType.SERVICE,
+                        actualCommitId = null,
                     ),
                 ),
             ).sortedWith(compareBy(collator) { it.name })
 
-        val page0 = configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
+        val page0 =
+            configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage0Content = allValues.subList(0, 2)
@@ -294,7 +302,8 @@ class ConfigurationEntityRepositoryImplTest {
         Assertions.assertEquals(allValues.size.toLong(), page0.totalElements)
         Assertions.assertEquals(2, page0.totalPages)
 
-        val page1 = configurationEntityRepository.findAllByApplicationIdAndName(namespace.id, null, PageRequest.of(1, 2))
+        val page1 =
+            configurationEntityRepository.findAllByApplicationIdAndName(namespace.id, null, PageRequest.of(1, 2))
         Assertions.assertEquals(0, page0.number)
         Assertions.assertEquals(2, page0.size)
         val expectedPage1Content = allValues.subList(2, allValues.size)
@@ -309,11 +318,11 @@ class ConfigurationEntityRepositoryImplTest {
         val created =
             configurationEntityRepository.save(
                 newConfigurationEntity(
-                    application.id,
+                    applicationId = application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
+                    actualCommitId = null,
                 ),
             )
 
@@ -326,11 +335,11 @@ class ConfigurationEntityRepositoryImplTest {
         val created =
             configurationEntityRepository.save(
                 newConfigurationEntity(
-                    application.id,
+                    applicationId = application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
+                    actualCommitId = null,
                 ),
             )
 
@@ -342,7 +351,8 @@ class ConfigurationEntityRepositoryImplTest {
         val found = configurationEntityRepository.findById(created.id)
         Assertions.assertNull(found)
 
-        val list = configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
+        val list =
+            configurationEntityRepository.findAllByApplicationIdAndName(application.id, null, PageRequest.of(0, 2))
         AssertionsJ.assertThat(list).isEmpty()
     }
 
@@ -350,11 +360,11 @@ class ConfigurationEntityRepositoryImplTest {
     fun removeById_nameIsFreed_success() {
         val templateEntity =
             newConfigurationEntity(
-                application.id,
+                applicationId = application.id,
                 creatorSub = sub,
                 name = "MainDto",
-                commitHash = null,
                 schemaSourceType = SourceType.SERVICE,
+                actualCommitId = null,
             )
 
         val created1 = configurationEntityRepository.save(templateEntity)

@@ -17,15 +17,18 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
-import ru.enzhine.rtcms4j.core.builder.newConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigSchemaDetailedEntity
 import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.mapper.toUndetailed
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepositoryImpl
-import ru.enzhine.rtcms4j.core.repository.db.ConfigurationCommitEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.ConfigCommitEntityRepositoryImpl
+import ru.enzhine.rtcms4j.core.repository.db.ConfigSchemaEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.db.ConfigurationEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepositoryImpl
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigSchemaDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
@@ -38,7 +41,8 @@ import org.assertj.core.api.Assertions as AssertionsJ
         NamespaceEntityRepositoryImpl::class,
         ApplicationEntityRepositoryImpl::class,
         ConfigurationEntityRepositoryImpl::class,
-        ConfigurationCommitEntityRepositoryImpl::class,
+        ConfigSchemaEntityRepositoryImpl::class,
+        ConfigCommitEntityRepositoryImpl::class,
     ],
 )
 @ImportAutoConfiguration(
@@ -52,7 +56,7 @@ import org.assertj.core.api.Assertions as AssertionsJ
     type = AutoConfigureEmbeddedDatabase.DatabaseType.POSTGRES,
 )
 @ActiveProfiles("test")
-class ConfigurationCommitEntityRepositoryImplTest {
+class ConfigCommitEntityRepositoryImplTest {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -66,21 +70,30 @@ class ConfigurationCommitEntityRepositoryImplTest {
     private lateinit var configurationEntityRepository: ConfigurationEntityRepositoryImpl
 
     @Autowired
-    private lateinit var configurationCommitEntityRepository: ConfigurationCommitEntityRepositoryImpl
+    private lateinit var configSchemaEntityRepository: ConfigSchemaEntityRepositoryImpl
+
+    @Autowired
+    private lateinit var configCommitEntityRepository: ConfigCommitEntityRepositoryImpl
 
     private val objectMapper = ObjectMapper()
 
     private val sub = UUID.fromString("fb9fff20-52d8-4fa0-9b24-35a85303e70b")
+
+    private val jsonSchema =
+        $$"""{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": { "_backwardCapability": {"type": "string"}, "_configurationLabel": {"type": "string"}}, "required": ["_backwardCapability", "_configurationLabel"], "additionalProperties": true}"""
+
     private lateinit var namespace: NamespaceEntity
     private lateinit var application: ApplicationEntity
     private lateinit var configuration: ConfigurationEntity
+    private lateinit var configSchema: ConfigSchemaDetailedEntity
 
     @BeforeEach
     fun clearTable() {
         jdbcTemplate.execute("truncate table namespace restart identity cascade;")
         jdbcTemplate.execute("truncate table application restart identity cascade;")
         jdbcTemplate.execute("truncate table configuration restart identity cascade;")
-        jdbcTemplate.execute("truncate table configuration_commit restart identity cascade;")
+        jdbcTemplate.execute("truncate table config_schema restart identity cascade;")
+        jdbcTemplate.execute("truncate table config_commit restart identity cascade;")
 
         namespace =
             namespaceEntityRepository.save(
@@ -107,67 +120,74 @@ class ConfigurationCommitEntityRepositoryImplTest {
                     applicationId = application.id,
                     creatorSub = sub,
                     name = "MainDto",
-                    commitHash = null,
                     schemaSourceType = SourceType.SERVICE,
+                    actualCommitId = null,
+                ),
+            )
+
+        configSchema =
+            configSchemaEntityRepository.save(
+                newConfigSchemaDetailedEntity(
+                    configuration.id,
+                    sourceType = SourceType.SERVICE,
+                    sourceIdentity = "App-1",
+                    jsonSchema = jsonSchema,
                 ),
             )
     }
 
-    private val jsonValues = "{\"_backwardCapability\": \"false\", \"_configurationLabel\": \"MainDto\"}"
-    private val jsonSchema =
-        $$"{\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": { \"_backwardCapability\": {\"type\": \"string\"}, \"_configurationLabel\": {\"type\": \"string\"}}, \"required\": [\"_backwardCapability\", \"_configurationLabel\"], \"additionalProperties\": true}"
+    private val jsonValues =
+        $$"""{"key": "values"}"""
+
+    private val jsonValues2 =
+        $$"""{"key1": "values2"}"""
 
     @Test
     fun save_positive_success() {
         val templateEntity =
-            newConfigurationCommitEntity(
-                configuration.id,
+            newConfigCommitDetailedEntity(
+                configSchemaId = configSchema.id,
+                configurationId = configSchema.configurationId,
                 sourceType = SourceType.SERVICE,
                 sourceIdentity = "App-1",
-                commitHash = "a1b1",
                 jsonValues = jsonValues,
-                jsonSchema = jsonSchema,
             )
 
-        val created = configurationCommitEntityRepository.save(templateEntity)
-        Assertions.assertEquals(templateEntity.configurationId, created.configurationId)
+        val created = configCommitEntityRepository.save(templateEntity)
+        Assertions.assertEquals(templateEntity.configSchemaId, created.configSchemaId)
         Assertions.assertEquals(templateEntity.sourceType, created.sourceType)
         Assertions.assertEquals(templateEntity.sourceIdentity, created.sourceIdentity)
-        Assertions.assertEquals(templateEntity.commitHash, created.commitHash)
         Assertions.assertEquals(objectMapper.readTree(templateEntity.jsonValues), objectMapper.readTree(created.jsonValues))
-        Assertions.assertEquals(objectMapper.readTree(templateEntity.jsonSchema), objectMapper.readTree(created.jsonSchema))
         Assertions.assertEquals(1, created.id)
     }
 
     @Test
-    fun save_repeatedCommitHash_error() {
+    fun save_repeatedJsonSchema_error() {
         val templateEntity =
-            newConfigurationCommitEntity(
-                configuration.id,
+            newConfigCommitDetailedEntity(
+                configSchemaId = configSchema.id,
+                configurationId = configSchema.configurationId,
                 sourceType = SourceType.SERVICE,
                 sourceIdentity = "App-1",
-                commitHash = "a1b1",
                 jsonValues = jsonValues,
-                jsonSchema = jsonSchema,
             )
 
-        configurationCommitEntityRepository.save(templateEntity)
+        configCommitEntityRepository.save(templateEntity)
         Assertions.assertThrows(DuplicateKeyException::class.java) {
-            configurationCommitEntityRepository.save(templateEntity)
+            configCommitEntityRepository.save(templateEntity)
         }
     }
 
     @Test
     fun save_configurationDoesNotExist_error() {
         Assertions.assertThrows(DataIntegrityViolationException::class.java) {
-            configurationCommitEntityRepository.save(
-                newConfigurationCommitEntity(
+            configCommitEntityRepository.save(
+                newConfigCommitDetailedEntity(
                     10,
+                    configurationId = configSchema.configurationId,
                     sourceType = SourceType.SERVICE,
                     sourceIdentity = "App-1",
-                    commitHash = "a1b1",
                     jsonValues = jsonValues,
-                    jsonSchema = jsonSchema,
                 ),
             )
         }
@@ -177,139 +197,71 @@ class ConfigurationCommitEntityRepositoryImplTest {
     fun findAllByConfigurationId_positive_success() {
         val created =
             listOf(
-                configurationCommitEntityRepository
+                configCommitEntityRepository
                     .save(
-                        newConfigurationCommitEntity(
-                            configuration.id,
+                        newConfigCommitDetailedEntity(
+                            configSchemaId = configSchema.id,
+                            configurationId = configSchema.configurationId,
                             sourceType = SourceType.SERVICE,
                             sourceIdentity = "App-1",
-                            commitHash = "a1b1",
                             jsonValues = jsonValues,
-                            jsonSchema = jsonSchema,
                         ),
                     ).toUndetailed(),
-                configurationCommitEntityRepository
+                configCommitEntityRepository
                     .save(
-                        newConfigurationCommitEntity(
-                            configuration.id,
+                        newConfigCommitDetailedEntity(
+                            configSchemaId = configSchema.id,
+                            configurationId = configSchema.configurationId,
                             sourceType = SourceType.SERVICE,
                             sourceIdentity = "App-1",
-                            commitHash = "a2b2",
-                            jsonValues = jsonValues,
-                            jsonSchema = jsonSchema,
+                            jsonValues = jsonValues2,
                         ),
                     ).toUndetailed(),
             )
 
-        val list = configurationCommitEntityRepository.findAllByConfigurationId(configuration.id)
+        val list = configCommitEntityRepository.findAllByConfigSchemaId(configSchema.id)
         AssertionsJ.assertThat(list).containsAll(created)
-    }
-
-    @Test
-    fun findByConfigurationIdAndCommitHashDetailed_positive_success() {
-        val created1 =
-            configurationCommitEntityRepository.save(
-                newConfigurationCommitEntity(
-                    configuration.id,
-                    sourceType = SourceType.SERVICE,
-                    sourceIdentity = "App-1",
-                    commitHash = "a1b1",
-                    jsonValues = jsonValues,
-                    jsonSchema = jsonSchema,
-                ),
-            )
-        configurationCommitEntityRepository.save(
-            newConfigurationCommitEntity(
-                configuration.id,
-                sourceType = SourceType.SERVICE,
-                sourceIdentity = "App-1",
-                commitHash = "a2b2",
-                jsonValues = jsonValues,
-                jsonSchema = jsonSchema,
-            ),
-        )
-
-        val found =
-            configurationCommitEntityRepository.findByConfigurationIdAndCommitHashDetailed(
-                created1.id,
-                created1.commitHash,
-            )
-        Assertions.assertEquals(created1, found)
-    }
-
-    @Test
-    fun findByConfigurationIdAndCommitHash_positive_success() {
-        val created1 =
-            configurationCommitEntityRepository.save(
-                newConfigurationCommitEntity(
-                    configuration.id,
-                    sourceType = SourceType.SERVICE,
-                    sourceIdentity = "App-1",
-                    commitHash = "a1b1",
-                    jsonValues = jsonValues,
-                    jsonSchema = jsonSchema,
-                ),
-            )
-        configurationCommitEntityRepository.save(
-            newConfigurationCommitEntity(
-                configuration.id,
-                sourceType = SourceType.SERVICE,
-                sourceIdentity = "App-1",
-                commitHash = "a2b2",
-                jsonValues = jsonValues,
-                jsonSchema = jsonSchema,
-            ),
-        )
-
-        val found =
-            configurationCommitEntityRepository.findByConfigurationIdAndCommitHash(
-                created1.id,
-                created1.commitHash,
-            )
-        Assertions.assertEquals(created1.toUndetailed(), found)
     }
 
     @Test
     fun findById_positive_success() {
         val created =
-            configurationCommitEntityRepository.save(
-                newConfigurationCommitEntity(
-                    configuration.id,
+            configCommitEntityRepository.save(
+                newConfigCommitDetailedEntity(
+                    configSchemaId = configSchema.id,
+                    configurationId = configSchema.configurationId,
                     sourceType = SourceType.SERVICE,
                     sourceIdentity = "App-1",
-                    commitHash = "a1b1",
                     jsonValues = jsonValues,
-                    jsonSchema = jsonSchema,
                 ),
             )
 
-        val found = configurationCommitEntityRepository.findById(created.id)
+        val found = configCommitEntityRepository.findById(created.id)
         Assertions.assertEquals(created, found)
     }
 
     @Test
     fun removeById_positive_success() {
         val created =
-            configurationCommitEntityRepository.save(
-                newConfigurationCommitEntity(
-                    configuration.id,
+            configCommitEntityRepository.save(
+                newConfigCommitDetailedEntity(
+                    configSchemaId = configSchema.id,
+                    configurationId = configSchema.configurationId,
                     sourceType = SourceType.SERVICE,
                     sourceIdentity = "App-1",
-                    commitHash = "a1b1",
                     jsonValues = jsonValues,
-                    jsonSchema = jsonSchema,
                 ),
             )
 
-        val result = configurationCommitEntityRepository.removeById(created.id)
+        val result = configCommitEntityRepository.removeById(created.id)
         Assertions.assertTrue(result)
-        val result2 = configurationCommitEntityRepository.removeById(created.id)
+        val result2 = configCommitEntityRepository.removeById(created.id)
         Assertions.assertFalse(result2)
 
-        val found = configurationCommitEntityRepository.findById(created.id)
+        val found = configCommitEntityRepository.findById(created.id)
         Assertions.assertNull(found)
 
-        val list = configurationCommitEntityRepository.findAllByConfigurationId(application.id)
+        val list = configCommitEntityRepository.findAllByConfigSchemaId(configSchema.id)
         AssertionsJ.assertThat(list).isEmpty()
     }
 }

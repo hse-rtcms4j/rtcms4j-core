@@ -7,7 +7,6 @@ data class ConfigurationCommitDetailed(
     val configurationId: Long,
     val sourceType: SourceType,
     val sourceIdentity: String,
-    val commitHash: String,
-    val valuesData: String?,
-    val schemaData: String?,
+    val jsonSchema: String,
+    val jsonValues: String,
 )

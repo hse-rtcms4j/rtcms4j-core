@@ -90,12 +90,15 @@ class NamespaceEntityRepositoryImplTest {
                         name = "BCR Team",
                         description = "Broker reports serving team",
                     ),
-                ).apply {
+                )
+
+        val updated =
+            namespaceEntityRepository.update(
+                namespaceEntity.apply {
                     name = "BPH Team"
                     description = "Broker portfolio history"
-                }
-
-        val updated = namespaceEntityRepository.update(namespaceEntity)
+                },
+            )
         Assertions.assertEquals(namespaceEntity.name, updated.name)
         Assertions.assertEquals(namespaceEntity.description, updated.description)
         Assertions.assertEquals(namespaceEntity.id, updated.id)

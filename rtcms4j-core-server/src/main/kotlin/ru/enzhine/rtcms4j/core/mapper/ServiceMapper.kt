@@ -1,8 +1,8 @@
 package ru.enzhine.rtcms4j.core.mapper
 
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
-import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
@@ -41,13 +41,14 @@ fun ConfigurationEntity.toService(namespaceId: Long) =
         namespaceId = namespaceId,
         applicationId = applicationId,
         name = name,
-        commitHash = commitHash,
         schemaSourceType = schemaSourceType.toService(),
+        actualCommitId = actualCommitId,
     )
 
-fun ConfigurationCommitEntity.toService(
+fun ConfigCommitEntity.toService(
     namespaceId: Long,
     applicationId: Long,
+    configurationId: Long,
 ) = ConfigurationCommit(
     id = id,
     namespaceId = namespaceId,
@@ -55,12 +56,13 @@ fun ConfigurationCommitEntity.toService(
     configurationId = configurationId,
     sourceType = sourceType.toService(),
     sourceIdentity = sourceIdentity,
-    commitHash = commitHash,
 )
 
-fun ConfigurationCommitDetailedEntity.toService(
+fun ConfigCommitDetailedEntity.toService(
     namespaceId: Long,
     applicationId: Long,
+    configurationId: Long,
+    jsonSchema: String,
 ) = ConfigurationCommitDetailed(
     id = id,
     namespaceId = namespaceId,
@@ -68,21 +70,20 @@ fun ConfigurationCommitDetailedEntity.toService(
     configurationId = configurationId,
     sourceType = sourceType.toService(),
     sourceIdentity = sourceIdentity,
-    commitHash = commitHash,
-    valuesData = jsonValues,
-    schemaData = jsonSchema,
+    jsonSchema = jsonSchema,
+    jsonValues = jsonValues,
 )
 
 fun Configuration.toDetailed(
-    valuesData: String?,
-    schemaData: String?,
+    jsonSchema: String?,
+    jsonValues: String?,
 ) = ConfigurationDetailed(
     id = id,
     namespaceId = namespaceId,
     applicationId = applicationId,
     name = name,
-    commitHash = commitHash,
     schemaSourceType = schemaSourceType,
-    valuesData = valuesData,
-    schemaData = schemaData,
+    commitId = actualCommitId,
+    jsonSchema = jsonSchema,
+    jsonValues = jsonValues,
 )

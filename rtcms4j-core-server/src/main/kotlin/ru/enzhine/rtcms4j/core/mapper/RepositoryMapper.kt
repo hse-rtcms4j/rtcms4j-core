@@ -1,7 +1,9 @@
 package ru.enzhine.rtcms4j.core.mapper
 
-import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitDetailedEntity
-import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationCommitEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigSchemaDetailedEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigSchemaEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
 import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType as ServiceSourceType
 
@@ -11,12 +13,21 @@ fun ServiceSourceType.toRepository() =
         ServiceSourceType.USER -> SourceType.USER
     }
 
-fun ConfigurationCommitDetailedEntity.toUndetailed() =
-    ConfigurationCommitEntity(
+fun ConfigSchemaDetailedEntity.toUndetailed() =
+    ConfigSchemaEntity(
         id = id,
         createdAt = createdAt,
         configurationId = configurationId,
         sourceType = sourceType,
         sourceIdentity = sourceIdentity,
-        commitHash = commitHash,
+    )
+
+fun ConfigCommitDetailedEntity.toUndetailed() =
+    ConfigCommitEntity(
+        id = id,
+        createdAt = createdAt,
+        configSchemaId = configSchemaId,
+        configurationId = configurationId,
+        sourceType = sourceType,
+        sourceIdentity = sourceIdentity,
     )

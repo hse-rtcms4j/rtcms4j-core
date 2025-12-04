@@ -7,5 +7,4 @@ data class ConfigurationCommit(
     val configurationId: Long,
     val sourceType: SourceType,
     val sourceIdentity: String,
-    val commitHash: String,
 )

@@ -53,11 +53,11 @@ interface ConfigurationService {
     ): Boolean
 
     @Throws(ConditionFailureException.NotFound::class)
-    fun applyConfigurationByCommit(
+    fun applyConfigurationByCommitId(
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
-        commitHash: String,
+        commitId: Long,
     ): Configuration
 
     @Throws(ConditionFailureException.NotFound::class, ConditionFailureException.KeyDuplicated::class)
@@ -72,11 +72,11 @@ interface ConfigurationService {
     ): ConfigurationCommitDetailed
 
     @Throws(ConditionFailureException.NotFound::class)
-    fun getConfigurationCommitByHash(
+    fun getConfigurationCommitByCommitId(
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
-        commitHash: String,
+        commitId: Long,
         forShare: Boolean,
     ): ConfigurationCommitDetailed
 

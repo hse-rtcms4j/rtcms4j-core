@@ -26,8 +26,8 @@ class ConfigurationEntityRepositoryImpl(
                     applicationId = rs.getLong("application_id"),
                     creatorSub = rs.getObject("creator_sub", UUID::class.java),
                     name = rs.getString("name"),
-                    commitHash = rs.getString("commit_hash"),
                     schemaSourceType = SourceType.valueOf(rs.getString("schema_source_type")),
+                    actualCommitId = rs.getLong("actual_commit_id").takeUnless { rs.wasNull() },
                 )
             }
     }
@@ -36,16 +36,16 @@ class ConfigurationEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                insert into configuration (application_id, creator_sub, name, commit_hash, schema_source_type)
-                values (:application_id, :creator_sub, :name, :commit_hash, :schema_source_type)
+                insert into configuration (application_id, creator_sub, name, schema_source_type, actual_commit_id)
+                values (:application_id, :creator_sub, :name, :schema_source_type, :actual_commit_id)
                 returning *;
                 """.trimIndent(),
                 mapOf(
                     "application_id" to configurationEntity.applicationId,
                     "creator_sub" to configurationEntity.creatorSub,
                     "name" to configurationEntity.name,
-                    "commit_hash" to configurationEntity.commitHash,
                     "schema_source_type" to configurationEntity.schemaSourceType.toString(),
+                    "actual_commit_id" to configurationEntity.actualCommitId,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -57,15 +57,15 @@ class ConfigurationEntityRepositoryImpl(
                 update configuration
                 set updated_at = now(),
                     name = :name,
-                    commit_hash = :commit_hash::varchar,
-                    schema_source_type = :schema_source_type
+                    schema_source_type = :schema_source_type,
+                    actual_commit_id = :actual_commit_id
                 where id = :id
                 returning *;
                 """.trimIndent(),
                 mapOf(
                     "name" to configurationEntity.name,
-                    "commit_hash" to configurationEntity.commitHash,
                     "schema_source_type" to configurationEntity.schemaSourceType.toString(),
+                    "actual_commit_id" to configurationEntity.actualCommitId,
                     "id" to configurationEntity.id,
                 ),
                 ROW_MAPPER,

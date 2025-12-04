@@ -73,16 +73,15 @@ create table configuration(
     application_id bigint not null references application (id) on delete cascade,
     creator_sub uuid not null,
     name varchar(64) not null,
-    commit_hash varchar(64),
-    ---- settings
-    schema_source_type varchar(16) not null
+    schema_source_type varchar(16) not null,
+    actual_commit_id bigint
 );
 --rollback drop table if exists configuration;
 
 create unique index uix_configuration__application_id_name on configuration (application_id, name);
 --rollback drop index if exists uix_configuration__application_id_name;
 
-create table configuration_commit(
+create table config_schema(
     ---- tech fields
     id bigserial primary key not null,
     created_at timestamptz not null default now(),
@@ -90,11 +89,25 @@ create table configuration_commit(
     configuration_id bigint not null references configuration (id) on delete cascade,
     source_type varchar(16) not null,
     source_identity varchar(64) not null,
-    commit_hash varchar(64) not null,
-    json_values jsonb,
-    json_schema jsonb
+    json_schema jsonb not null
 );
---rollback drop table if exists configuration_commit;
+--rollback drop table if exists config_schema;
 
-create unique index ix_configuration_commit__configuration_id_commit_hash on configuration_commit (configuration_id, commit_hash);
---rollback drop index if exists ix_configuration_commit__configuration_id_commit_hash;
+create unique index ix_config_schema__configuration_id_json_schema on config_schema (configuration_id, json_schema);
+--rollback drop index if exists ix_config_schema__configuration_id_json_schema;
+
+create table config_commit(
+    ---- tech fields
+    id bigserial primary key not null,
+    created_at timestamptz not null default now(),
+    ---- entity fields
+    config_schema_id bigint not null references config_schema (id) on delete cascade,
+    configuration_id bigint not null,
+    source_type varchar(16) not null,
+    source_identity varchar(64) not null,
+    json_values jsonb not null
+);
+--rollback drop table if exists config_commit;
+
+create unique index ix_config_commit__config_schema_id_json_values on config_commit (config_schema_id, json_values);
+--rollback drop index if exists ix_config_commit__config_schema_id_json_values;

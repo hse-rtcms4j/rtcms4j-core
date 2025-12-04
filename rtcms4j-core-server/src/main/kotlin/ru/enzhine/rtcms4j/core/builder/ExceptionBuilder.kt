@@ -20,10 +20,10 @@ fun configurationNotFoundException(
 
 fun configurationCommitNotFoundException(
     configurationId: Long,
-    commitHash: String,
+    commitId: Long,
     detailCode: Int? = null,
 ) = ConditionFailureException.NotFound(
-    message = "Commit with hash '$commitHash' for configuration with id '$configurationId' not found.",
+    message = "Commit with id '$commitId' for configuration with id '$configurationId' not found.",
     detailCode = detailCode,
 )
 

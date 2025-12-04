@@ -6,5 +6,5 @@ data class Configuration(
     val applicationId: Long,
     val name: String,
     val schemaSourceType: SourceType,
-    val commitHash: String?,
+    val actualCommitId: Long?,
 )

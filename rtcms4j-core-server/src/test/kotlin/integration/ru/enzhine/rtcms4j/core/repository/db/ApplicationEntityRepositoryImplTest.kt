@@ -132,12 +132,15 @@ class ApplicationEntityRepositoryImplTest {
                         name = "Registry",
                         description = "Clients data storage service",
                     ),
-                ).apply {
+                )
+
+        val updated =
+            applicationEntityRepository.update(
+                applicationEntity.apply {
                     name = "Facade"
                     description = "Api gateway"
-                }
-
-        val updated = applicationEntityRepository.update(applicationEntity)
+                },
+            )
         Assertions.assertEquals(applicationEntity.name, updated.name)
         Assertions.assertEquals(applicationEntity.description, updated.description)
         Assertions.assertEquals(applicationEntity.id, updated.id)

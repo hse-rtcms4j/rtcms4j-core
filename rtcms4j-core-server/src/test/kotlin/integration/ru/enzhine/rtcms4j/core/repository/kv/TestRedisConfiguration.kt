@@ -1,5 +1,7 @@
 package integration.ru.enzhine.rtcms4j.core.repository.kv
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties
@@ -13,6 +15,9 @@ class TestRedisConfiguration(
     redisProperties: RedisProperties,
 ) {
     private val redisServer = RedisServer(redisProperties.port)
+
+    @Bean
+    fun objectMapper() = ObjectMapper().registerKotlinModule()
 
     @Bean
     fun keyValRepositoryProperties() =

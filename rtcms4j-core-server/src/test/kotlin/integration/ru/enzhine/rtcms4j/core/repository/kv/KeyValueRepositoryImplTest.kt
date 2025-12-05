@@ -9,13 +9,16 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.test.context.ActiveProfiles
+import ru.enzhine.rtcms4j.core.config.RedisConfig
 import ru.enzhine.rtcms4j.core.repository.kv.KeyValueRepositoryImpl
-import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
-import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheKey
 
 @SpringBootTest(
     classes = [
         TestRedisConfiguration::class,
+        RedisConfig::class,
         KeyValueRepositoryImpl::class,
     ],
 )
@@ -28,14 +31,11 @@ class KeyValueRepositoryImplTest {
     @Autowired
     private lateinit var keyValueRepository: KeyValueRepositoryImpl
 
-    private val configuration =
-        Configuration(
-            id = 1L,
-            namespaceId = 2L,
-            applicationId = 3L,
-            name = "DefaultDto",
-            schemaSourceType = SourceType.SERVICE,
-            actualCommitId = null,
+    private val cacheKey =
+        CacheKey(
+            namespaceId = 1L,
+            applicationId = 2L,
+            configurationId = 3L,
         )
 
     @BeforeEach
@@ -47,32 +47,32 @@ class KeyValueRepositoryImplTest {
     }
 
     @Test
-    fun getConfigurationValues_empty_success() {
-        val cache = keyValueRepository.getConfigurationValues(configuration)
-        Assertions.assertNull(cache)
+    fun getCacheJsonValues_empty_success() {
+        val cacheJsonValues = keyValueRepository.getCacheJsonValues(cacheKey)
+        Assertions.assertNull(cacheJsonValues)
     }
 
     @Test
-    fun getConfigurationValues_put_success() {
-        val schema = "{key:value}"
-        keyValueRepository.putConfigurationValues(configuration, schema)
+    fun getCacheJsonValues_put_success() {
+        val cacheJsonValues = CacheJsonValues("{key:value}")
+        keyValueRepository.putCacheJsonValues(cacheKey, cacheJsonValues)
 
-        val cache = keyValueRepository.getConfigurationValues(configuration)
-        Assertions.assertEquals(schema, cache)
+        val cache = keyValueRepository.getCacheJsonValues(cacheKey)
+        Assertions.assertEquals(cacheJsonValues, cache)
     }
 
     @Test
-    fun getConfigurationSchema_empty_success() {
-        val cache = keyValueRepository.getConfigurationSchema(configuration)
-        Assertions.assertNull(cache)
+    fun getCacheJsonSchema_empty_success() {
+        val cacheJsonSchema = keyValueRepository.getCacheJsonSchema(cacheKey)
+        Assertions.assertNull(cacheJsonSchema)
     }
 
     @Test
-    fun getConfigurationSchema_put_success() {
-        val schema = "{schema:schema}"
-        keyValueRepository.putConfigurationSchema(configuration, schema)
+    fun getCacheJsonSchema_put_success() {
+        val cacheJsonSchema = CacheJsonSchema(10L, "{schema:schema}")
+        keyValueRepository.putCacheJsonSchema(cacheKey, cacheJsonSchema)
 
-        val cache = keyValueRepository.getConfigurationSchema(configuration)
-        Assertions.assertEquals(schema, cache)
+        val cache = keyValueRepository.getCacheJsonSchema(cacheKey)
+        Assertions.assertEquals(cacheJsonSchema, cache)
     }
 }

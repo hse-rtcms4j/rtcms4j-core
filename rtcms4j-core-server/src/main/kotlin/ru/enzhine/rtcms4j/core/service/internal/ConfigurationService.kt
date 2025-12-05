@@ -58,7 +58,7 @@ interface ConfigurationService {
         applicationId: Long,
         configurationId: Long,
         commitId: Long,
-    ): Configuration
+    ): ConfigurationDetailed
 
     @Throws(ConditionFailureException.NotFound::class, ConditionFailureException.KeyDuplicated::class)
     fun commitValuesAndSchema(
@@ -67,8 +67,8 @@ interface ConfigurationService {
         configurationId: Long,
         sourceType: SourceType,
         sourceIdentity: String,
-        valuesData: String?,
-        schemaData: String?,
+        jsonSchema: String?,
+        jsonValues: String,
     ): ConfigurationCommitDetailed
 
     @Throws(ConditionFailureException.NotFound::class)

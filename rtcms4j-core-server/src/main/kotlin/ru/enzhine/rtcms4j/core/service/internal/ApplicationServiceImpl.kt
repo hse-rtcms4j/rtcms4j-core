@@ -1,5 +1,6 @@
 package ru.enzhine.rtcms4j.core.service.internal
 
+import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
@@ -19,6 +20,7 @@ import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
+import ru.enzhine.rtcms4j.core.service.internal.tx.registerCommitCallback
 import java.util.UUID
 
 @Service
@@ -29,6 +31,8 @@ class ApplicationServiceImpl(
     private val namespaceService: NamespaceService,
     private val keycloakService: KeycloakService,
 ) : ApplicationService {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     @Transactional
     override fun createApplication(
         creator: UUID,
@@ -38,8 +42,8 @@ class ApplicationServiceImpl(
     ): Application {
         val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
-        try {
-            val applicationEntity =
+        val applicationEntity =
+            try {
                 applicationEntityRepository.save(
                     newApplicationEntity(
                         namespaceId = namespace.id,
@@ -48,16 +52,22 @@ class ApplicationServiceImpl(
                         description = description,
                     ),
                 )
+            } catch (ex: DuplicateKeyException) {
+                throw nameKeyDuplicatedException(ex)
+            } catch (_: DataIntegrityViolationException) {
+                throw namespaceNotFoundException(namespaceId)
+            }
 
-            val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
-            keycloakService.createNewApplicationClient(clientId)
-
-            return applicationEntity.toService()
-        } catch (ex: DuplicateKeyException) {
-            throw nameKeyDuplicatedException(ex)
-        } catch (_: DataIntegrityViolationException) {
-            throw namespaceNotFoundException(namespaceId)
+        registerCommitCallback {
+            try {
+                val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
+                keycloakService.createNewApplicationClient(clientId)
+            } catch (ex: Throwable) {
+                logger.error("Unable to create client for application with id ${applicationEntity.id}", ex)
+            }
         }
+
+        return applicationEntity.toService()
     }
 
     override fun getApplicationById(
@@ -217,9 +227,9 @@ class ApplicationServiceImpl(
 
         val manager =
             applicationManagerEntityRepository.findByApplicationIdAndUserSub(
-                applicationId,
-                sub,
-                QueryModifier.FOR_UPDATE,
+                applicationId = applicationId,
+                userSub = sub,
+                modifier = QueryModifier.FOR_UPDATE,
             )
                 ?: return false
 

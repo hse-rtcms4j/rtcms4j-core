@@ -5,4 +5,9 @@ data class NotifyEventDto(
     val applicationId: Long,
     val eventType: EventType,
     val content: String,
-)
+) {
+    enum class EventType {
+        ACCESS_TOKEN,
+        CONFIGURATION,
+    }
+}

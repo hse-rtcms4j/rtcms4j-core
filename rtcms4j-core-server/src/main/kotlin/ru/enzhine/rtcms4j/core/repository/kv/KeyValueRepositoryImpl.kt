@@ -1,53 +1,56 @@
 package ru.enzhine.rtcms4j.core.repository.kv
 
-import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
 import ru.enzhine.rtcms4j.core.config.props.KeyValRepositoryProperties
-import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheKey
 
 @Repository
 class KeyValueRepositoryImpl(
-    private val stringTemplate: StringRedisTemplate,
+    private val cacheJsonSchemaTemplate: RedisTemplate<String, CacheJsonSchema>,
+    private val cacheJsonValuesTemplate: RedisTemplate<String, CacheJsonValues>,
     private val keyValRepositoryProperties: KeyValRepositoryProperties,
 ) : KeyValueRepository {
-    override fun putConfigurationSchema(
-        configuration: Configuration,
-        schema: String,
+    override fun putCacheJsonSchema(
+        cacheKey: CacheKey,
+        cacheJsonSchema: CacheJsonSchema,
     ) {
-        val key = buildConfigSchemaKey(keyValRepositoryProperties, configuration)
-        stringTemplate.opsForValue().set(key, schema)
+        val key = buildConfigSchemaKey(keyValRepositoryProperties, cacheKey)
+        cacheJsonSchemaTemplate.opsForValue().set(key, cacheJsonSchema)
     }
 
-    override fun getConfigurationSchema(configuration: Configuration): String? {
-        val key = buildConfigSchemaKey(keyValRepositoryProperties, configuration)
-        return stringTemplate.opsForValue().get(key)
+    override fun getCacheJsonSchema(cacheKey: CacheKey): CacheJsonSchema? {
+        val key = buildConfigSchemaKey(keyValRepositoryProperties, cacheKey)
+        return cacheJsonSchemaTemplate.opsForValue().get(key)
     }
 
-    override fun putConfigurationValues(
-        configuration: Configuration,
-        values: String,
+    override fun putCacheJsonValues(
+        cacheKey: CacheKey,
+        cacheJsonValues: CacheJsonValues,
     ) {
-        val key = buildConfigValuesKey(keyValRepositoryProperties, configuration)
-        stringTemplate.opsForValue().set(key, values)
+        val key = buildConfigValuesKey(keyValRepositoryProperties, cacheKey)
+        cacheJsonValuesTemplate.opsForValue().set(key, cacheJsonValues)
     }
 
-    override fun getConfigurationValues(configuration: Configuration): String? {
-        val key = buildConfigValuesKey(keyValRepositoryProperties, configuration)
-        return stringTemplate.opsForValue().get(key)
+    override fun getCacheJsonValues(cacheKey: CacheKey): CacheJsonValues? {
+        val key = buildConfigValuesKey(keyValRepositoryProperties, cacheKey)
+        return cacheJsonValuesTemplate.opsForValue().get(key)
     }
 
-    private fun buildConfigKey(
+    private fun buildKeyPrefix(
         properties: KeyValRepositoryProperties,
-        configuration: Configuration,
-    ) = properties.globalPrefix + "${configuration.namespaceId}_${configuration.applicationId}_${configuration.id}"
+        cacheKey: CacheKey,
+    ) = "${properties.globalPrefix}${cacheKey.namespaceId}_${cacheKey.applicationId}_${cacheKey.configurationId}"
 
     private fun buildConfigSchemaKey(
         properties: KeyValRepositoryProperties,
-        configuration: Configuration,
-    ) = buildConfigKey(properties, configuration) + "_SCHEMA"
+        cacheKey: CacheKey,
+    ) = buildKeyPrefix(properties, cacheKey) + "_SCHEMA"
 
     private fun buildConfigValuesKey(
         properties: KeyValRepositoryProperties,
-        configuration: Configuration,
-    ) = buildConfigKey(properties, configuration) + "_VALUES"
+        cacheKey: CacheKey,
+    ) = buildKeyPrefix(properties, cacheKey) + "_VALUES"
 }

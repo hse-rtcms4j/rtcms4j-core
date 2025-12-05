@@ -1,19 +1,21 @@
 package ru.enzhine.rtcms4j.core.repository.kv
 
-import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheKey
 
 interface KeyValueRepository {
-    fun putConfigurationSchema(
-        configuration: Configuration,
-        schema: String,
+    fun putCacheJsonSchema(
+        cacheKey: CacheKey,
+        cacheJsonSchema: CacheJsonSchema,
     )
 
-    fun getConfigurationSchema(configuration: Configuration): String?
+    fun getCacheJsonSchema(cacheKey: CacheKey): CacheJsonSchema?
 
-    fun putConfigurationValues(
-        configuration: Configuration,
-        values: String,
+    fun putCacheJsonValues(
+        cacheKey: CacheKey,
+        cacheJsonValues: CacheJsonValues,
     )
 
-    fun getConfigurationValues(configuration: Configuration): String?
+    fun getCacheJsonValues(cacheKey: CacheKey): CacheJsonValues?
 }

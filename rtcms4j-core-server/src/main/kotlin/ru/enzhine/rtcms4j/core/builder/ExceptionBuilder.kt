@@ -31,3 +31,23 @@ fun nameKeyDuplicatedException(
     cause: DuplicateKeyException,
     detailCode: Int? = null,
 ) = ConditionFailureException.KeyDuplicated("name should be unique.", cause, detailCode)
+
+fun configSchemaDuplicatedException(
+    cause: DuplicateKeyException,
+    configurationId: Long,
+    detailCode: Int? = null,
+) = ConditionFailureException.KeyDuplicated(
+    message = "Config schema for configuration with id '$configurationId' already posted.",
+    cause = cause,
+    detailCode = detailCode,
+)
+
+fun configValuesDuplicatedException(
+    cause: DuplicateKeyException,
+    configurationId: Long,
+    detailCode: Int? = null,
+) = ConditionFailureException.KeyDuplicated(
+    message = "Config values for configuration with id '$configurationId' already posted.",
+    cause = cause,
+    detailCode = detailCode,
+)

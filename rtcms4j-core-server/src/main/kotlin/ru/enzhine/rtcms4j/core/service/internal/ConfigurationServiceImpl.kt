@@ -1,5 +1,6 @@
 package ru.enzhine.rtcms4j.core.service.internal
 
+import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
@@ -8,13 +9,16 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
+import ru.enzhine.rtcms4j.core.builder.configSchemaDuplicatedException
+import ru.enzhine.rtcms4j.core.builder.configValuesDuplicatedException
 import ru.enzhine.rtcms4j.core.builder.configurationCommitNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
+import ru.enzhine.rtcms4j.core.builder.newConfigCommitDetailedEntity
+import ru.enzhine.rtcms4j.core.builder.newConfigSchemaDetailedEntity
 import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
-import ru.enzhine.rtcms4j.core.json.JsonNormalizer
 import ru.enzhine.rtcms4j.core.json.JsonSchemaValidator
 import ru.enzhine.rtcms4j.core.mapper.toDetailed
 import ru.enzhine.rtcms4j.core.mapper.toRepository
@@ -25,11 +29,16 @@ import ru.enzhine.rtcms4j.core.repository.db.ConfigurationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.repository.kv.KeyValueRepository
 import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
+import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheKey
+import ru.enzhine.rtcms4j.core.repository.kv.dto.NotifyEventDto
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
 import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
+import ru.enzhine.rtcms4j.core.service.internal.tx.registerCommitCallback
 import java.util.UUID
 
 @Service
@@ -41,9 +50,10 @@ class ConfigurationServiceImpl(
     private val applicationService: ApplicationService,
     private val keyValueRepository: KeyValueRepository,
     private val pubSubProducer: PubSubProducer,
-    private val jsonNormalizer: JsonNormalizer,
     private val jsonSchemaValidator: JsonSchemaValidator,
 ) : ConfigurationService {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     @Transactional
     override fun createConfiguration(
         creator: UUID,
@@ -108,10 +118,17 @@ class ConfigurationServiceImpl(
                 )
         }
 
-        // cached
-        var jsonSchema = keyValueRepository.getConfigurationSchema(configuration)
-        var jsonValues = keyValueRepository.getConfigurationValues(configuration)
+        // cache retrieve attempt
+        val cacheKey =
+            CacheKey(
+                namespaceId = application.namespaceId,
+                applicationId = configuration.applicationId,
+                configurationId = configuration.id,
+            )
+        var jsonSchema = keyValueRepository.getCacheJsonSchema(cacheKey)?.jsonSchema
+        var jsonValues = keyValueRepository.getCacheJsonValues(cacheKey)?.jsonValues
 
+        // database retrieve attempt
         if (jsonSchema == null || jsonValues == null) {
             val valuesCommit = configCommitEntityRepository.findById(actualCommitId)
             jsonValues = valuesCommit?.jsonValues
@@ -203,7 +220,7 @@ class ConfigurationServiceImpl(
         applicationId: Long,
         configurationId: Long,
         commitId: Long,
-    ): Configuration {
+    ): ConfigurationDetailed {
         val application = applicationService.getApplicationById(namespaceId, applicationId, true)
 
         val configurationEntity =
@@ -218,6 +235,10 @@ class ConfigurationServiceImpl(
             configCommitEntityRepository.findById(commitId)
                 ?: throw configurationCommitNotFoundException(configurationId, commitId)
 
+        if (configCommitEntity.configurationId != configurationEntity.id) {
+            throw configurationCommitNotFoundException(configurationId, commitId)
+        }
+
         val configSchemaEntity =
             configSchemaEntityRepository.findById(configCommitEntity.configSchemaId)
                 ?: throw RuntimeException(
@@ -229,10 +250,41 @@ class ConfigurationServiceImpl(
             throw configurationCommitNotFoundException(configurationId, commitId)
         }
 
-        // TODO: update redis cache, commit broadcast
-        TODO("WIP")
-        //        configurationEntity.commitHash = commitEntity.commitHash
-        //        configurationEntityRepository.update(configurationEntity)
+        val cacheKey =
+            CacheKey(
+                namespaceId = application.namespaceId,
+                applicationId = application.id,
+                configurationId = configurationEntity.id,
+            )
+
+        try {
+            configurationEntity.actualCommitId = configCommitEntity.id
+            configurationEntityRepository.update(configurationEntity)
+        } catch (ex: Throwable) {
+            throw RuntimeException(
+                "Unable to commit id '${configCommitEntity.id}' due to unknown problem",
+                ex,
+            )
+        }
+
+        registerCommitCallback {
+            cacheAndBroadcast(
+                cacheKey = cacheKey,
+                namespaceId = application.namespaceId,
+                applicationId = application.id,
+                configurationId = configurationEntity.id,
+                jsonSchemaId = configSchemaEntity.id,
+                jsonSchema = configSchemaEntity.jsonSchema,
+                jsonValues = configCommitEntity.jsonValues,
+            )
+        }
+
+        return configurationEntity
+            .toService(application.namespaceId)
+            .toDetailed(
+                jsonSchema = configSchemaEntity.jsonSchema,
+                jsonValues = configCommitEntity.jsonValues,
+            )
     }
 
     @Transactional
@@ -242,8 +294,8 @@ class ConfigurationServiceImpl(
         configurationId: Long,
         sourceType: SourceType,
         sourceIdentity: String,
-        valuesData: String?,
-        schemaData: String?,
+        jsonSchema: String?,
+        jsonValues: String,
     ): ConfigurationCommitDetailed {
         val application = applicationService.getApplicationById(namespaceId, applicationId, true)
 
@@ -253,10 +305,6 @@ class ConfigurationServiceImpl(
 
         if (configurationEntity.applicationId != application.id) {
             throw configurationNotFoundException(configurationId)
-        }
-
-        if (valuesData == null && schemaData == null) {
-            throw ConditionFailureException("Schema or values must be provided.", null, null)
         }
 
         val configurationSchemaSourceType = configurationEntity.schemaSourceType.toService()
@@ -270,86 +318,172 @@ class ConfigurationServiceImpl(
             )
         }
 
-        // TODO: rework
+        val cacheKey =
+            CacheKey(
+                namespaceId = application.namespaceId,
+                applicationId = application.id,
+                configurationId = configurationEntity.id,
+            )
 
-        var foundSchema: String? = null
-        // provided schema
-        if (schemaData != null) {
-            val normalizedJsonSchema = jsonNormalizer.normalize(schemaData)
-            jsonSchemaValidator.validateSchema(normalizedJsonSchema)
-            foundSchema = normalizedJsonSchema
-        }
-        // redis cache
-        if (foundSchema == null) {
-            val cached =
-                keyValueRepository.getConfigurationSchema(
-                    configuration = configurationEntity.toService(application.namespaceId),
-                )
-            foundSchema = cached
-        }
-        // actual db schema
-        val actualCommitId = configurationEntity.actualCommitId
-        if (foundSchema == null && actualCommitId != null) {
-            val configCommitEntity =
-                configCommitEntityRepository.findById(actualCommitId)
-                    ?: throw RuntimeException(
-                        "Commit with id '$actualCommitId' expected to exist" +
-                            " for configuration with id '${configurationEntity.id}'",
-                    )
+        var currentJsonSchemaId: Long? = null
+        var currentJsonSchema: String? = null
 
-            val configSchemaEntity =
-                configSchemaEntityRepository.findById(configCommitEntity.configSchemaId)
-                    ?: throw RuntimeException(
-                        "Schema with id '${configCommitEntity.configSchemaId}' expected to exist" +
-                            " for commit with id '${configCommitEntity.id}'",
-                    )
-
-            foundSchema = configSchemaEntity.jsonSchema
-        }
-
-        val jsonSchema =
-            foundSchema
-                ?: throw ConditionFailureException(
-                    message = "No schema provided or ever existed for given values.",
+        if (jsonSchema == null) {
+            // find existing schema
+            val actualCommitId = configurationEntity.actualCommitId
+            if (actualCommitId == null) {
+                throw ConditionFailureException(
+                    message = "Configuration schema not given as well as not ever existed to commit values.",
                     cause = null,
                     detailCode = null,
                 )
+            }
 
-        val jsonValues =
-            valuesData?.let {
-                val normalizedJsonValues = jsonNormalizer.normalize(it)
-                jsonSchemaValidator.validateValuesBySchema(normalizedJsonValues, jsonSchema)
-                normalizedJsonValues
+            // cache retrieve attempt
+            val cache = keyValueRepository.getCacheJsonSchema(cacheKey)
+            if (cache != null) {
+                currentJsonSchemaId = cache.jsonSchemaId
+                currentJsonSchema = cache.jsonSchema
+            }
+
+            // db retrieve attempt
+            if (currentJsonSchemaId == null) {
+                val configCommitEntity =
+                    configCommitEntityRepository.findById(actualCommitId)
+                        ?: throw RuntimeException(
+                            "Commit with id '$actualCommitId' expected to exist" +
+                                " for configuration with id '${configurationEntity.id}'",
+                        )
+
+                val configSchemaEntity =
+                    configSchemaEntityRepository.findById(configCommitEntity.configSchemaId)
+                        ?: throw RuntimeException(
+                            "Schema with id '${configCommitEntity.configSchemaId}' expected to exist" +
+                                " for commit with id '${configCommitEntity.id}'",
+                        )
+
+                currentJsonSchemaId = configSchemaEntity.id
+                currentJsonSchema = configSchemaEntity.jsonSchema
+            }
+        } else {
+            // post new schema
+            jsonSchemaValidator.validateSchema(jsonSchema)
+
+            val configSchemaEntity =
+                try {
+                    configSchemaEntityRepository.save(
+                        newConfigSchemaDetailedEntity(
+                            configurationId = configurationEntity.id,
+                            sourceType = sourceType.toRepository(),
+                            sourceIdentity = sourceIdentity,
+                            jsonSchema = jsonSchema,
+                        ),
+                    )
+                } catch (ex: DuplicateKeyException) {
+                    throw configSchemaDuplicatedException(ex, configurationEntity.id)
+                } catch (_: DataIntegrityViolationException) {
+                    throw configurationNotFoundException(applicationId)
+                }
+
+            currentJsonSchemaId = configSchemaEntity.id
+            currentJsonSchema = configSchemaEntity.jsonSchema
+        }
+
+        jsonSchemaValidator.validateValuesBySchema(jsonValues, currentJsonSchema!!)
+
+        val configCommitEntity =
+            try {
+                configCommitEntityRepository.save(
+                    newConfigCommitDetailedEntity(
+                        configSchemaId = currentJsonSchemaId,
+                        configurationId = configurationEntity.id,
+                        sourceType = sourceType.toRepository(),
+                        sourceIdentity = sourceIdentity,
+                        jsonValues = jsonValues,
+                    ),
+                )
+            } catch (ex: DuplicateKeyException) {
+                throw configValuesDuplicatedException(ex, configurationEntity.id)
+            } catch (ex: DataIntegrityViolationException) {
+                throw RuntimeException("Schema with id '$currentJsonSchemaId' expected to exist.", ex)
             }
 
         try {
-//            val commitEntity =
-//                configurationCommitEntityRepository.save(
-//                    newConfigurationCommitEntity(
-//                        configurationId = configurationEntity.id,
-//                        sourceType = configurationEntity.schemaSourceType,
-//                        sourceIdentity = sourceIdentity,
-//                        commitHash = currentCommitHash,
-//                        jsonValues = jsonValues,
-//                        jsonSchema = jsonSchema,
-//                    ),
-//                )
-
-            TODO("update configuration commitHash, update redis cache, commit broadcast")
-
-//            return commitEntity
-//                .toService(
-//                    namespaceId = application.namespaceId,
-//                    applicationId = application.id,
-//                )
-        } catch (ex: DuplicateKeyException) {
-            throw ConditionFailureException(
-                message = "Commit idempotency failure.",
-                cause = ex,
-                detailCode = null,
+            configurationEntity.actualCommitId = configCommitEntity.id
+            configurationEntityRepository.update(configurationEntity)
+        } catch (ex: Throwable) {
+            throw RuntimeException(
+                "Unable to commit id '${configCommitEntity.id}' due to unknown problem",
+                ex,
             )
-        } catch (_: DataIntegrityViolationException) {
-            throw configurationNotFoundException(applicationId)
+        }
+
+        registerCommitCallback {
+            cacheAndBroadcast(
+                cacheKey = cacheKey,
+                namespaceId = application.namespaceId,
+                applicationId = application.id,
+                configurationId = configurationEntity.id,
+                jsonSchemaId = currentJsonSchemaId,
+                jsonSchema = currentJsonSchema,
+                jsonValues = configCommitEntity.jsonValues,
+            )
+        }
+
+        return configCommitEntity
+            .toService(
+                namespaceId = application.namespaceId,
+                applicationId = application.id,
+                configurationId = configurationEntity.id,
+                jsonSchema = currentJsonSchema,
+            )
+    }
+
+    private fun cacheAndBroadcast(
+        cacheKey: CacheKey,
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
+        jsonSchemaId: Long,
+        jsonSchema: String,
+        jsonValues: String,
+    ) {
+        try {
+            keyValueRepository.putCacheJsonSchema(
+                cacheKey = cacheKey,
+                cacheJsonSchema =
+                    CacheJsonSchema(
+                        jsonSchemaId = jsonSchemaId,
+                        jsonSchema = jsonSchema,
+                    ),
+            )
+        } catch (ex: Throwable) {
+            logger.error("Unable to put cache json schema for configuration with id $configurationId", ex)
+        }
+
+        try {
+            keyValueRepository.putCacheJsonValues(
+                cacheKey = cacheKey,
+                cacheJsonValues =
+                    CacheJsonValues(
+                        jsonValues = jsonValues,
+                    ),
+            )
+        } catch (ex: Throwable) {
+            logger.error("Unable to update cache json values for configuration with id $configurationId", ex)
+        }
+
+        try {
+            pubSubProducer.publishEvent(
+                NotifyEventDto(
+                    namespaceId = namespaceId,
+                    applicationId = applicationId,
+                    eventType = NotifyEventDto.EventType.CONFIGURATION,
+                    content = jsonValues,
+                ),
+            )
+        } catch (ex: Throwable) {
+            logger.error("Unable to publish pub/sub event for configuration with id $configurationId", ex)
         }
     }
 

@@ -5,7 +5,9 @@ import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.service.external.dto.ApplicationClient
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
+import ru.enzhine.rtcms4j.core.service.internal.dto.ClientCredentials
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
@@ -87,3 +89,9 @@ fun Configuration.toDetailed(
     jsonSchema = jsonSchema,
     jsonValues = jsonValues,
 )
+
+fun ApplicationClient.toClientCredentials() =
+    ClientCredentials(
+        clientId = clientId,
+        clientSecret = clientSecret,
+    )

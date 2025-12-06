@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
+import ru.enzhine.rtcms4j.core.service.internal.dto.ClientCredentials
 import java.util.UUID
 
 interface ApplicationService {
@@ -29,6 +30,18 @@ interface ApplicationService {
         name: String?,
         description: String?,
     ): Application
+
+    @Throws(ConditionFailureException.NotFound::class)
+    fun getApplicationClientCredentials(
+        namespaceId: Long,
+        applicationId: Long,
+    ): ClientCredentials
+
+    @Throws(ConditionFailureException.NotFound::class)
+    fun rotateApplicationClientCredentials(
+        namespaceId: Long,
+        applicationId: Long,
+    ): ClientCredentials
 
     @Throws(ConditionFailureException.NotFound::class)
     fun findApplications(

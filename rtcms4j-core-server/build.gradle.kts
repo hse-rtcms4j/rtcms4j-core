@@ -34,21 +34,29 @@ dependencies {
     testImplementation("io.zonky.test:embedded-postgres")
     testImplementation("io.zonky.test:embedded-database-spring-test")
     testImplementation("com.github.codemonstur:embedded-redis")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito.kotlin:mockito-kotlin")
 }
 
-tasks.bootJar {
-    enabled = true
-}
+tasks {
+    bootJar {
+        enabled = true
+    }
 
-tasks.jar {
-    enabled = false
-}
+    jar {
+        enabled = false
+    }
 
-tasks.withType<PublishToMavenRepository> {
-    enabled = false
-}
+    withType<PublishToMavenRepository> {
+        enabled = false
+    }
 
-tasks.test {
-    useJUnitPlatform()
-    testLogging { exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
+    test {
+        // junit fix
+        useJUnitPlatform()
+        // test verbose logging
+        testLogging { exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
+        // mockito jvm arg
+        jvmArgs.add("-XX:+EnableDynamicAgentLoading")
+    }
 }

@@ -75,15 +75,14 @@ subprojects {
             dependency("io.cucumber:cucumber-spring:$cucumberVersion")
             dependency("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
 
-//            dependency("ru.enzhine:rtcms4j-:")
+            val mockitoKotlin: String by project
+            dependency("org.mockito.kotlin:mockito-kotlin:$mockitoKotlin")
         }
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
-
-//        github("hse-rtcms4j/rtcms4j-core")
     }
 
     publishing {
@@ -96,7 +95,7 @@ subprojects {
             }
         }
         repositories {
-//            github("")
+//            github("hse-rtcms4j/rtcms4j-core")
         }
     }
 }

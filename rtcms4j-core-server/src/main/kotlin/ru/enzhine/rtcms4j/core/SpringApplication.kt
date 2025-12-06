@@ -7,8 +7,8 @@ import ru.enzhine.rtcms4j.core.config.props.Anchor
 
 @ConfigurationPropertiesScan(basePackageClasses = [Anchor::class])
 @SpringBootApplication
-class Application
+class SpringApplication
 
 fun main(args: Array<String>) {
-    runApplication<Application>(*args)
+    runApplication<SpringApplication>(*args)
 }

@@ -6,7 +6,7 @@ data class ConfigurationDetailed(
     val applicationId: Long,
     val name: String,
     val schemaSourceType: SourceType,
-    val commitId: Long?,
+    val actualCommitId: Long?,
     val jsonSchema: String?,
     val jsonValues: String?,
 )

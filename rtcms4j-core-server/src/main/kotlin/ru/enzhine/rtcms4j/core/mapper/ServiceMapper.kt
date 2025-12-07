@@ -85,7 +85,7 @@ fun Configuration.toDetailed(
     applicationId = applicationId,
     name = name,
     schemaSourceType = schemaSourceType,
-    commitId = actualCommitId,
+    actualCommitId = actualCommitId,
     jsonSchema = jsonSchema,
     jsonValues = jsonValues,
 )

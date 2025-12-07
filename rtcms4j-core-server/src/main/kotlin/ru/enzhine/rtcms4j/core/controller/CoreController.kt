@@ -2,74 +2,188 @@ package ru.enzhine.rtcms4j.core.controller
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PagedModel
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.RestController
 import ru.enzhine.rtcms4j.core.api.CoreApi
-import ru.enzhine.rtcms4j.core.api.dto.AccessTokenDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationUpdateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDetailedDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDto
+import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDetailedDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDtoCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDtoUpdateRequest
+import ru.enzhine.rtcms4j.core.api.dto.KeycloakClientDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceUpdateRequest
 import ru.enzhine.rtcms4j.core.api.dto.UserInfoDto
+import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
+import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
+import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
+import ru.enzhine.rtcms4j.core.mapper.toApi
+import ru.enzhine.rtcms4j.core.mapper.toService
+import ru.enzhine.rtcms4j.core.service.internal.ApplicationService
+import ru.enzhine.rtcms4j.core.service.internal.ConfigurationService
+import ru.enzhine.rtcms4j.core.service.internal.NamespaceService
+import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import java.util.UUID
 
-class CoreController : CoreApi {
+@RestController
+class CoreController(
+    private val namespaceService: NamespaceService,
+    private val applicationService: ApplicationService,
+    private val configurationService: ConfigurationService,
+) : CoreApi {
     override fun createNamespace(namespaceCreateRequest: NamespaceCreateRequest): ResponseEntity<NamespaceDto> {
-        TODO("Not yet implemented")
+        val assigner = UUID.randomUUID() // TODO
+
+        val responseBody =
+            namespaceService
+                .createNamespace(
+                    creator = assigner,
+                    name = namespaceCreateRequest.name,
+                    description = namespaceCreateRequest.description,
+                ).toApi()
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(responseBody)
     }
 
     override fun updateNamespace(
         nid: Long,
         namespaceUpdateRequest: NamespaceUpdateRequest,
     ): ResponseEntity<NamespaceDto> {
-        TODO("Not yet implemented")
+        val responseBody =
+            namespaceService
+                .updateNamespace(
+                    namespaceId = nid,
+                    name = namespaceUpdateRequest.name,
+                    description = namespaceUpdateRequest.description,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun getNamespace(nid: Long): ResponseEntity<NamespaceDto> {
-        TODO("Not yet implemented")
+        val responseBody =
+            namespaceService
+                .getNamespaceById(
+                    namespaceId = nid,
+                    forShare = false,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun findAllNamespaces(
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<NamespaceDto>> {
-        TODO("Not yet implemented")
+        val responseBody =
+            PagedModel(
+                namespaceService
+                    .findNamespaces(
+                        name = name,
+                        pageable = pageable,
+                    ).map { it.toApi() },
+            )
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun deleteNamespace(nid: Long): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
+        if (namespaceService.deleteNamespace(nid)) {
+            return ResponseEntity
+                .noContent()
+                .build()
+        }
+
+        throw namespaceNotFoundException(nid)
     }
 
     override fun addNamespaceAdmin(
         nid: Long,
         uid: UUID,
     ): ResponseEntity<UserInfoDto> {
-        TODO("Not yet implemented")
+        val assigner = UUID.randomUUID() // TODO
+
+        if (
+            namespaceService.addAdmin(
+                assigner = assigner,
+                namespaceId = nid,
+                sub = uid,
+            )
+        ) {
+            val responseBody =
+                UserInfoDto(sub = uid)
+
+            return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(responseBody)
+        }
+
+        return ResponseEntity
+            .badRequest()
+            .build()
     }
 
     override fun getNamespaceAdmins(nid: Long): ResponseEntity<List<UserInfoDto>> {
-        TODO("Not yet implemented")
+        val responseBody =
+            namespaceService
+                .listAdmins(nid)
+                .map { uid ->
+                    UserInfoDto(sub = uid)
+                }
+
+        return ResponseEntity.ok(responseBody)
     }
 
     override fun removeNamespaceAdmin(
         nid: Long,
         uid: UUID,
     ): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
+        if (
+            namespaceService.removeAdmin(
+                namespaceId = nid,
+                sub = uid,
+            )
+        ) {
+            return ResponseEntity
+                .noContent()
+                .build()
+        }
+
+        return ResponseEntity
+            .notFound()
+            .build()
     }
 
     override fun createApplication(
         nid: Long,
         applicationCreateRequest: ApplicationCreateRequest,
     ): ResponseEntity<ApplicationDto> {
-        TODO("Not yet implemented")
+        val assigner = UUID.randomUUID() // TODO
+
+        val responseBody =
+            applicationService
+                .createApplication(
+                    creator = assigner,
+                    namespaceId = nid,
+                    name = applicationCreateRequest.name,
+                    description = applicationCreateRequest.description,
+                ).toApi()
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(responseBody)
     }
 
     override fun updateApplication(
@@ -77,14 +191,33 @@ class CoreController : CoreApi {
         aid: Long,
         applicationUpdateRequest: ApplicationUpdateRequest,
     ): ResponseEntity<ApplicationDto> {
-        TODO("Not yet implemented")
+        val responseBody =
+            applicationService
+                .updateApplication(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    name = applicationUpdateRequest.name,
+                    description = applicationUpdateRequest.description,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun getApplication(
         nid: Long,
         aid: Long,
     ): ResponseEntity<ApplicationDto> {
-        TODO("Not yet implemented")
+        val responseBody =
+            applicationService
+                .getApplicationById(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    forShare = false,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun findAllApplications(
@@ -92,14 +225,36 @@ class CoreController : CoreApi {
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<ApplicationDto>> {
-        TODO("Not yet implemented")
+        val responseBody =
+            PagedModel(
+                applicationService
+                    .findApplications(
+                        namespaceId = nid,
+                        name = name,
+                        pageable = pageable,
+                    ).map { it.toApi() },
+            )
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun deleteApplication(
         nid: Long,
         aid: Long,
     ): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
+        if (
+            applicationService.deleteApplication(
+                namespaceId = nid,
+                applicationId = aid,
+            )
+        ) {
+            return ResponseEntity
+                .noContent()
+                .build()
+        }
+
+        throw applicationNotFoundException(aid)
     }
 
     override fun addApplicationManager(
@@ -107,14 +262,43 @@ class CoreController : CoreApi {
         aid: Long,
         uid: UUID,
     ): ResponseEntity<UserInfoDto> {
-        TODO("Not yet implemented")
+        val assigner = UUID.randomUUID() // TODO
+
+        if (
+            applicationService.addManager(
+                assigner = assigner,
+                namespaceId = nid,
+                applicationId = aid,
+                sub = uid,
+            )
+        ) {
+            val responseBody =
+                UserInfoDto(sub = uid)
+
+            return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(responseBody)
+        }
+
+        return ResponseEntity
+            .badRequest()
+            .build()
     }
 
     override fun getApplicationManagers(
         nid: Long,
         aid: Long,
     ): ResponseEntity<List<UserInfoDto>> {
-        TODO("Not yet implemented")
+        val responseBody =
+            applicationService
+                .listManagers(
+                    namespaceId = nid,
+                    applicationId = aid,
+                ).map { uid ->
+                    UserInfoDto(sub = uid)
+                }
+
+        return ResponseEntity.ok(responseBody)
     }
 
     override fun removeApplicationManager(
@@ -122,22 +306,49 @@ class CoreController : CoreApi {
         aid: Long,
         uid: UUID,
     ): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
+        if (
+            applicationService.removeManager(
+                namespaceId = nid,
+                applicationId = aid,
+                sub = uid,
+            )
+        ) {
+            return ResponseEntity
+                .noContent()
+                .build()
+        }
+
+        return ResponseEntity
+            .notFound()
+            .build()
     }
 
-    override fun getApplicationAccessToken(
+    override fun getApplicationClient(
         nid: Long,
         aid: Long,
-    ): ResponseEntity<AccessTokenDto> {
-        TODO("Not yet implemented")
+    ): ResponseEntity<KeycloakClientDto> {
+        val responseBody =
+            applicationService
+                .getApplicationClientCredentials(
+                    namespaceId = nid,
+                    applicationId = aid,
+                ).toApi()
+
+        return ResponseEntity.ok(responseBody)
     }
 
-    override fun updateApplicationAccessToken(
+    override fun rotateApplicationClientPassword(
         nid: Long,
         aid: Long,
-        accessTokenDto: AccessTokenDto,
-    ): ResponseEntity<AccessTokenDto> {
-        TODO("Not yet implemented")
+    ): ResponseEntity<KeycloakClientDto> {
+        val responseBody =
+            applicationService
+                .rotateApplicationClientCredentials(
+                    namespaceId = nid,
+                    applicationId = aid,
+                ).toApi()
+
+        return ResponseEntity.ok(responseBody)
     }
 
     override fun createConfiguration(
@@ -145,7 +356,21 @@ class CoreController : CoreApi {
         aid: Long,
         configurationDtoCreateRequest: ConfigurationDtoCreateRequest,
     ): ResponseEntity<ConfigurationDetailedDto> {
-        TODO("Not yet implemented")
+        val assigner = UUID.randomUUID() // TODO
+
+        val responseBody =
+            configurationService
+                .createConfiguration(
+                    creator = assigner,
+                    namespaceId = nid,
+                    applicationId = aid,
+                    name = configurationDtoCreateRequest.name,
+                    schemaSourceType = configurationDtoCreateRequest.schemaSourceType.toService(),
+                ).toApi()
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(responseBody)
     }
 
     override fun updateConfiguration(
@@ -153,8 +378,19 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
         configurationDtoUpdateRequest: ConfigurationDtoUpdateRequest,
-    ): ResponseEntity<ConfigurationDetailedDto> {
-        TODO("Not yet implemented")
+    ): ResponseEntity<ConfigurationDto> {
+        val responseBody =
+            configurationService
+                .updateConfiguration(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    configurationId = cid,
+                    name = configurationDtoUpdateRequest.name,
+                    schemaSourceType = configurationDtoUpdateRequest.schemaSourceType?.toService(),
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun getConfiguration(
@@ -162,7 +398,17 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
     ): ResponseEntity<ConfigurationDetailedDto> {
-        TODO("Not yet implemented")
+        val responseBody =
+            configurationService
+                .getConfigurationById(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    configurationId = cid,
+                    forShare = false,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun findAllConfigurations(
@@ -171,7 +417,19 @@ class CoreController : CoreApi {
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<ConfigurationDto>> {
-        TODO("Not yet implemented")
+        val responseBody =
+            PagedModel(
+                configurationService
+                    .findConfigurations(
+                        namespaceId = nid,
+                        applicationId = aid,
+                        name = name,
+                        pageable = pageable,
+                    ).map { it.toApi() },
+            )
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun deleteConfiguration(
@@ -179,75 +437,100 @@ class CoreController : CoreApi {
         aid: Long,
         cid: Long,
     ): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
+        if (
+            configurationService.deleteConfiguration(
+                namespaceId = nid,
+                applicationId = aid,
+                configurationId = cid,
+            )
+        ) {
+            return ResponseEntity
+                .noContent()
+                .build()
+        }
+
+        throw configurationNotFoundException(cid)
     }
 
-    override fun getConfigurationValues(
+    override fun applyConfigurationCommit(
         nid: Long,
         aid: Long,
         cid: Long,
-    ): ResponseEntity<String> {
-        TODO("Not yet implemented")
+        ctid: Long,
+    ): ResponseEntity<Unit> {
+        configurationService.applyConfigurationByCommitId(
+            namespaceId = nid,
+            applicationId = aid,
+            configurationId = cid,
+            commitId = ctid,
+        )
+
+        return ResponseEntity
+            .noContent()
+            .build()
     }
 
-    override fun updateConfigurationValues(
+    override fun commitConfiguration(
         nid: Long,
         aid: Long,
         cid: Long,
-        body: String,
+        configurationCommitRequest: ConfigurationCommitRequest,
     ): ResponseEntity<ConfigurationCommitDetailedDto> {
-        TODO("Not yet implemented")
+        val sourceType = SourceType.USER // TODO
+        val sourceIdentity = UUID.randomUUID().toString() // TODO
+
+        val responseBody =
+            configurationService
+                .commitValuesAndSchema(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    configurationId = cid,
+                    sourceType = sourceType,
+                    sourceIdentity = sourceIdentity,
+                    jsonSchema = configurationCommitRequest.jsonSchema,
+                    jsonValues = configurationCommitRequest.jsonValues,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
-    override fun getConfigurationSchema(
+    override fun getConfigurationCommit(
         nid: Long,
         aid: Long,
         cid: Long,
-    ): ResponseEntity<String> {
-        TODO("Not yet implemented")
-    }
-
-    override fun updateConfigurationSchema(
-        nid: Long,
-        aid: Long,
-        cid: Long,
-        body: String,
+        ctid: Long,
     ): ResponseEntity<ConfigurationCommitDetailedDto> {
-        TODO("Not yet implemented")
+        val responseBody =
+            configurationService
+                .getConfigurationCommitByCommitId(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    configurationId = cid,
+                    forShare = false,
+                    commitId = ctid,
+                ).toApi()
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
-    override fun getConfigurationVersion(
-        nid: Long,
-        aid: Long,
-        cid: Long,
-        commitHash: String,
-    ): ResponseEntity<ConfigurationCommitDetailedDto> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getConfigurationVersions(
+    override fun getConfigurationCommits(
         nid: Long,
         aid: Long,
         cid: Long,
     ): ResponseEntity<List<ConfigurationCommitDto>> {
-        TODO("Not yet implemented")
-    }
+        val responseBody =
+            configurationService
+                .getConfigurationCommits(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    configurationId = cid,
+                ).map {
+                    it.toApi()
+                }
 
-    override fun switchConfigurationVersion(
-        nid: Long,
-        aid: Long,
-        cid: Long,
-        commitHash: String,
-    ): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteConfigurationVersion(
-        nid: Long,
-        aid: Long,
-        cid: Long,
-        commitHash: String,
-    ): ResponseEntity<Unit> {
-        TODO("Not yet implemented")
+        return ResponseEntity
+            .ok(responseBody)
     }
 }

@@ -144,40 +144,4 @@ class ApplicationServiceImplTest {
 
         verify(keycloakService, never()).createNewApplicationClient(anyOrNull())
     }
-
-//    @Test
-//    fun getApplicationById__() {
-//    }
-//
-//    @Test
-//    fun updateApplication__() {
-//    }
-//
-//    @Test
-//    fun getApplicationClientCredentials__() {
-//    }
-//
-//    @Test
-//    fun rotateApplicationClientCredentials__() {
-//    }
-//
-//    @Test
-//    fun findApplications__() {
-//    }
-//
-//    @Test
-//    fun deleteApplication__() {
-//    }
-//
-//    @Test
-//    fun listManagers__() {
-//    }
-//
-//    @Test
-//    fun addManager__() {
-//    }
-//
-//    @Test
-//    fun removeManager__() {
-//    }
 }

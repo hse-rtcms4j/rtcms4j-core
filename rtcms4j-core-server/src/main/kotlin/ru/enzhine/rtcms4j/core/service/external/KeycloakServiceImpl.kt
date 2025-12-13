@@ -2,40 +2,45 @@ package ru.enzhine.rtcms4j.core.service.external
 
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.representations.idm.ClientRepresentation
+import org.slf4j.LoggerFactory
+import org.springframework.context.event.ContextRefreshedEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
-import ru.enzhine.rtcms4j.core.config.props.KeycloakAdminProperties
+import ru.enzhine.rtcms4j.core.config.props.KeycloakProperties
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
-import ru.enzhine.rtcms4j.core.service.external.dto.ApplicationClient
+import ru.enzhine.rtcms4j.core.service.external.dto.KeycloakClient
 
 @Service
 class KeycloakServiceImpl(
     private val keycloakAdminClient: Keycloak,
-    private val keycloakAdminProperties: KeycloakAdminProperties,
+    private val keycloakProperties: KeycloakProperties,
 ) : KeycloakService {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     override fun buildClientId(
         namespaceId: Long,
         applicationId: Long,
     ) = "ns${namespaceId}_app$applicationId"
 
-    override fun findApplicationClient(clientId: String): ApplicationClient {
+    override fun findApplicationClient(clientId: String): KeycloakClient {
         val clientResource =
             keycloakAdminClient
-                .realm(keycloakAdminProperties.realm)
+                .realm(keycloakProperties.realm)
                 .clients()
                 .get(clientId)
 
-        return ApplicationClient(
+        return KeycloakClient(
             clientId = clientId,
             clientSecret = clientResource.secret.value,
         )
     }
 
-    override fun createNewApplicationClient(clientId: String): ApplicationClient {
+    override fun createNewApplicationClient(clientId: String): KeycloakClient {
         val clientRepresentation = buildClientRepresentation(clientId)
 
         val response =
             keycloakAdminClient
-                .realm(keycloakAdminProperties.realm)
+                .realm(keycloakProperties.realm)
                 .clients()
                 .create(clientRepresentation)
 
@@ -47,23 +52,60 @@ class KeycloakServiceImpl(
                 detailCode = response.status,
             )
 
-            else -> throw RuntimeException("Keycloak application client creation failed.")
+            else -> throw RuntimeException("Keycloak client creation failed.")
         }
     }
 
-    override fun rotateApplicationClientPassword(clientId: String): ApplicationClient {
+    override fun rotateApplicationClientPassword(clientId: String): KeycloakClient {
         val credentialRepresentation =
             keycloakAdminClient
-                .realm(keycloakAdminProperties.realm)
+                .realm(keycloakProperties.realm)
                 .clients()
                 .get(clientId)
                 .generateNewSecret()
 
-        return ApplicationClient(
+        return KeycloakClient(
             clientId = clientId,
             clientSecret = credentialRepresentation.value,
         )
     }
+
+    override fun deleteApplicationClient(clientId: String): Boolean {
+        val response =
+            keycloakAdminClient
+                .realm(keycloakProperties.realm)
+                .clients()
+                .delete(clientId)
+
+        return when (response.status) {
+            in 200 until 300 -> true
+
+            404 -> throw ConditionFailureException(
+                message = "Keycloak already contains client with id '$clientId'",
+                cause = null,
+                detailCode = response.status,
+            )
+
+            else -> throw RuntimeException("Keycloak client deletion failed.")
+        }
+    }
+
+    private var onceTested = false
+
+    @EventListener
+    fun onStartup(event: ContextRefreshedEvent) {
+        if (!onceTested) {
+            testConnection()
+        }
+    }
+
+    private fun testConnection() =
+        try {
+            val realm = keycloakAdminClient.realm(keycloakProperties.realm).toRepresentation()
+            logger.info("Keycloak connection passed. Serving realm: ${realm.realm}.")
+        } catch (ex: Throwable) {
+            throw RuntimeException("Application startup failed: keycloak connection error!", ex)
+        }
 
     private fun buildClientRepresentation(clientId: String) =
         ClientRepresentation().apply {

@@ -14,14 +14,13 @@ import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
 import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
-import ru.enzhine.rtcms4j.core.mapper.toClientCredentials
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
-import ru.enzhine.rtcms4j.core.service.internal.dto.ClientCredentials
+import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
 import ru.enzhine.rtcms4j.core.service.internal.tx.registerCommitCallback
 import java.util.UUID
 
@@ -63,8 +62,7 @@ class ApplicationServiceImpl(
         registerCommitCallback {
             try {
                 val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
-                val res = keycloakService.createNewApplicationClient(clientId)
-                println(res)
+                keycloakService.createNewApplicationClient(clientId)
             } catch (ex: Throwable) {
                 logger.error("Unable to create client for application with id ${applicationEntity.id}", ex)
             }
@@ -148,7 +146,7 @@ class ApplicationServiceImpl(
     override fun getApplicationClientCredentials(
         namespaceId: Long,
         applicationId: Long,
-    ): ClientCredentials {
+    ): KeycloakClient {
         val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
         val applicationEntity =
@@ -163,13 +161,13 @@ class ApplicationServiceImpl(
         val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
         return keycloakService
             .findApplicationClient(clientId)
-            .toClientCredentials()
+            .toService()
     }
 
     override fun rotateApplicationClientCredentials(
         namespaceId: Long,
         applicationId: Long,
-    ): ClientCredentials {
+    ): KeycloakClient {
         val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
         val applicationEntity =
@@ -184,7 +182,7 @@ class ApplicationServiceImpl(
         val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
         return keycloakService
             .rotateApplicationClientPassword(clientId)
-            .toClientCredentials()
+            .toService()
     }
 
     override fun deleteApplication(
@@ -201,7 +199,12 @@ class ApplicationServiceImpl(
             throw applicationNotFoundException(applicationId)
         }
 
-        return applicationEntityRepository.removeById(applicationId)
+        val deleted = applicationEntityRepository.removeById(applicationId)
+        if (deleted) {
+            val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
+            keycloakService.deleteApplicationClient(clientId)
+        }
+        return deleted
     }
 
     override fun listManagers(

@@ -22,6 +22,7 @@ import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceUpdateRequest
 import ru.enzhine.rtcms4j.core.api.dto.UserInfoDto
 import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
+import ru.enzhine.rtcms4j.core.builder.configurationCommitNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.mapper.toApi
@@ -532,5 +533,28 @@ class CoreController(
 
         return ResponseEntity
             .ok(responseBody)
+    }
+
+    override fun deleteConfigurationCommit(
+        nid: Long,
+        aid: Long,
+        cid: Long,
+        ctid: Long,
+    ): ResponseEntity<Unit> {
+        if (
+            configurationService
+                .deleteConfigurationCommit(
+                    namespaceId = nid,
+                    applicationId = aid,
+                    configurationId = cid,
+                    commitId = ctid,
+                )
+        ) {
+            return ResponseEntity
+                .noContent()
+                .build()
+        }
+
+        throw configurationCommitNotFoundException(cid, ctid)
     }
 }

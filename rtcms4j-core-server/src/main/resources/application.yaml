@@ -14,3 +14,7 @@ key-val-repository:
 
 json:
   meta-schema-class-path: json/schema/meta-schema.json
+
+default:
+  pagination:
+    page-size: 10

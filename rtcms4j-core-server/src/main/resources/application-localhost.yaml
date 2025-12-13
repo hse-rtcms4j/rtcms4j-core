@@ -1,0 +1,31 @@
+---
+server:
+  port: 8081
+
+spring:
+  liquibase:
+    enabled: true
+
+  redis:
+    host: localhost
+    port: 6379
+    password: valkey
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rtcms4j_db
+    username: rtcms4j_user
+    password: rtcms4j
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/myrealm
+
+keycloak:
+  server-url: http://localhost:8080
+  realm: rtcms4j
+  retries-limit: 5
+  admin:
+    client-id: rtcms4j-admin
+    client-secret: 3OWjIdxNVcaGZP5PcXR6uxpIVXtmfDFi

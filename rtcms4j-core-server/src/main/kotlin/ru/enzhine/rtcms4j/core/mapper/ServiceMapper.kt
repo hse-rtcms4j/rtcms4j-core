@@ -5,16 +5,16 @@ import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
-import ru.enzhine.rtcms4j.core.service.external.dto.ApplicationClient
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
-import ru.enzhine.rtcms4j.core.service.internal.dto.ClientCredentials
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
 import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType as RepositorySourceType
+import ru.enzhine.rtcms4j.core.service.external.dto.KeycloakClient as KeycloakClientExt
 
 fun RepositorySourceType.toService() =
     when (this) {
@@ -90,8 +90,8 @@ fun Configuration.toDetailed(
     jsonValues = jsonValues,
 )
 
-fun ApplicationClient.toClientCredentials() =
-    ClientCredentials(
+fun KeycloakClientExt.toService() =
+    KeycloakClient(
         clientId = clientId,
         clientSecret = clientSecret,
     )

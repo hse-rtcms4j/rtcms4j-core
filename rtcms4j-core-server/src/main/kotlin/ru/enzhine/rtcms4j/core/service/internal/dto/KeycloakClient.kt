@@ -1,6 +1,6 @@
 package ru.enzhine.rtcms4j.core.service.internal.dto
 
-data class ClientCredentials(
+data class KeycloakClient(
     val clientId: String,
     val clientSecret: String,
 )

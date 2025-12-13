@@ -86,4 +86,12 @@ interface ConfigurationService {
         applicationId: Long,
         configurationId: Long,
     ): List<ConfigurationCommit>
+
+    @Throws(ConditionFailureException.NotFound::class)
+    fun deleteConfigurationCommit(
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
+        commitId: Long,
+    ): Boolean
 }

@@ -18,6 +18,14 @@
     "properties": {
       "type": "object",
       "minProperties": 1,
+
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/versionFieldSchema"
+        }
+      },
+      "required": ["version"],
+
       "additionalProperties": {
         "$ref": "#/$defs/fieldSchema"
       }
@@ -25,7 +33,8 @@
 
     "required": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "contains": { "const": "version" }
     },
 
     "additionalProperties": {
@@ -55,7 +64,8 @@
         "title": { "type": "string" },
         "format": { "type": "string" },
         "minimum": { "type": "number" },
-        "maximum": { "type": "number" }
+        "maximum": { "type": "number" },
+        "pattern": { "type": "string" }
       },
       "required": ["type"],
       "additionalProperties": false
@@ -101,6 +111,24 @@
               { "required": ["patternProperties"] }
             ]
           }
+        }
+      ]
+    },
+
+    "versionFieldSchema": {
+      "description": "Schema for the required version field (SemVer string)",
+      "allOf": [
+        {
+          "$ref": "#/$defs/primitiveSchemaBase"
+        },
+        {
+          "properties": {
+            "type": { "const": "string" },
+            "pattern": {
+              "const": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+            }
+          },
+          "required": ["pattern"]
         }
       ]
     }

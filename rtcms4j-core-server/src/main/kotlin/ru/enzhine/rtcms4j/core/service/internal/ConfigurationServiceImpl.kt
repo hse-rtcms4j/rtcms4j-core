@@ -554,4 +554,60 @@ class ConfigurationServiceImpl(
                 )
             }
     }
+
+    @Transactional
+    override fun deleteConfigurationCommit(
+        namespaceId: Long,
+        applicationId: Long,
+        configurationId: Long,
+        commitId: Long,
+    ): Boolean {
+        val application = applicationService.getApplicationById(namespaceId, applicationId, true)
+
+        val configurationEntity =
+            configurationEntityRepository.findById(configurationId, QueryModifier.FOR_UPDATE)
+                ?: throw configurationNotFoundException(configurationId)
+
+        if (configurationEntity.applicationId != application.id) {
+            throw configurationNotFoundException(configurationId)
+        }
+
+        val configCommitEntity =
+            configCommitEntityRepository.findById(commitId)
+                ?: throw configurationCommitNotFoundException(configurationId, commitId)
+
+        if (configCommitEntity.configurationId != configurationEntity.id) {
+            throw configurationCommitNotFoundException(configurationId, commitId)
+        }
+
+        if (configCommitEntity.id == configurationEntity.actualCommitId) {
+            throw ConditionFailureException(
+                message = "It is prohibited to delete commit that is in use.",
+                cause = null,
+                detailCode = null,
+            )
+        }
+
+        if (!configCommitEntityRepository.removeById(configCommitEntity.id)) {
+            throw RuntimeException(
+                "Commit with id '${configCommitEntity.id}' expected to exist, " +
+                    "however deletion failed.",
+            )
+        }
+
+        val relatedCommits =
+            configCommitEntityRepository.findAllByConfigSchemaId(configCommitEntity.configSchemaId)
+        if (!relatedCommits.isEmpty()) {
+            return true
+        }
+
+        if (!configSchemaEntityRepository.removeById(configCommitEntity.configSchemaId)) {
+            throw RuntimeException(
+                "Commit schema with id '${configCommitEntity.configSchemaId}' expected to exist, " +
+                    "however deletion failed.",
+            )
+        }
+
+        return true
+    }
 }

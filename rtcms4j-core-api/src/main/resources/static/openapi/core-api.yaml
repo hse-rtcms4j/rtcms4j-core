@@ -1174,59 +1174,59 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
-#    delete:
-#      tags:
-#        - Core
-#      summary: Delete namespace application configuration commit
-#      operationId: deleteConfigurationCommit
-#      parameters:
-#        - name: nid
-#          description: Namespace id
-#          in: path
-#          required: true
-#          schema:
-#            type: integer
-#            format: int64
-#        - name: aid
-#          description: Application id
-#          in: path
-#          required: true
-#          schema:
-#            type: integer
-#            format: int64
-#        - name: cid
-#          description: Configuration id
-#          in: path
-#          required: true
-#          schema:
-#            type: integer
-#            format: int64
-#        - name: ctid
-#          description: Commit id
-#          in: path
-#          required: true
-#          schema:
-#            type: integer
-#            format: int64
-#      responses:
-#        '204':
-#          description: Successful operation
-#        '400':
-#          $ref: '#/components/responses/BadRequest'
-#        '401':
-#          $ref: '#/components/responses/Unauthorized'
-#        '403':
-#          $ref: '#/components/responses/Forbidden'
-#        '404':
-#          description: ConfigurationCommitDetailedDto not found
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/ErrorResponse'
-#        '405':
-#          $ref: '#/components/responses/MethodNotAllowed'
-#        '500':
-#          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Core
+      summary: Delete namespace application configuration commit
+      operationId: deleteConfigurationCommit
+      parameters:
+        - name: nid
+          description: Namespace id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: aid
+          description: Application id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: cid
+          description: Configuration id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: ctid
+          description: Commit id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: ConfigurationCommitDetailedDto not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   responses:

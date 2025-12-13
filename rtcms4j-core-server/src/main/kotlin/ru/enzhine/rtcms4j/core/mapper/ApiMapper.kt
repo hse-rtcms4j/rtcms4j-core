@@ -8,11 +8,11 @@ import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDto
 import ru.enzhine.rtcms4j.core.api.dto.KeycloakClientDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
-import ru.enzhine.rtcms4j.core.service.internal.dto.ClientCredentials
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
+import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
 import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import ru.enzhine.rtcms4j.core.api.dto.SourceType as ApiSourceType
@@ -32,7 +32,7 @@ fun Application.toApi() =
         description = description,
     )
 
-fun ClientCredentials.toApi() =
+fun KeycloakClient.toApi() =
     KeycloakClientDto(
         clientId = clientId,
         secret = clientSecret,

@@ -1,6 +1,6 @@
 package ru.enzhine.rtcms4j.core.service.external
 
-import ru.enzhine.rtcms4j.core.service.external.dto.ApplicationClient
+import ru.enzhine.rtcms4j.core.service.external.dto.KeycloakClient
 
 interface KeycloakService {
     fun buildClientId(
@@ -8,9 +8,11 @@ interface KeycloakService {
         applicationId: Long,
     ): String
 
-    fun findApplicationClient(clientId: String): ApplicationClient
+    fun findApplicationClient(clientId: String): KeycloakClient
 
-    fun createNewApplicationClient(clientId: String): ApplicationClient
+    fun createNewApplicationClient(clientId: String): KeycloakClient
 
-    fun rotateApplicationClientPassword(clientId: String): ApplicationClient
+    fun rotateApplicationClientPassword(clientId: String): KeycloakClient
+
+    fun deleteApplicationClient(clientId: String): Boolean
 }

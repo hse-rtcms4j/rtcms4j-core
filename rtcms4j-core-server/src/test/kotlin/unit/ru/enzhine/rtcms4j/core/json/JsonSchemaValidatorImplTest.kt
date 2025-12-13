@@ -11,6 +11,7 @@ class JsonSchemaValidatorImplTest {
     private val correctValues =
         """
         {
+          "version": "1.0.0",
           "featureFlag": true
         }
         """.trimIndent()
@@ -32,9 +33,13 @@ class JsonSchemaValidatorImplTest {
             "featureFlag": {
               "type": "boolean",
               "default": false
+            },
+            "version": {
+              "type": "string",
+              "default": "1.0.0"
             }
           },
-          "required": ["featureFlag"]
+          "required": ["featureFlag", "version"]
         }
         """.trimIndent()
 

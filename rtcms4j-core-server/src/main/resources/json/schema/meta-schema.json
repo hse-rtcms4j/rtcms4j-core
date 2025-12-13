@@ -123,12 +123,9 @@
         },
         {
           "properties": {
-            "type": { "const": "string" },
-            "pattern": {
-              "const": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
-            }
+            "type": { "const": "string" }
           },
-          "required": ["pattern"]
+          "required": ["type"]
         }
       ]
     }

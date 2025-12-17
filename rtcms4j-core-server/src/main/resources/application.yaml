@@ -1,6 +1,10 @@
 spring:
   liquibase:
     enabled: false
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    default-property-inclusion: non_null
 
 server:
   port: 8080
@@ -18,3 +22,6 @@ json:
 default:
   pagination:
     page-size: 10
+
+roles:
+  super-admin-role: rtcms4j-super-admin

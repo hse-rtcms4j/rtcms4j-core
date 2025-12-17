@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.RestController
 import ru.enzhine.rtcms4j.core.api.CoreApi
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
@@ -24,9 +25,12 @@ import ru.enzhine.rtcms4j.core.api.dto.UserInfoDto
 import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationCommitNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
+import ru.enzhine.rtcms4j.core.builder.forbiddenAccessException
 import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.mapper.toApi
 import ru.enzhine.rtcms4j.core.mapper.toService
+import ru.enzhine.rtcms4j.core.security.dto.KeycloakPrincipal
+import ru.enzhine.rtcms4j.core.service.internal.AccessControlService
 import ru.enzhine.rtcms4j.core.service.internal.ApplicationService
 import ru.enzhine.rtcms4j.core.service.internal.ConfigurationService
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceService
@@ -38,9 +42,14 @@ class CoreController(
     private val namespaceService: NamespaceService,
     private val applicationService: ApplicationService,
     private val configurationService: ConfigurationService,
+    private val accessControlService: AccessControlService,
 ) : CoreApi {
     override fun createNamespace(namespaceCreateRequest: NamespaceCreateRequest): ResponseEntity<NamespaceDto> {
-        val assigner = UUID.randomUUID() // TODO
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
+            throw forbiddenAccessException("At least Super-Admin access required.")
+        }
+        val assigner = keycloakPrincipal.sub
 
         val responseBody =
             namespaceService
@@ -59,6 +68,11 @@ class CoreController(
         nid: Long,
         namespaceUpdateRequest: NamespaceUpdateRequest,
     ): ResponseEntity<NamespaceDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
         val responseBody =
             namespaceService
                 .updateNamespace(
@@ -72,6 +86,11 @@ class CoreController(
     }
 
     override fun getNamespace(nid: Long): ResponseEntity<NamespaceDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
         val responseBody =
             namespaceService
                 .getNamespaceById(
@@ -87,6 +106,11 @@ class CoreController(
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<NamespaceDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
+            throw forbiddenAccessException("At least Super-Admin access required.")
+        }
+
         val responseBody =
             PagedModel(
                 namespaceService
@@ -101,6 +125,11 @@ class CoreController(
     }
 
     override fun deleteNamespace(nid: Long): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
+            throw forbiddenAccessException("At least Super-Admin access required.")
+        }
+
         if (namespaceService.deleteNamespace(nid)) {
             return ResponseEntity
                 .noContent()
@@ -114,7 +143,11 @@ class CoreController(
         nid: Long,
         uid: UUID,
     ): ResponseEntity<UserInfoDto> {
-        val assigner = UUID.randomUUID() // TODO
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+        val assigner = keycloakPrincipal.sub
 
         if (
             namespaceService.addAdmin(
@@ -137,6 +170,11 @@ class CoreController(
     }
 
     override fun getNamespaceAdmins(nid: Long): ResponseEntity<List<UserInfoDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
         val responseBody =
             namespaceService
                 .listAdmins(nid)
@@ -151,6 +189,11 @@ class CoreController(
         nid: Long,
         uid: UUID,
     ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
         if (
             namespaceService.removeAdmin(
                 namespaceId = nid,
@@ -171,7 +214,11 @@ class CoreController(
         nid: Long,
         applicationCreateRequest: ApplicationCreateRequest,
     ): ResponseEntity<ApplicationDto> {
-        val assigner = UUID.randomUUID() // TODO
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+        val assigner = keycloakPrincipal.sub
 
         val responseBody =
             applicationService
@@ -192,6 +239,11 @@ class CoreController(
         aid: Long,
         applicationUpdateRequest: ApplicationUpdateRequest,
     ): ResponseEntity<ApplicationDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             applicationService
                 .updateApplication(
@@ -209,6 +261,11 @@ class CoreController(
         nid: Long,
         aid: Long,
     ): ResponseEntity<ApplicationDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             applicationService
                 .getApplicationById(
@@ -226,6 +283,12 @@ class CoreController(
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<ApplicationDto>> {
+        // TODO: allow managers to list applications
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
         val responseBody =
             PagedModel(
                 applicationService
@@ -244,6 +307,11 @@ class CoreController(
         nid: Long,
         aid: Long,
     ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
         if (
             applicationService.deleteApplication(
                 namespaceId = nid,
@@ -263,7 +331,11 @@ class CoreController(
         aid: Long,
         uid: UUID,
     ): ResponseEntity<UserInfoDto> {
-        val assigner = UUID.randomUUID() // TODO
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+        val assigner = keycloakPrincipal.sub
 
         if (
             applicationService.addManager(
@@ -290,6 +362,11 @@ class CoreController(
         nid: Long,
         aid: Long,
     ): ResponseEntity<List<UserInfoDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             applicationService
                 .listManagers(
@@ -307,6 +384,11 @@ class CoreController(
         aid: Long,
         uid: UUID,
     ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         if (
             applicationService.removeManager(
                 namespaceId = nid,
@@ -328,6 +410,11 @@ class CoreController(
         nid: Long,
         aid: Long,
     ): ResponseEntity<KeycloakClientDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             applicationService
                 .getApplicationClientCredentials(
@@ -342,6 +429,11 @@ class CoreController(
         nid: Long,
         aid: Long,
     ): ResponseEntity<KeycloakClientDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             applicationService
                 .rotateApplicationClientCredentials(
@@ -357,7 +449,11 @@ class CoreController(
         aid: Long,
         configurationDtoCreateRequest: ConfigurationDtoCreateRequest,
     ): ResponseEntity<ConfigurationDetailedDto> {
-        val assigner = UUID.randomUUID() // TODO
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+        val assigner = keycloakPrincipal.sub
 
         val responseBody =
             configurationService
@@ -380,6 +476,11 @@ class CoreController(
         cid: Long,
         configurationDtoUpdateRequest: ConfigurationDtoUpdateRequest,
     ): ResponseEntity<ConfigurationDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             configurationService
                 .updateConfiguration(
@@ -399,6 +500,11 @@ class CoreController(
         aid: Long,
         cid: Long,
     ): ResponseEntity<ConfigurationDetailedDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
+        }
+
         val responseBody =
             configurationService
                 .getConfigurationById(
@@ -418,6 +524,11 @@ class CoreController(
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<ConfigurationDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
+        }
+
         val responseBody =
             PagedModel(
                 configurationService
@@ -438,6 +549,11 @@ class CoreController(
         aid: Long,
         cid: Long,
     ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         if (
             configurationService.deleteConfiguration(
                 namespaceId = nid,
@@ -459,6 +575,11 @@ class CoreController(
         cid: Long,
         ctid: Long,
     ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
+        }
+
         configurationService.applyConfigurationByCommitId(
             namespaceId = nid,
             applicationId = aid,
@@ -477,8 +598,18 @@ class CoreController(
         cid: Long,
         configurationCommitRequest: ConfigurationCommitRequest,
     ): ResponseEntity<ConfigurationCommitDetailedDto> {
-        val sourceType = SourceType.USER // TODO
-        val sourceIdentity = UUID.randomUUID().toString() // TODO
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
+        }
+
+        val sourceType =
+            if (keycloakPrincipal.isClient) {
+                SourceType.SERVICE
+            } else {
+                SourceType.USER
+            }
+        val sourceIdentity = keycloakPrincipal.sub.toString()
 
         val responseBody =
             configurationService
@@ -502,6 +633,11 @@ class CoreController(
         cid: Long,
         ctid: Long,
     ): ResponseEntity<ConfigurationCommitDetailedDto> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
+        }
+
         val responseBody =
             configurationService
                 .getConfigurationCommitByCommitId(
@@ -521,6 +657,11 @@ class CoreController(
         aid: Long,
         cid: Long,
     ): ResponseEntity<List<ConfigurationCommitDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         val responseBody =
             configurationService
                 .getConfigurationCommits(
@@ -541,6 +682,11 @@ class CoreController(
         cid: Long,
         ctid: Long,
     ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
         if (
             configurationService
                 .deleteConfigurationCommit(
@@ -557,4 +703,6 @@ class CoreController(
 
         throw configurationCommitNotFoundException(cid, ctid)
     }
+
+    private fun currentPrincipal(): KeycloakPrincipal = (SecurityContextHolder.getContext().authentication.details as KeycloakPrincipal)
 }

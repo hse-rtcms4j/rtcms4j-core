@@ -51,3 +51,5 @@ fun configValuesDuplicatedException(
     cause = cause,
     detailCode = detailCode,
 )
+
+fun forbiddenAccessException(message: String) = ConditionFailureException.ForbiddenAccess(message, null)

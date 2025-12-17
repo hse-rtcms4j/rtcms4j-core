@@ -1,4 +1,16 @@
 ---
+#logging:
+#  level:
+#    org.springframework.security: TRACE
+#    org.springframework.security.web: TRACE
+#    org.springframework.security.web.firewall: TRACE
+#    org.springframework.web.cors: TRACE
+#    org.springframework.web.filter.CorsFilter: TRACE
+#    org.springframework.web.servlet.DispatcherServlet: DEBUG
+
+cors:
+  allowed-origins: http://localhost:5173
+
 server:
   port: 8081
 
@@ -6,6 +18,7 @@ spring:
   liquibase:
     enabled: true
 
+  # TODO: fix connection issue
   redis:
     host: localhost
     port: 6379
@@ -20,7 +33,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/myrealm
+          issuer-uri: http://localhost:8080/realms/rtcms4j
 
 keycloak:
   server-url: http://localhost:8080

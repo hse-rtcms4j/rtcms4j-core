@@ -13,6 +13,25 @@ paths:
   # Managing namespaces: #
   ########################
   /namespace:
+    head:
+      tags:
+        - Core
+      summary: Check access to all namespaces
+      operationId: hasAccessToAllNamespaces
+      responses:
+        '204':
+          description: Access granted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       tags:
         - Core
@@ -304,6 +323,33 @@ paths:
   # Managing applications: #
   ##########################
   /namespace/{nid}/application:
+    head:
+      tags:
+        - Core
+      summary: Check access to namespace
+      operationId: hasAccessToNamespace
+      parameters:
+        - name: nid
+          description: Namespace id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Access granted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       tags:
         - Core
@@ -728,6 +774,40 @@ paths:
   # Managing configurations: #
   ############################
   /namespace/{nid}/application/{aid}/configuration:
+    head:
+      tags:
+        - Core
+      summary: Check access to all configurations under application under namespace
+      operationId: hasAccessToApplication
+      parameters:
+        - name: nid
+          description: Namespace id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: aid
+          description: Application id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Access granted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       tags:
         - Core

@@ -44,6 +44,17 @@ class CoreController(
     private val configurationService: ConfigurationService,
     private val accessControlService: AccessControlService,
 ) : CoreApi {
+    override fun hasAccessToAllNamespaces(): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
+            throw forbiddenAccessException("At least Super-Admin access required.")
+        }
+
+        return ResponseEntity
+            .noContent()
+            .build()
+    }
+
     override fun createNamespace(namespaceCreateRequest: NamespaceCreateRequest): ResponseEntity<NamespaceDto> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -210,6 +221,17 @@ class CoreController(
             .build()
     }
 
+    override fun hasAccessToNamespace(nid: Long): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
+            throw forbiddenAccessException("At least Namespace-Admin access required.")
+        }
+
+        return ResponseEntity
+            .noContent()
+            .build()
+    }
+
     override fun createApplication(
         nid: Long,
         applicationCreateRequest: ApplicationCreateRequest,
@@ -283,7 +305,6 @@ class CoreController(
         name: String?,
         pageable: Pageable?,
     ): ResponseEntity<PagedModel<ApplicationDto>> {
-        // TODO: allow managers to list applications
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -442,6 +463,20 @@ class CoreController(
                 ).toApi()
 
         return ResponseEntity.ok(responseBody)
+    }
+
+    override fun hasAccessToApplication(
+        nid: Long,
+        aid: Long,
+    ): ResponseEntity<Unit> {
+        val keycloakPrincipal = currentPrincipal()
+        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager access required.")
+        }
+
+        return ResponseEntity
+            .noContent()
+            .build()
     }
 
     override fun createConfiguration(

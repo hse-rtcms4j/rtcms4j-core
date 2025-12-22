@@ -19,8 +19,8 @@ class ExceptionHandler {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(value = [ConditionFailureException::class])
-    fun conditionFailureExceptionHandler(ex: ConditionFailureException): ResponseEntity<ErrorResponseDto> {
-        return when (ex) {
+    fun conditionFailureExceptionHandler(ex: ConditionFailureException): ResponseEntity<ErrorResponseDto> =
+        when (ex) {
             is ConditionFailureException.NotFound ->
                 newErrorResponseEntity(
                     httpStatus = HttpStatus.NOT_FOUND,
@@ -44,31 +44,27 @@ class ExceptionHandler {
 
             else -> newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
-    }
 
     @ExceptionHandler(value = [MethodArgumentNotValidException::class])
-    fun methodArgumentNotValidExceptionHandler(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponseDto> {
-        return newErrorResponseEntity(
+    fun methodArgumentNotValidExceptionHandler(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponseDto> =
+        newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = humanizeError(ex),
         )
-    }
 
     @ExceptionHandler(value = [HandlerMethodValidationException::class])
-    fun handlerMethodValidationExceptionHandler(ex: HandlerMethodValidationException): ResponseEntity<ErrorResponseDto> {
-        return newErrorResponseEntity(
+    fun handlerMethodValidationExceptionHandler(ex: HandlerMethodValidationException): ResponseEntity<ErrorResponseDto> =
+        newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = humanizeError(ex),
         )
-    }
 
     @ExceptionHandler(value = [ConstraintViolationException::class])
-    fun constraintViolationExceptionHandler(ex: ConstraintViolationException): ResponseEntity<ErrorResponseDto> {
-        return newErrorResponseEntity(
+    fun constraintViolationExceptionHandler(ex: ConstraintViolationException): ResponseEntity<ErrorResponseDto> =
+        newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = ex.localizedMessage,
         )
-    }
 
     @ExceptionHandler
     fun anyHandler(ex: Throwable): ResponseEntity<ErrorResponseDto> {

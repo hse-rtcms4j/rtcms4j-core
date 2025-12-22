@@ -127,7 +127,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -169,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -201,7 +201,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -313,7 +313,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -467,7 +467,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -516,7 +516,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -555,7 +555,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -688,7 +688,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -946,7 +946,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -1042,7 +1042,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -1199,7 +1199,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -1252,7 +1252,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -1305,7 +1305,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -1324,31 +1324,31 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     Unauthorized:
       description: Wrong token or authorization failed
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     MethodNotAllowed:
       description: Wrong method
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     Forbidden:
       description: Not enough permissions to access
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     InternalServerError:
       description: Error on server side
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
 
   schemas:
     Pageable:
@@ -1387,7 +1387,7 @@ components:
           format: int64
           description: The current page number
 
-    ErrorResponse:
+    ErrorResponseDto:
       type: object
       required:
         - httpCode
@@ -1404,6 +1404,9 @@ components:
         detailMessage:
           type: string
 
+    ############################
+    # Namespaces:
+    ############################
     PagedModelNamespaceDto:
       type: object
       properties:
@@ -1413,6 +1416,16 @@ components:
             $ref: '#/components/schemas/NamespaceDto'
         page:
           $ref: '#/components/schemas/PageMetadata'
+
+    NamespaceFieldName:
+      type: string
+      minLength: 1
+      maxLength: 64
+
+    NamespaceFieldDescription:
+      type: string
+      minLength: 0
+      maxLength: 512
 
     NamespaceDto:
       type: object
@@ -1425,13 +1438,9 @@ components:
           type: integer
           format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/NamespaceFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/NamespaceFieldDescription'
 
     NamespaceCreateRequest:
       type: object
@@ -1440,26 +1449,21 @@ components:
         - description
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/NamespaceFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/NamespaceFieldDescription'
 
     NamespaceUpdateRequest:
       type: object
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/NamespaceFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/NamespaceFieldDescription'
 
+    ############################
+    # UserInfo:
+    ############################
     UserInfoDto:
       type: object
       required:
@@ -1469,6 +1473,9 @@ components:
           type: string
           format: uuid
 
+    ############################
+    # Applications:
+    ############################
     PagedModelApplicationDto:
       type: object
       properties:
@@ -1478,6 +1485,16 @@ components:
             $ref: '#/components/schemas/ApplicationDto'
         page:
           $ref: '#/components/schemas/PageMetadata'
+
+    ApplicationFieldName:
+      type: string
+      minLength: 1
+      maxLength: 64
+
+    ApplicationFieldDescription:
+      type: string
+      minLength: 0
+      maxLength: 512
 
     ApplicationDto:
       type: object
@@ -1494,13 +1511,9 @@ components:
           type: integer
           format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ApplicationFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/ApplicationFieldDescription'
 
     ApplicationCreateRequest:
       type: object
@@ -1509,26 +1522,21 @@ components:
         - description
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ApplicationFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/ApplicationFieldDescription'
 
     ApplicationUpdateRequest:
       type: object
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ApplicationFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/ApplicationFieldDescription'
 
+    ############################
+    # Keycloak client:
+    ############################
     KeycloakClientDto:
       type: object
       required:
@@ -1543,6 +1551,20 @@ components:
           type: string
           minLength: 64
           maxLength: 64
+
+    ############################
+    # Configurations:
+    ############################
+    SourceType:
+      type: string
+      enum:
+        - USER
+        - SERVICE
+
+    ConfigurationFieldName:
+      type: string
+      minLength: 1
+      maxLength: 64
 
     PagedModelConfigurationDto:
       type: object
@@ -1573,9 +1595,7 @@ components:
           type: integer
           format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ConfigurationFieldName'
         schemaSourceType:
           $ref: '#/components/schemas/SourceType'
         # nullable
@@ -1600,8 +1620,7 @@ components:
         - schemaSourceType
       properties:
         name:
-          type: string
-          minLength: 1
+          $ref: '#/components/schemas/ConfigurationFieldName'
         schemaSourceType:
           $ref: '#/components/schemas/SourceType'
 
@@ -1609,8 +1628,7 @@ components:
       type: object
       properties:
         name:
-          type: string
-          minLength: 1
+          $ref: '#/components/schemas/ConfigurationFieldName'
         schemaSourceType:
           $ref: '#/components/schemas/SourceType'
 
@@ -1669,9 +1687,3 @@ components:
               $ref: '#/components/schemas/ConfigurationJsonValues'
             jsonSchema:
               $ref: '#/components/schemas/ConfigurationJsonSchema'
-
-    SourceType:
-      type: string
-      enum:
-        - USER
-        - SERVICE

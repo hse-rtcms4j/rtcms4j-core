@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import ru.enzhine.rtcms4j.core.api.dto.ErrorResponse
+import ru.enzhine.rtcms4j.core.api.dto.ErrorResponseDto
 import ru.enzhine.rtcms4j.core.builder.newErrorResponseEntity
 import ru.enzhine.rtcms4j.core.controller.CoreController
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
@@ -15,7 +15,7 @@ class ExceptionHandler {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(value = [ConditionFailureException::class])
-    fun conditionFailureExceptionHandler(ex: ConditionFailureException): ResponseEntity<ErrorResponse> {
+    fun conditionFailureExceptionHandler(ex: ConditionFailureException): ResponseEntity<ErrorResponseDto> {
         logger.warn("ConditionFailureException reached.", ex)
         return when (ex) {
             is ConditionFailureException.NotFound ->
@@ -44,7 +44,7 @@ class ExceptionHandler {
     }
 
     @ExceptionHandler
-    fun anyHandler(ex: Throwable): ResponseEntity<ErrorResponse> {
+    fun anyHandler(ex: Throwable): ResponseEntity<ErrorResponseDto> {
         logger.error("An unknown exception handled!", ex)
         return newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
     }

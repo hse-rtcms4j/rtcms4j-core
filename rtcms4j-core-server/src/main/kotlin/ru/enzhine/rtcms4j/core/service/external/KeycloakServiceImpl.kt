@@ -3,12 +3,16 @@ package ru.enzhine.rtcms4j.core.service.external
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.representations.idm.ClientRepresentation
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import ru.enzhine.rtcms4j.core.config.CacheConfig
 import ru.enzhine.rtcms4j.core.config.props.KeycloakProperties
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.service.external.dto.KeycloakClient
+import ru.enzhine.rtcms4j.core.service.external.dto.KeycloakUser
+import java.util.UUID
 
 @Service
 class KeycloakServiceImpl(
@@ -16,6 +20,44 @@ class KeycloakServiceImpl(
     private val keycloakProperties: KeycloakProperties,
 ) : KeycloakService {
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    override fun isUserExists(subject: UUID): Boolean {
+        try {
+            keycloakAdminClient
+                .realm(keycloakProperties.realm)
+                .users()
+                .get(subject.toString())
+
+            return true
+        } catch (_: Throwable) {
+            return false
+        }
+    }
+
+    @Cacheable(
+        cacheNames = [CacheConfig.KEYCLOAK_USERS_CACHE],
+        key = "#subject.toString()",
+        unless = "#result == null",
+    )
+    override fun getUserOrCache(subject: UUID): KeycloakUser? {
+        try {
+            val userRepresentation =
+                keycloakAdminClient
+                    .realm(keycloakProperties.realm)
+                    .users()
+                    .get(subject.toString())
+                    .toRepresentation()
+
+            return KeycloakUser(
+                subject = subject,
+                username = userRepresentation.username,
+                firstName = userRepresentation.firstName,
+                lastName = userRepresentation.lastName,
+            )
+        } catch (_: Throwable) {
+            return null
+        }
+    }
 
     override fun buildClientId(
         namespaceId: Long,

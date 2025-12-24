@@ -2,6 +2,7 @@ package ru.enzhine.rtcms4j.core.builder
 
 import org.springframework.dao.DuplicateKeyException
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
+import java.util.UUID
 
 fun namespaceNotFoundException(
     namespaceId: Long,
@@ -17,6 +18,11 @@ fun configurationNotFoundException(
     configurationId: Long,
     detailCode: Int? = null,
 ) = ConditionFailureException.NotFound("Configuration with id '$configurationId' not found.", detailCode)
+
+fun userNotFoundException(
+    subject: UUID,
+    detailCode: Int? = null,
+) = ConditionFailureException.NotFound("User with subject = '$subject' not found.", detailCode)
 
 fun configurationCommitNotFoundException(
     configurationId: Long,

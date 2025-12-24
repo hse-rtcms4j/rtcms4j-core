@@ -11,12 +11,15 @@ import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
 import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.builder.newNamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
+import ru.enzhine.rtcms4j.core.builder.userNotFoundException
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
+import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
+import ru.enzhine.rtcms4j.core.service.internal.dto.UserRole
 import java.util.UUID
 
 @Service
@@ -24,6 +27,7 @@ class NamespaceServiceImpl(
     private val namespaceEntityRepository: NamespaceEntityRepository,
     private val namespaceAdminEntityRepository: NamespaceAdminEntityRepository,
     private val defaultPaginationProperties: DefaultPaginationProperties,
+    private val keycloakService: KeycloakService,
 ) : NamespaceService {
     override fun createNamespace(
         creator: UUID,
@@ -97,12 +101,37 @@ class NamespaceServiceImpl(
 
     override fun deleteNamespace(namespaceId: Long): Boolean = namespaceEntityRepository.removeById(namespaceId)
 
-    override fun listAdmins(namespaceId: Long): List<UUID> {
+    override fun listAdmins(namespaceId: Long): List<UserRole> {
         val namespaceEntity =
             namespaceEntityRepository.findById(namespaceId, QueryModifier.FOR_SHARE)
                 ?: throw namespaceNotFoundException(namespaceId)
 
-        return namespaceAdminEntityRepository.findAllByNamespaceId(namespaceEntity.id).map { it.userSub }
+        return namespaceAdminEntityRepository
+            .findAllByNamespaceId(namespaceEntity.id)
+            .map {
+                val keycloakUser =
+                    keycloakService.getUserOrCache(it.userSub)
+
+                UserRole(
+                    subject = it.userSub,
+                    assignerSubject = it.assignerSub,
+                    username = keycloakUser?.username,
+                    firstName = keycloakUser?.firstName,
+                    lastName = keycloakUser?.lastName,
+                )
+            }
+    }
+
+    override fun hasAdmin(
+        namespaceId: Long,
+        sub: UUID,
+    ): Boolean {
+        val namespaceEntity =
+            namespaceEntityRepository.findById(namespaceId, QueryModifier.FOR_SHARE)
+                ?: throw namespaceNotFoundException(namespaceId)
+
+        return namespaceAdminEntityRepository
+            .findByNamespaceIdAndUserSub(namespaceEntity.id, sub) != null
     }
 
     override fun addAdmin(
@@ -110,6 +139,10 @@ class NamespaceServiceImpl(
         namespaceId: Long,
         sub: UUID,
     ): Boolean {
+        if (!keycloakService.isUserExists(sub)) {
+            throw userNotFoundException(sub)
+        }
+
         try {
             namespaceAdminEntityRepository.save(
                 newNamespaceAdminEntity(

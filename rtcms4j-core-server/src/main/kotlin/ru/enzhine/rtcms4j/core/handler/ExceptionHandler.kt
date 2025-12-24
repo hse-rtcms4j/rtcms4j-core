@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.HandlerMethodValidationException
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import ru.enzhine.rtcms4j.core.api.dto.ErrorResponseDto
 import ru.enzhine.rtcms4j.core.builder.humanizeError
 import ru.enzhine.rtcms4j.core.builder.newErrorResponseEntity
@@ -50,6 +51,13 @@ class ExceptionHandler {
         newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = humanizeError(ex),
+        )
+
+    @ExceptionHandler(value = [MethodArgumentTypeMismatchException::class])
+    fun methodArgumentTypeMismatchExceptionHandler(ex: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponseDto> =
+        newErrorResponseEntity(
+            httpStatus = HttpStatus.BAD_REQUEST,
+            detailMessage = ex.localizedMessage,
         )
 
     @ExceptionHandler(value = [HandlerMethodValidationException::class])

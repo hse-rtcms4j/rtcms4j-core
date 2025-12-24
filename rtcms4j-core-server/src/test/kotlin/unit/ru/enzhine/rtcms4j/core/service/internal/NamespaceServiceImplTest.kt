@@ -23,6 +23,7 @@ import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceServiceImpl
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
 import java.time.OffsetDateTime
@@ -36,6 +37,9 @@ class NamespaceServiceImplTest {
 
     @Mock
     lateinit var namespaceAdminEntityRepository: NamespaceAdminEntityRepository
+
+    @Mock
+    lateinit var keycloakService: KeycloakService
 
     @Spy
     val defaultPaginationProperties = DefaultPaginationProperties(10)
@@ -380,7 +384,7 @@ class NamespaceServiceImplTest {
 
         val actual = namespaceService.listAdmins(namespaceId)
         val expected = listOf(uuid1, uuid2)
-        AssertionsJ.assertThat(actual).containsAll(expected)
+        AssertionsJ.assertThat(actual).allMatch { expected.contains(it.subject) }
     }
 
     @Test
@@ -388,6 +392,10 @@ class NamespaceServiceImplTest {
         val namespaceId = 1L
         val creator = uuid0
         val sub = uuid1
+
+        `when`(
+            keycloakService.isUserExists(uuid1),
+        ).thenReturn(true)
 
         `when`(
             namespaceAdminEntityRepository.save(
@@ -406,6 +414,10 @@ class NamespaceServiceImplTest {
         val adminId = 2L
         val creator = uuid0
         val sub = uuid1
+
+        `when`(
+            keycloakService.isUserExists(uuid1),
+        ).thenReturn(true)
 
         `when`(
             namespaceAdminEntityRepository.save(
@@ -432,6 +444,10 @@ class NamespaceServiceImplTest {
         val namespaceId = 1L
         val creator = uuid0
         val sub = uuid1
+
+        `when`(
+            keycloakService.isUserExists(uuid1),
+        ).thenReturn(true)
 
         `when`(
             namespaceAdminEntityRepository.save(

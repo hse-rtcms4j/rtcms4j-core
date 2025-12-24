@@ -21,7 +21,7 @@ class AccessControlServiceImpl(
     ): Boolean =
         hasAccessToAllNamespaces(keycloakPrincipal) ||
             falseOnException {
-                namespaceService.listAdmins(namespaceId).contains(keycloakPrincipal.sub)
+                namespaceService.hasAdmin(namespaceId, keycloakPrincipal.sub)
             }
 
     override fun hasAccessToApplication(
@@ -31,7 +31,7 @@ class AccessControlServiceImpl(
     ): Boolean =
         hasAccessToNamespace(keycloakPrincipal, namespaceId) ||
             falseOnException {
-                applicationService.listManagers(namespaceId, applicationId).contains(keycloakPrincipal.sub)
+                applicationService.hasManager(namespaceId, applicationId, keycloakPrincipal.sub)
             }
 
     override fun hasAccessToConfigurations(

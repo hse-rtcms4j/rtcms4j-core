@@ -13,6 +13,7 @@ import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
 import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
 import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.builder.userNotFoundException
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
@@ -21,6 +22,7 @@ import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
+import ru.enzhine.rtcms4j.core.service.internal.dto.UserRole
 import ru.enzhine.rtcms4j.core.service.internal.tx.registerCommitCallback
 import java.util.UUID
 
@@ -210,7 +212,7 @@ class ApplicationServiceImpl(
     override fun listManagers(
         namespaceId: Long,
         applicationId: Long,
-    ): List<UUID> {
+    ): List<UserRole> {
         val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
         val applicationEntity =
@@ -221,7 +223,39 @@ class ApplicationServiceImpl(
             throw applicationNotFoundException(applicationId)
         }
 
-        return applicationManagerEntityRepository.findAllByApplicationId(applicationId).map { it.userSub }
+        return applicationManagerEntityRepository
+            .findAllByApplicationId(applicationId)
+            .map {
+                val keycloakUser =
+                    keycloakService.getUserOrCache(it.userSub)
+
+                UserRole(
+                    subject = it.userSub,
+                    assignerSubject = it.assignerSub,
+                    username = keycloakUser?.username,
+                    firstName = keycloakUser?.firstName,
+                    lastName = keycloakUser?.lastName,
+                )
+            }
+    }
+
+    override fun hasManager(
+        namespaceId: Long,
+        applicationId: Long,
+        sub: UUID,
+    ): Boolean {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        return applicationManagerEntityRepository
+            .findByApplicationIdAndUserSub(applicationEntity.id, sub) != null
     }
 
     @Transactional
@@ -231,6 +265,10 @@ class ApplicationServiceImpl(
         applicationId: Long,
         sub: UUID,
     ): Boolean {
+        if (!keycloakService.isUserExists(sub)) {
+            throw userNotFoundException(sub)
+        }
+
         val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
         val applicationEntity =

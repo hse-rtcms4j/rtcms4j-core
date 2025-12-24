@@ -21,7 +21,7 @@ import ru.enzhine.rtcms4j.core.api.dto.KeycloakClientDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceUpdateRequest
-import ru.enzhine.rtcms4j.core.api.dto.UserInfoDto
+import ru.enzhine.rtcms4j.core.api.dto.UserRoleDto
 import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationCommitNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
@@ -153,7 +153,7 @@ class CoreController(
     override fun addNamespaceAdmin(
         nid: Long,
         uid: UUID,
-    ): ResponseEntity<UserInfoDto> {
+    ): ResponseEntity<Unit> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -167,12 +167,9 @@ class CoreController(
                 sub = uid,
             )
         ) {
-            val responseBody =
-                UserInfoDto(sub = uid)
-
             return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(responseBody)
+                .noContent()
+                .build()
         }
 
         return ResponseEntity
@@ -180,7 +177,7 @@ class CoreController(
             .build()
     }
 
-    override fun getNamespaceAdmins(nid: Long): ResponseEntity<List<UserInfoDto>> {
+    override fun getNamespaceAdmins(nid: Long): ResponseEntity<List<UserRoleDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -189,9 +186,7 @@ class CoreController(
         val responseBody =
             namespaceService
                 .listAdmins(nid)
-                .map { uid ->
-                    UserInfoDto(sub = uid)
-                }
+                .map { it.toApi() }
 
         return ResponseEntity.ok(responseBody)
     }
@@ -351,7 +346,7 @@ class CoreController(
         nid: Long,
         aid: Long,
         uid: UUID,
-    ): ResponseEntity<UserInfoDto> {
+    ): ResponseEntity<Unit> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
@@ -366,12 +361,9 @@ class CoreController(
                 sub = uid,
             )
         ) {
-            val responseBody =
-                UserInfoDto(sub = uid)
-
             return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(responseBody)
+                .noContent()
+                .build()
         }
 
         return ResponseEntity
@@ -382,7 +374,7 @@ class CoreController(
     override fun getApplicationManagers(
         nid: Long,
         aid: Long,
-    ): ResponseEntity<List<UserInfoDto>> {
+    ): ResponseEntity<List<UserRoleDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
@@ -393,9 +385,7 @@ class CoreController(
                 .listManagers(
                     namespaceId = nid,
                     applicationId = aid,
-                ).map { uid ->
-                    UserInfoDto(sub = uid)
-                }
+                ).map { it.toApi() }
 
         return ResponseEntity.ok(responseBody)
     }

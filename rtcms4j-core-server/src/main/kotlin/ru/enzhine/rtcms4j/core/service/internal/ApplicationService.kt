@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
+import ru.enzhine.rtcms4j.core.service.internal.dto.UserRole
 import java.util.UUID
 
 interface ApplicationService {
@@ -60,7 +61,14 @@ interface ApplicationService {
     fun listManagers(
         namespaceId: Long,
         applicationId: Long,
-    ): List<UUID>
+    ): List<UserRole>
+
+    @Throws(ConditionFailureException.NotFound::class)
+    fun hasManager(
+        namespaceId: Long,
+        applicationId: Long,
+        sub: UUID,
+    ): Boolean
 
     @Throws(ConditionFailureException.NotFound::class)
     fun addManager(

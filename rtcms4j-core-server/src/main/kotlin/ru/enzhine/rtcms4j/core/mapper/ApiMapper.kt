@@ -7,6 +7,7 @@ import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDetailedDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDto
 import ru.enzhine.rtcms4j.core.api.dto.KeycloakClientDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
+import ru.enzhine.rtcms4j.core.api.dto.UserRoleDto
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
@@ -15,6 +16,7 @@ import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationDetailed
 import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
 import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
+import ru.enzhine.rtcms4j.core.service.internal.dto.UserRole
 import ru.enzhine.rtcms4j.core.api.dto.SourceType as ApiSourceType
 
 fun Namespace.toApi() =
@@ -92,4 +94,13 @@ fun ConfigurationCommitDetailed.toApi() =
         sourceIdentity = sourceIdentity,
         jsonSchema = jsonSchema,
         jsonValues = jsonValues,
+    )
+
+fun UserRole.toApi() =
+    UserRoleDto(
+        subject = subject,
+        assignerSubject = assignerSubject,
+        username = username,
+        firstName = firstName,
+        lastName = lastName,
     )

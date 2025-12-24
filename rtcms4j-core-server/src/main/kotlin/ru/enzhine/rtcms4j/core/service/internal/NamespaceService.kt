@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
+import ru.enzhine.rtcms4j.core.service.internal.dto.UserRole
 import java.util.UUID
 
 interface NamespaceService {
@@ -35,7 +36,13 @@ interface NamespaceService {
     fun deleteNamespace(namespaceId: Long): Boolean
 
     @Throws(ConditionFailureException.NotFound::class)
-    fun listAdmins(namespaceId: Long): List<UUID>
+    fun listAdmins(namespaceId: Long): List<UserRole>
+
+    @Throws(ConditionFailureException.NotFound::class)
+    fun hasAdmin(
+        namespaceId: Long,
+        sub: UUID,
+    ): Boolean
 
     @Throws(ConditionFailureException.NotFound::class)
     fun addAdmin(

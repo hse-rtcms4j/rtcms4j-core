@@ -6,7 +6,7 @@ servers:
   - url: /api/v1
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   ########################
@@ -229,7 +229,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserInfoDto'
+                  $ref: '#/components/schemas/UserRoleDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -263,18 +263,20 @@ paths:
             type: string
             format: uuid
       responses:
-        '201':
+        '204':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfoDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -590,7 +592,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserInfoDto'
+                  $ref: '#/components/schemas/UserRoleDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -631,18 +633,20 @@ paths:
             type: string
             format: uuid
       responses:
-        '201':
+        '204':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfoDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -1464,14 +1468,24 @@ components:
     ############################
     # UserInfo:
     ############################
-    UserInfoDto:
+    UserRoleDto:
       type: object
       required:
-        - sub
+        - subject
+        - assignerSubject
       properties:
-        sub:
+        subject:
           type: string
           format: uuid
+        assignerSubject:
+          type: string
+          format: uuid
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
 
     ############################
     # Applications:

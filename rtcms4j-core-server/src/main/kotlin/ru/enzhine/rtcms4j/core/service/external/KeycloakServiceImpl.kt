@@ -27,6 +27,7 @@ class KeycloakServiceImpl(
                 .realm(keycloakProperties.realm)
                 .users()
                 .get(subject.toString())
+                .toRepresentation()
 
             return true
         } catch (_: Throwable) {
@@ -36,7 +37,6 @@ class KeycloakServiceImpl(
 
     @Cacheable(
         cacheNames = [CacheConfig.KEYCLOAK_USERS_CACHE],
-        key = "#subject.toString()",
         unless = "#result == null",
     )
     override fun getUserOrCache(subject: UUID): KeycloakUser? {

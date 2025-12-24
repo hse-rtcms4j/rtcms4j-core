@@ -70,10 +70,11 @@ class KeycloakServiceImpl(
                 .realm(keycloakProperties.realm)
                 .clients()
                 .get(clientId)
+                .toRepresentation()
 
         return KeycloakClient(
             clientId = clientId,
-            clientSecret = clientResource.secret.value,
+            clientSecret = clientResource.secret,
         )
     }
 

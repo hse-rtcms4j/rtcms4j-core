@@ -187,6 +187,7 @@ class ApplicationServiceImpl(
             .toService()
     }
 
+    @Transactional
     override fun deleteApplication(
         namespaceId: Long,
         applicationId: Long,

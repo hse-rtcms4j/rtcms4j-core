@@ -65,16 +65,17 @@ class KeycloakServiceImpl(
     ) = "ns${namespaceId}_app$applicationId"
 
     override fun findApplicationClient(clientId: String): KeycloakClient {
-        val clientResource =
+        val clientRepresentation =
             keycloakAdminClient
                 .realm(keycloakProperties.realm)
                 .clients()
-                .get(clientId)
-                .toRepresentation()
+                .findByClientId(clientId)
+                .first()
 
         return KeycloakClient(
-            clientId = clientId,
-            clientSecret = clientResource.secret,
+            sub = UUID.fromString(clientRepresentation.id),
+            clientId = clientRepresentation.clientId,
+            clientSecret = clientRepresentation.secret,
         )
     }
 
@@ -100,31 +101,36 @@ class KeycloakServiceImpl(
     }
 
     override fun rotateApplicationClientPassword(clientId: String): KeycloakClient {
+        val keycloakClient = findApplicationClient(clientId)
+
         val credentialRepresentation =
             keycloakAdminClient
                 .realm(keycloakProperties.realm)
                 .clients()
-                .get(clientId)
+                .get(keycloakClient.sub.toString())
                 .generateNewSecret()
 
         return KeycloakClient(
-            clientId = clientId,
+            sub = keycloakClient.sub,
+            clientId = keycloakClient.clientId,
             clientSecret = credentialRepresentation.value,
         )
     }
 
     override fun deleteApplicationClient(clientId: String): Boolean {
+        val keycloakClient = findApplicationClient(clientId)
+
         val response =
             keycloakAdminClient
                 .realm(keycloakProperties.realm)
                 .clients()
-                .delete(clientId)
+                .delete(keycloakClient.sub.toString())
 
         return when (response.status) {
             in 200 until 300 -> true
 
             404 -> throw ConditionFailureException(
-                message = "Keycloak already contains client with id '$clientId'",
+                message = "Keycloak does not contain client with id '$clientId'",
                 cause = null,
                 detailCode = response.status,
             )

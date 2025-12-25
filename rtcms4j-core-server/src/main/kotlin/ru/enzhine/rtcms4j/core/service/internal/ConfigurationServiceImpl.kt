@@ -196,6 +196,7 @@ class ConfigurationServiceImpl(
             .map { it.toService(namespaceId) }
     }
 
+    @Transactional
     override fun deleteConfiguration(
         namespaceId: Long,
         applicationId: Long,

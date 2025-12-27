@@ -74,7 +74,8 @@ create table configuration(
     creator_sub uuid not null,
     name varchar(64) not null,
     schema_source_type varchar(16) not null,
-    actual_commit_id bigint
+    actual_commit_id bigint,
+    actual_commit_version varchar
 );
 --rollback drop table if exists configuration;
 

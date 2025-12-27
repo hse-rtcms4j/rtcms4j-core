@@ -122,6 +122,7 @@ class ConfigCommitEntityRepositoryImplTest {
                     name = "MainDto",
                     schemaSourceType = SourceType.SERVICE,
                     actualCommitId = null,
+                    actualCommitVersion = null,
                 ),
             )
 

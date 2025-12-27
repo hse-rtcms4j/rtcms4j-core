@@ -45,6 +45,7 @@ fun ConfigurationEntity.toService(namespaceId: Long) =
         name = name,
         schemaSourceType = schemaSourceType.toService(),
         actualCommitId = actualCommitId,
+        actualCommitVersion = actualCommitVersion,
     )
 
 fun ConfigCommitEntity.toService(
@@ -86,6 +87,7 @@ fun Configuration.toDetailed(
     name = name,
     schemaSourceType = schemaSourceType,
     actualCommitId = actualCommitId,
+    actualCommitVersion = actualCommitVersion,
     jsonSchema = jsonSchema,
     jsonValues = jsonValues,
 )

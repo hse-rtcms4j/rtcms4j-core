@@ -20,6 +20,7 @@ import ru.enzhine.rtcms4j.core.builder.newConfigurationEntity
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.json.JsonSchemaValidator
+import ru.enzhine.rtcms4j.core.json.JsonValuesExtractor
 import ru.enzhine.rtcms4j.core.mapper.toDetailed
 import ru.enzhine.rtcms4j.core.mapper.toRepository
 import ru.enzhine.rtcms4j.core.mapper.toService
@@ -51,6 +52,7 @@ class ConfigurationServiceImpl(
     private val keyValueRepository: KeyValueRepository,
     private val pubSubProducer: PubSubProducer,
     private val jsonSchemaValidator: JsonSchemaValidator,
+    private val jsonValuesExtractor: JsonValuesExtractor,
 ) : ConfigurationService {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -73,6 +75,7 @@ class ConfigurationServiceImpl(
                         name = name,
                         schemaSourceType = schemaSourceType.toRepository(),
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 )
 
@@ -258,8 +261,11 @@ class ConfigurationServiceImpl(
                 configurationId = configurationEntity.id,
             )
 
+        val commitVersion = jsonValuesExtractor.validateAndGetVersion(configCommitEntity.jsonValues)
+
         try {
             configurationEntity.actualCommitId = configCommitEntity.id
+            configurationEntity.actualCommitVersion = commitVersion
             configurationEntityRepository.update(configurationEntity)
         } catch (ex: Throwable) {
             throw RuntimeException(
@@ -391,6 +397,7 @@ class ConfigurationServiceImpl(
         }
 
         jsonSchemaValidator.validateValuesBySchema(jsonValues, currentJsonSchema!!)
+        val commitVersion = jsonValuesExtractor.validateAndGetVersion(jsonValues)
 
         val configCommitEntity =
             try {
@@ -411,6 +418,7 @@ class ConfigurationServiceImpl(
 
         try {
             configurationEntity.actualCommitId = configCommitEntity.id
+            configurationEntity.actualCommitVersion = commitVersion
             configurationEntityRepository.update(configurationEntity)
         } catch (ex: Throwable) {
             throw RuntimeException(

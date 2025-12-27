@@ -1613,6 +1613,8 @@ components:
         schemaSourceType:
           $ref: '#/components/schemas/SourceType'
         # nullable
+        commitVersion:
+          type: string
         commitId:
           type: integer
           format: int64

@@ -58,4 +58,14 @@ fun configValuesDuplicatedException(
     detailCode = detailCode,
 )
 
-fun forbiddenAccessException(message: String) = ConditionFailureException.ForbiddenAccess(message, null)
+fun forbiddenAccessException(message: String) =
+    ConditionFailureException.ForbiddenAccess(
+        message = message,
+        detailCode = null,
+    )
+
+fun jsonValuesVersionException(message: String) =
+    ConditionFailureException.JsonValuesValidation(
+        message = message,
+        detailCode = null,
+    )

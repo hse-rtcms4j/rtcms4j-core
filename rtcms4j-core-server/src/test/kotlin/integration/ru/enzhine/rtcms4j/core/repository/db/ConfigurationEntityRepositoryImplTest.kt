@@ -103,6 +103,7 @@ class ConfigurationEntityRepositoryImplTest {
                 name = "MainDto",
                 schemaSourceType = SourceType.SERVICE,
                 actualCommitId = 10L,
+                actualCommitVersion = "1.0.0",
             )
 
         val created = configurationEntityRepository.save(templateEntity)
@@ -123,6 +124,7 @@ class ConfigurationEntityRepositoryImplTest {
                 name = "MainDto",
                 schemaSourceType = SourceType.SERVICE,
                 actualCommitId = 10L,
+                actualCommitVersion = "1.0.0",
             )
 
         configurationEntityRepository.save(templateEntity)
@@ -141,6 +143,7 @@ class ConfigurationEntityRepositoryImplTest {
                     name = "MainDto",
                     schemaSourceType = SourceType.SERVICE,
                     actualCommitId = 10L,
+                    actualCommitVersion = "1.0.0",
                 ),
             )
         }
@@ -157,6 +160,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "MainDto",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = 10L,
+                        actualCommitVersion = "1.0.0",
                     ),
                 )
 
@@ -184,6 +188,7 @@ class ConfigurationEntityRepositoryImplTest {
                     name = "MainDto",
                     schemaSourceType = SourceType.SERVICE,
                     actualCommitId = 10L,
+                    actualCommitVersion = "1.0.0",
                 ),
             )
 
@@ -208,6 +213,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "MainDto",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 ),
                 configurationEntityRepository.save(
@@ -217,6 +223,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "BasicDto",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 ),
                 configurationEntityRepository.save(
@@ -226,6 +233,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "RandomDto",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 ),
             )
@@ -270,6 +278,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "DtoC",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 ),
                 configurationEntityRepository.save(
@@ -279,6 +288,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "DtoA",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 ),
                 configurationEntityRepository.save(
@@ -288,6 +298,7 @@ class ConfigurationEntityRepositoryImplTest {
                         name = "DtoB",
                         schemaSourceType = SourceType.SERVICE,
                         actualCommitId = null,
+                        actualCommitVersion = null,
                     ),
                 ),
             ).sortedWith(compareBy(collator) { it.name })
@@ -323,6 +334,7 @@ class ConfigurationEntityRepositoryImplTest {
                     name = "MainDto",
                     schemaSourceType = SourceType.SERVICE,
                     actualCommitId = null,
+                    actualCommitVersion = null,
                 ),
             )
 
@@ -340,6 +352,7 @@ class ConfigurationEntityRepositoryImplTest {
                     name = "MainDto",
                     schemaSourceType = SourceType.SERVICE,
                     actualCommitId = null,
+                    actualCommitVersion = null,
                 ),
             )
 
@@ -365,6 +378,7 @@ class ConfigurationEntityRepositoryImplTest {
                 name = "MainDto",
                 schemaSourceType = SourceType.SERVICE,
                 actualCommitId = null,
+                actualCommitVersion = null,
             )
 
         val created1 = configurationEntityRepository.save(templateEntity)

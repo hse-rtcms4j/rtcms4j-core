@@ -23,4 +23,9 @@ open class ConditionFailureException(
         message: String,
         detailCode: Int?,
     ) : ConditionFailureException(message, null, detailCode)
+
+    class JsonValuesValidation(
+        message: String,
+        detailCode: Int?,
+    ) : ConditionFailureException(message, null, detailCode)
 }

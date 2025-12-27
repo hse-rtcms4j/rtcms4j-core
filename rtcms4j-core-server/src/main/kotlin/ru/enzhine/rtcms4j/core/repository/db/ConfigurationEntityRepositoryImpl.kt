@@ -28,6 +28,7 @@ class ConfigurationEntityRepositoryImpl(
                     name = rs.getString("name"),
                     schemaSourceType = SourceType.valueOf(rs.getString("schema_source_type")),
                     actualCommitId = rs.getLong("actual_commit_id").takeUnless { rs.wasNull() },
+                    actualCommitVersion = rs.getString("actual_commit_version"),
                 )
             }
     }
@@ -36,8 +37,8 @@ class ConfigurationEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                insert into configuration (application_id, creator_sub, name, schema_source_type, actual_commit_id)
-                values (:application_id, :creator_sub, :name, :schema_source_type, :actual_commit_id)
+                insert into configuration (application_id, creator_sub, name, schema_source_type, actual_commit_id, actual_commit_version)
+                values (:application_id, :creator_sub, :name, :schema_source_type, :actual_commit_id, :actual_commit_version)
                 returning *;
                 """.trimIndent(),
                 mapOf(
@@ -46,6 +47,7 @@ class ConfigurationEntityRepositoryImpl(
                     "name" to configurationEntity.name,
                     "schema_source_type" to configurationEntity.schemaSourceType.toString(),
                     "actual_commit_id" to configurationEntity.actualCommitId,
+                    "actual_commit_version" to configurationEntity.actualCommitVersion,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -58,7 +60,8 @@ class ConfigurationEntityRepositoryImpl(
                 set updated_at = now(),
                     name = :name,
                     schema_source_type = :schema_source_type,
-                    actual_commit_id = :actual_commit_id
+                    actual_commit_id = :actual_commit_id,
+                    actual_commit_version = :actual_commit_version
                 where id = :id
                 returning *;
                 """.trimIndent(),
@@ -66,6 +69,7 @@ class ConfigurationEntityRepositoryImpl(
                     "name" to configurationEntity.name,
                     "schema_source_type" to configurationEntity.schemaSourceType.toString(),
                     "actual_commit_id" to configurationEntity.actualCommitId,
+                    "actual_commit_version" to configurationEntity.actualCommitVersion,
                     "id" to configurationEntity.id,
                 ),
                 ROW_MAPPER,

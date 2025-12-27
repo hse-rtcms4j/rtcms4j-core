@@ -12,4 +12,5 @@ data class ConfigurationEntity(
     var name: String,
     var schemaSourceType: SourceType,
     var actualCommitId: Long?,
+    var actualCommitVersion: String?,
 )

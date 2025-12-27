@@ -48,6 +48,7 @@ fun Configuration.toApi() =
         name = name,
         schemaSourceType = schemaSourceType.toApi(),
         commitId = actualCommitId,
+        commitVersion = actualCommitVersion,
     )
 
 fun ConfigurationDetailed.toApi() =
@@ -58,6 +59,7 @@ fun ConfigurationDetailed.toApi() =
         name = name,
         schemaSourceType = schemaSourceType.toApi(),
         commitId = actualCommitId,
+        commitVersion = actualCommitVersion,
         jsonSchema = jsonSchema,
         jsonValues = jsonValues,
     )

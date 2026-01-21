@@ -10,6 +10,7 @@ import ru.enzhine.rtcms4j.core.api.CoreApi
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationUpdateRequest
+import ru.enzhine.rtcms4j.core.api.dto.AvailableResourcesDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDetailedDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitRequest
@@ -44,6 +45,13 @@ class CoreController(
     private val configurationService: ConfigurationService,
     private val accessControlService: AccessControlService,
 ) : CoreApi {
+    override fun findAvailableResources(
+        name: String?,
+        pageable: Pageable?,
+    ): ResponseEntity<AvailableResourcesDto> {
+        TODO("Not yet implemented")
+    }
+
     override fun hasAccessToAllNamespaces(): ResponseEntity<Unit> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -439,6 +447,7 @@ class CoreController(
     override fun rotateApplicationClientPassword(
         nid: Long,
         aid: Long,
+        propagate: Boolean,
     ): ResponseEntity<KeycloakClientDto> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
@@ -450,6 +459,7 @@ class CoreController(
                 .rotateApplicationClientCredentials(
                     namespaceId = nid,
                     applicationId = aid,
+                    propagate = propagate,
                 ).toApi()
 
         return ResponseEntity.ok(responseBody)

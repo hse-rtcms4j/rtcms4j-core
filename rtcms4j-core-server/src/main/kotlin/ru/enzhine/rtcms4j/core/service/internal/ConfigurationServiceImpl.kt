@@ -487,8 +487,12 @@ class ConfigurationServiceImpl(
                 NotifyEventDto(
                     namespaceId = namespaceId,
                     applicationId = applicationId,
-                    eventType = NotifyEventDto.EventType.CONFIGURATION,
-                    content = jsonValues,
+                    passwordRotatedEvent = null,
+                    configUpdatedEvent =
+                        NotifyEventDto.ConfigUpdatedEvent(
+                            configurationId = configurationId,
+                            payload = jsonValues,
+                        ),
                 ),
             )
         } catch (ex: Throwable) {

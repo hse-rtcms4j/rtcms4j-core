@@ -112,7 +112,7 @@ class ApplicationServiceImplTest {
             )
         Assertions.assertEquals(expected, actual)
 
-        verify(keycloakService, times(1)).createNewApplicationClient(anyOrNull())
+        verify(keycloakService, times(1)).createNewApplicationClient(anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -142,6 +142,6 @@ class ApplicationServiceImplTest {
             applicationService.createApplication(creator, namespaceId, name, description)
         }
 
-        verify(keycloakService, never()).createNewApplicationClient(anyOrNull())
+        verify(keycloakService, never()).createNewApplicationClient(anyOrNull(), anyOrNull())
     }
 }

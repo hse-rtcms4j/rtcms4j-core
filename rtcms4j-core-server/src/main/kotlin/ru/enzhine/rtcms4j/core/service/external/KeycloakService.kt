@@ -16,7 +16,10 @@ interface KeycloakService {
 
     fun findApplicationClient(clientId: String): KeycloakClient
 
-    fun createNewApplicationClient(clientId: String): KeycloakClient
+    fun createNewApplicationClient(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient
 
     fun rotateApplicationClientPassword(clientId: String): KeycloakClient
 

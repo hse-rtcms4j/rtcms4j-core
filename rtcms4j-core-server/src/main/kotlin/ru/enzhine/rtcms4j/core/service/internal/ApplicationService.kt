@@ -42,6 +42,7 @@ interface ApplicationService {
     fun rotateApplicationClientCredentials(
         namespaceId: Long,
         applicationId: Long,
+        propagate: Boolean,
     ): KeycloakClient
 
     @Throws(ConditionFailureException.NotFound::class)

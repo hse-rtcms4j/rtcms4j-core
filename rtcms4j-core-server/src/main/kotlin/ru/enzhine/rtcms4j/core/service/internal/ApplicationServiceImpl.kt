@@ -19,6 +19,8 @@ import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
+import ru.enzhine.rtcms4j.core.repository.kv.dto.NotifyEventDto
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
@@ -33,6 +35,7 @@ class ApplicationServiceImpl(
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val namespaceService: NamespaceService,
     private val keycloakService: KeycloakService,
+    private val pubSubProducer: PubSubProducer,
 ) : ApplicationService {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -63,8 +66,7 @@ class ApplicationServiceImpl(
 
         registerCommitCallback {
             try {
-                val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
-                keycloakService.createNewApplicationClient(clientId)
+                keycloakService.createNewApplicationClient(namespaceId, applicationEntity.id)
             } catch (ex: Throwable) {
                 logger.error("Unable to create client for application with id ${applicationEntity.id}", ex)
             }
@@ -169,6 +171,7 @@ class ApplicationServiceImpl(
     override fun rotateApplicationClientCredentials(
         namespaceId: Long,
         applicationId: Long,
+        propagate: Boolean,
     ): KeycloakClient {
         val namespace = namespaceService.getNamespaceById(namespaceId, false)
 
@@ -182,9 +185,33 @@ class ApplicationServiceImpl(
         }
 
         val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
-        return keycloakService
-            .rotateApplicationClientPassword(clientId)
-            .toService()
+        val keycloakClient = keycloakService.rotateApplicationClientPassword(clientId)
+
+        if (propagate) {
+            propagateSecretRotation(namespaceId, applicationId, keycloakClient.clientSecret)
+        }
+
+        return keycloakClient.toService()
+    }
+
+    private fun propagateSecretRotation(
+        namespaceId: Long,
+        applicationId: Long,
+        newSecret: String,
+    ) = try {
+        pubSubProducer.publishEvent(
+            NotifyEventDto(
+                namespaceId = namespaceId,
+                applicationId = applicationId,
+                configUpdatedEvent = null,
+                passwordRotatedEvent =
+                    NotifyEventDto.PasswordRotatedEvent(
+                        newSecret = newSecret,
+                    ),
+            ),
+        )
+    } catch (ex: Throwable) {
+        logger.error("Unable to publish pub/sub secret rotation event for application with id $applicationId", ex)
     }
 
     @Transactional

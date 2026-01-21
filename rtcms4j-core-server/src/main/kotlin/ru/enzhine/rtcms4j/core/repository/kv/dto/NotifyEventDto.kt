@@ -3,11 +3,15 @@ package ru.enzhine.rtcms4j.core.repository.kv.dto
 data class NotifyEventDto(
     val namespaceId: Long,
     val applicationId: Long,
-    val eventType: EventType,
-    val content: String,
+    val passwordRotatedEvent: PasswordRotatedEvent?,
+    val configUpdatedEvent: ConfigUpdatedEvent?,
 ) {
-    enum class EventType {
-        ACCESS_TOKEN,
-        CONFIGURATION,
-    }
+    data class PasswordRotatedEvent(
+        val newSecret: String,
+    )
+
+    data class ConfigUpdatedEvent(
+        val configurationId: Long,
+        val payload: String,
+    )
 }

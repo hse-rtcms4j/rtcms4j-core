@@ -28,3 +28,6 @@ default:
 
 roles:
   super-admin-role: rtcms4j-super-admin
+
+keycloak:
+  resource-prefix: RTCMS4J_CORE_SCOPE_

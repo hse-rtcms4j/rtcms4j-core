@@ -79,8 +79,12 @@ class KeycloakServiceImpl(
         )
     }
 
-    override fun createNewApplicationClient(clientId: String): KeycloakClient {
-        val clientRepresentation = buildClientRepresentation(clientId)
+    override fun createNewApplicationClient(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient {
+        val clientId = buildClientId(namespaceId, applicationId)
+        val clientRepresentation = buildClientRepresentation(namespaceId, applicationId)
 
         val response =
             keycloakAdminClient
@@ -156,15 +160,21 @@ class KeycloakServiceImpl(
             throw RuntimeException("Application startup failed: keycloak connection error!", ex)
         }
 
-    private fun buildClientRepresentation(clientId: String) =
-        ClientRepresentation().apply {
-            this.clientId = clientId
-            this.name = "Application client $clientId"
-
-            this.isPublicClient = false
-            this.isServiceAccountsEnabled = true
-            this.isDirectAccessGrantsEnabled = false
-            this.isStandardFlowEnabled = false
-            this.isEnabled = true
-        }
+    private fun buildClientRepresentation(
+        namespaceId: Long,
+        applicationId: Long,
+    ) = ClientRepresentation().apply {
+        this.clientId = buildClientId(namespaceId, applicationId)
+        this.name = "Application client $clientId"
+        this.attributes =
+            mapOf(
+                keycloakProperties.resourcePrefix + "NAMESPACE_ID" to namespaceId.toString(),
+                keycloakProperties.resourcePrefix + "APPLICATION_ID" to applicationId.toString(),
+            )
+        this.isPublicClient = false
+        this.isServiceAccountsEnabled = true
+        this.isDirectAccessGrantsEnabled = false
+        this.isStandardFlowEnabled = false
+        this.isEnabled = true
+    }
 }

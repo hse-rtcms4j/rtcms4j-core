@@ -1,4 +1,6 @@
 spring:
+  cache:
+    type: redis
   liquibase:
     enabled: false
   jackson:
@@ -31,3 +33,7 @@ roles:
 
 keycloak:
   resource-prefix: RTCMS4J_CORE_SCOPE_
+
+cache:
+  keycloak-users-ttl: 10m
+  available-resources-ttl: 1h

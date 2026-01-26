@@ -32,6 +32,7 @@ fun Application.toApi() =
         namespaceId = namespaceId,
         name = name,
         description = description,
+        creationByService = creationByService,
     )
 
 fun KeycloakClient.toApi() =

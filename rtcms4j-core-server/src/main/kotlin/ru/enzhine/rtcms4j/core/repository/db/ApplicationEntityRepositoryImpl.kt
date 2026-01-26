@@ -26,9 +26,24 @@ class ApplicationEntityRepositoryImpl(
                     creatorSub = rs.getObject("creator_sub", UUID::class.java),
                     name = rs.getString("name"),
                     description = rs.getString("description"),
+                    creationByService = rs.getBoolean("creation_by_service"),
                 )
             }
     }
+
+    override fun findAllByUserSub(userSub: UUID): List<ApplicationEntity> =
+        npJdbc.query(
+            """
+            select a.* from application a
+            inner join application_manager am
+            on a.id = am.application_id
+            where am.user_sub = :user_sub;
+            """.trimIndent(),
+            mapOf(
+                "user_sub" to userSub,
+            ),
+            ROW_MAPPER,
+        )
 
     override fun findAllByNamespaceIdAndName(
         namespaceId: Long,
@@ -109,8 +124,8 @@ class ApplicationEntityRepositoryImpl(
         npJdbc
             .query(
                 """
-                insert into application (namespace_id, creator_sub, name, description)
-                values (:namespace_id, :creator_sub, :name, :description)
+                insert into application (namespace_id, creator_sub, name, description, creation_by_service)
+                values (:namespace_id, :creator_sub, :name, :description, :creation_by_service)
                 returning *;
                 """.trimIndent(),
                 mapOf(
@@ -118,6 +133,7 @@ class ApplicationEntityRepositoryImpl(
                     "creator_sub" to applicationEntity.creatorSub,
                     "name" to applicationEntity.name,
                     "description" to applicationEntity.description,
+                    "creation_by_service" to applicationEntity.creationByService,
                 ),
                 ROW_MAPPER,
             ).first()
@@ -129,13 +145,15 @@ class ApplicationEntityRepositoryImpl(
                 update application
                 set updated_at = now(),
                     name = :name,
-                    description = :description
+                    description = :description,
+                    creation_by_service = :creation_by_service
                 where id = :id
                 returning *;
                 """.trimIndent(),
                 mapOf(
                     "name" to applicationEntity.name,
                     "description" to applicationEntity.description,
+                    "creation_by_service" to applicationEntity.creationByService,
                     "id" to applicationEntity.id,
                 ),
                 ROW_MAPPER,

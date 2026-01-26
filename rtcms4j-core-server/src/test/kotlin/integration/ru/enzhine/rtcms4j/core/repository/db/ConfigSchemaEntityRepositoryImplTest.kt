@@ -98,6 +98,7 @@ class ConfigSchemaEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
+                    creationByService = true,
                 ),
             )
 

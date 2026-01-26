@@ -15,6 +15,7 @@ interface ApplicationService {
         namespaceId: Long,
         name: String,
         description: String,
+        creationByService: Boolean,
     ): Application
 
     @Throws(ConditionFailureException.NotFound::class)
@@ -30,6 +31,7 @@ interface ApplicationService {
         applicationId: Long,
         name: String?,
         description: String?,
+        creationByService: Boolean?,
     ): Application
 
     @Throws(ConditionFailureException.NotFound::class)

@@ -81,6 +81,7 @@ class ApplicationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "Registry",
                 description = "Clients data storage service",
+                creationByService = true,
             )
 
         val created = applicationEntityRepository.save(templateEntity)
@@ -88,6 +89,7 @@ class ApplicationEntityRepositoryImplTest {
         Assertions.assertEquals(templateEntity.namespaceId, created.namespaceId)
         Assertions.assertEquals(templateEntity.name, created.name)
         Assertions.assertEquals(templateEntity.description, created.description)
+        Assertions.assertEquals(templateEntity.creationByService, created.creationByService)
         Assertions.assertEquals(1, created.id)
     }
 
@@ -99,6 +101,7 @@ class ApplicationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "Registry",
                 description = "Clients data storage service",
+                creationByService = true,
             )
 
         applicationEntityRepository.save(templateEntity)
@@ -116,6 +119,7 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
+                    creationByService = true,
                 ),
             )
         }
@@ -131,6 +135,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Registry",
                         description = "Clients data storage service",
+                        creationByService = true,
                     ),
                 )
 
@@ -155,6 +160,7 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
+                    creationByService = true,
                 ),
             )
 
@@ -177,6 +183,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Registry",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -185,6 +192,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Dispatcher",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -193,6 +201,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Matcher",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -201,6 +210,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Validator",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
             )
@@ -241,6 +251,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Registry",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -249,6 +260,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Dispatcher",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -257,6 +269,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Matcher",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
                 applicationEntityRepository.save(
@@ -265,6 +278,7 @@ class ApplicationEntityRepositoryImplTest {
                         creatorSub = sub,
                         name = "Validator",
                         description = "",
+                        creationByService = true,
                     ),
                 ),
             ).sortedWith(compareBy(collator) { it.name })
@@ -297,6 +311,7 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
+                    creationByService = true,
                 ),
             )
         val found = applicationEntityRepository.findById(created.id)
@@ -313,6 +328,7 @@ class ApplicationEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
+                    creationByService = true,
                 ),
             )
         val result = applicationEntityRepository.removeById(created.id)
@@ -340,6 +356,7 @@ class ApplicationEntityRepositoryImplTest {
                 creatorSub = sub,
                 name = "Registry",
                 description = "Clients data storage service",
+                creationByService = true,
             )
 
         val created1 = applicationEntityRepository.save(templateEntity)

@@ -11,4 +11,5 @@ data class ApplicationEntity(
     val creatorSub: UUID,
     var name: String,
     var description: String,
+    var creationByService: Boolean,
 )

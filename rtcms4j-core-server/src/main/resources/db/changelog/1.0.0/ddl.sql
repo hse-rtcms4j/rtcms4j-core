@@ -33,6 +33,9 @@ create table namespace_admin(
 create unique index uix_namespace_admin__namespace_id_user_sub on namespace_admin (namespace_id, user_sub);
 --rollback drop index if exists uix_namespace_admin__namespace_id_user_sub;
 
+create index ix_namespace_admin__user_sub on namespace_admin (user_sub);
+--rollback drop index if exists ix_namespace_admin__user_sub;
+
 create table application(
     ---- tech fields
     id bigserial primary key not null,
@@ -42,7 +45,8 @@ create table application(
     namespace_id bigint not null references namespace (id) on delete cascade,
     creator_sub uuid not null,
     name varchar(64) not null,
-    description text not null
+    description text not null,
+    creation_by_service boolean not null
 );
 --rollback drop table if exists application;
 
@@ -63,6 +67,9 @@ create table application_manager(
 
 create unique index uix_application_manager__application_id_user_sub on application_manager (application_id, user_sub);
 --rollback drop index if exists uix_application_manager__application_id_user_sub;
+
+create index ix_application_manager__user_sub on application_manager (user_sub);
+--rollback drop index if exists ix_application_manager__user_sub;
 
 create table configuration(
     ---- tech fields

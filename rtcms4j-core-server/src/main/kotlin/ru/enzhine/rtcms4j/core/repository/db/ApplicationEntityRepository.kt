@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
+import java.util.UUID
 
 interface ApplicationEntityRepository {
     fun findAllByNamespaceIdAndName(
@@ -13,6 +14,8 @@ interface ApplicationEntityRepository {
         name: String?,
         pageable: Pageable,
     ): Page<ApplicationEntity>
+
+    fun findAllByUserSub(userSub: UUID): List<ApplicationEntity>
 
     fun findById(
         id: Long,

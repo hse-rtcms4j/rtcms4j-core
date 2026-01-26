@@ -20,6 +20,7 @@ import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
+import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.ApplicationServiceImpl
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceService
@@ -45,6 +46,9 @@ class ApplicationServiceImplTest {
     @Mock
     lateinit var keycloakService: KeycloakService
 
+    @Mock
+    lateinit var pubSubProducer: PubSubProducer
+
     @InjectMocks
     lateinit var applicationService: ApplicationServiceImpl
 
@@ -58,13 +62,14 @@ class ApplicationServiceImplTest {
         val namespaceId = 1L
         val name = "APP1"
         val description = "Some application"
+        val creationByService = true
 
         `when`(
             namespaceService.getNamespaceById(eq(namespaceId), any()),
         ).thenThrow(ConditionFailureException.NotFound::class.java)
 
         Assertions.assertThrows(ConditionFailureException.NotFound::class.java) {
-            applicationService.createApplication(creator, namespaceId, name, description)
+            applicationService.createApplication(creator, namespaceId, name, description, creationByService)
         }
     }
 
@@ -75,6 +80,7 @@ class ApplicationServiceImplTest {
         val namespaceId = 1L
         val name = "APP1"
         val description = "Some application"
+        val creationByService = true
 
         `when`(
             namespaceService.getNamespaceById(eq(namespaceId), any()),
@@ -88,7 +94,12 @@ class ApplicationServiceImplTest {
 
         `when`(
             applicationEntityRepository.save(
-                argThat { it -> it.creatorSub == creator && it.name == name && it.description == description },
+                argThat { it ->
+                    it.creatorSub == creator &&
+                        it.name == name &&
+                        it.description == description &&
+                        it.creationByService == creationByService
+                },
             ),
         ).thenReturn(
             ApplicationEntity(
@@ -99,16 +110,18 @@ class ApplicationServiceImplTest {
                 creatorSub = creator,
                 name = name,
                 description = description,
+                creationByService = creationByService,
             ),
         )
 
-        val actual = applicationService.createApplication(creator, namespaceId, name, description)
+        val actual = applicationService.createApplication(creator, namespaceId, name, description, creationByService)
         val expected =
             Application(
                 id = applicationId,
                 namespaceId = namespaceId,
                 name = name,
                 description = description,
+                creationByService = creationByService,
             )
         Assertions.assertEquals(expected, actual)
 
@@ -121,6 +134,7 @@ class ApplicationServiceImplTest {
         val namespaceId = 1L
         val name = "APP1"
         val description = "Some application"
+        val creationByService = true
 
         `when`(
             namespaceService.getNamespaceById(eq(namespaceId), any()),
@@ -134,12 +148,17 @@ class ApplicationServiceImplTest {
 
         `when`(
             applicationEntityRepository.save(
-                argThat { it -> it.creatorSub == creator && it.name == name && it.description == description },
+                argThat { it ->
+                    it.creatorSub == creator &&
+                        it.name == name &&
+                        it.description == description &&
+                        it.creationByService == creationByService
+                },
             ),
         ).thenThrow(ConditionFailureException.KeyDuplicated::class.java)
 
         Assertions.assertThrows(ConditionFailureException.KeyDuplicated::class.java) {
-            applicationService.createApplication(creator, namespaceId, name, description)
+            applicationService.createApplication(creator, namespaceId, name, description, creationByService)
         }
 
         verify(keycloakService, never()).createNewApplicationClient(anyOrNull(), anyOrNull())

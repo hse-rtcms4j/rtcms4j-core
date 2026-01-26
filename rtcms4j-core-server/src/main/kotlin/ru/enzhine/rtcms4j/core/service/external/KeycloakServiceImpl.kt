@@ -19,6 +19,11 @@ class KeycloakServiceImpl(
     private val keycloakAdminClient: Keycloak,
     private val keycloakProperties: KeycloakProperties,
 ) : KeycloakService {
+    companion object {
+        const val ATTRIBUTE_KEY_NAMESPACE_ID = "NAMESPACE_ID"
+        const val ATTRIBUTE_KEY_APPLICATION_ID = "APPLICATION_ID"
+    }
+
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun isUserExists(subject: UUID): Boolean {
@@ -168,8 +173,8 @@ class KeycloakServiceImpl(
         this.name = "Application client $clientId"
         this.attributes =
             mapOf(
-                keycloakProperties.resourcePrefix + "NAMESPACE_ID" to namespaceId.toString(),
-                keycloakProperties.resourcePrefix + "APPLICATION_ID" to applicationId.toString(),
+                keycloakProperties.resourcePrefix + ATTRIBUTE_KEY_NAMESPACE_ID to namespaceId.toString(),
+                keycloakProperties.resourcePrefix + ATTRIBUTE_KEY_APPLICATION_ID to applicationId.toString(),
             )
         this.isPublicClient = false
         this.isServiceAccountsEnabled = true

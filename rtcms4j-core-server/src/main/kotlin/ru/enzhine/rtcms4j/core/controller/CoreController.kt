@@ -10,7 +10,6 @@ import ru.enzhine.rtcms4j.core.api.CoreApi
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationDto
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationUpdateRequest
-import ru.enzhine.rtcms4j.core.api.dto.AvailableResourcesDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDetailedDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitDto
 import ru.enzhine.rtcms4j.core.api.dto.ConfigurationCommitRequest
@@ -33,6 +32,7 @@ import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.security.dto.KeycloakPrincipal
 import ru.enzhine.rtcms4j.core.service.internal.AccessControlService
 import ru.enzhine.rtcms4j.core.service.internal.ApplicationService
+import ru.enzhine.rtcms4j.core.service.internal.AvailableResourcesService
 import ru.enzhine.rtcms4j.core.service.internal.ConfigurationService
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceService
 import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
@@ -44,12 +44,56 @@ class CoreController(
     private val applicationService: ApplicationService,
     private val configurationService: ConfigurationService,
     private val accessControlService: AccessControlService,
+    private val availableResourcesService: AvailableResourcesService,
 ) : CoreApi {
-    override fun findAvailableResources(
+    override fun findAvailableNamespaces(
         name: String?,
         pageable: Pageable?,
-    ): ResponseEntity<AvailableResourcesDto> {
-        TODO("Not yet implemented")
+    ): ResponseEntity<PagedModel<NamespaceDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
+            return ResponseEntity
+                .badRequest()
+                .build()
+        }
+
+        val responseBody =
+            PagedModel(
+                availableResourcesService
+                    .findAvailableNamespaces(
+                        name = name,
+                        pageable = pageable,
+                        userSub = keycloakPrincipal.sub,
+                    ).map { it.toApi() },
+            )
+
+        return ResponseEntity
+            .ok(responseBody)
+    }
+
+    override fun findAvailableApplications(
+        name: String?,
+        pageable: Pageable?,
+    ): ResponseEntity<PagedModel<ApplicationDto>> {
+        val keycloakPrincipal = currentPrincipal()
+        if (accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
+            return ResponseEntity
+                .badRequest()
+                .build()
+        }
+
+        val responseBody =
+            PagedModel(
+                availableResourcesService
+                    .findAvailableApplications(
+                        name = name,
+                        pageable = pageable,
+                        userSub = keycloakPrincipal.sub,
+                    ).map { it.toApi() },
+            )
+
+        return ResponseEntity
+            .ok(responseBody)
     }
 
     override fun hasAccessToAllNamespaces(): ResponseEntity<Unit> {
@@ -252,6 +296,7 @@ class CoreController(
                     namespaceId = nid,
                     name = applicationCreateRequest.name,
                     description = applicationCreateRequest.description,
+                    creationByService = applicationCreateRequest.creationByService,
                 ).toApi()
 
         return ResponseEntity
@@ -276,6 +321,7 @@ class CoreController(
                     applicationId = aid,
                     name = applicationUpdateRequest.name,
                     description = applicationUpdateRequest.description,
+                    creationByService = applicationUpdateRequest.creationByService,
                 ).toApi()
 
         return ResponseEntity
@@ -485,9 +531,16 @@ class CoreController(
         configurationDtoCreateRequest: ConfigurationDtoCreateRequest,
     ): ResponseEntity<ConfigurationDetailedDto> {
         val keycloakPrincipal = currentPrincipal()
-        if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
-            throw forbiddenAccessException("At least Application-Manager access required.")
+        if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
+            throw forbiddenAccessException("At least Application-Manager or Application-Client access required. access required.")
         }
+        if (keycloakPrincipal.isClient) {
+            val app = applicationService.getApplicationById(nid, aid, false)
+            if (!app.creationByService) {
+                throw forbiddenAccessException("Creation by service is disabled.")
+            }
+        }
+
         val assigner = keycloakPrincipal.sub
 
         val responseBody =

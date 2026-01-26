@@ -45,6 +45,7 @@ class ApplicationServiceImpl(
         namespaceId: Long,
         name: String,
         description: String,
+        creationByService: Boolean,
     ): Application {
         val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
@@ -56,6 +57,7 @@ class ApplicationServiceImpl(
                         creatorSub = creator,
                         name = name,
                         description = description,
+                        creationByService = creationByService,
                     ),
                 )
             } catch (ex: DuplicateKeyException) {
@@ -103,6 +105,7 @@ class ApplicationServiceImpl(
         applicationId: Long,
         name: String?,
         description: String?,
+        creationByService: Boolean?,
     ): Application {
         val namespace = namespaceService.getNamespaceById(namespaceId, true)
 
@@ -114,12 +117,13 @@ class ApplicationServiceImpl(
             throw applicationNotFoundException(applicationId)
         }
 
-        if (name == null && description == null) {
+        if (name == null && description == null && creationByService == null) {
             return applicationEntity.toService()
         }
 
         name?.let { applicationEntity.name = name }
         description?.let { applicationEntity.description = description }
+        creationByService?.let { applicationEntity.creationByService = creationByService }
 
         try {
             val updatedApplicationEntity =

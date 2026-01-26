@@ -42,6 +42,7 @@ fun newApplicationEntity(
     creatorSub: UUID,
     name: String,
     description: String,
+    creationByService: Boolean,
 ) = ApplicationEntity(
     id = 0L,
     createdAt = OffsetDateTime.MIN,
@@ -50,6 +51,7 @@ fun newApplicationEntity(
     creatorSub = creatorSub,
     name = name,
     description = description,
+    creationByService = creationByService,
 )
 
 fun newApplicationManagerEntity(

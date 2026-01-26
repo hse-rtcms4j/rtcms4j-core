@@ -35,6 +35,7 @@ fun ApplicationEntity.toService() =
         namespaceId = namespaceId,
         name = name,
         description = description,
+        creationByService = creationByService,
     )
 
 fun ConfigurationEntity.toService(namespaceId: Long) =

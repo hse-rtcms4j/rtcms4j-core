@@ -5,4 +5,5 @@ data class Application(
     val namespaceId: Long,
     val name: String,
     val description: String,
+    val creationByService: Boolean,
 )

@@ -85,6 +85,7 @@ class ApplicationManagerEntityRepositoryImplTest {
                     creatorSub = sub,
                     name = "Registry",
                     description = "Clients data storage service",
+                    creationByService = true,
                 ),
             )
     }

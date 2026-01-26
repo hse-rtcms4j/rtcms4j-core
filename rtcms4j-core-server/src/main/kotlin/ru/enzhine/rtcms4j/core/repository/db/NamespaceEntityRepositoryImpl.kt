@@ -29,6 +29,20 @@ class NamespaceEntityRepositoryImpl(
             }
     }
 
+    override fun findAllByUserSub(userSub: UUID): List<NamespaceEntity> =
+        npJdbc.query(
+            """
+            select n.* from namespace n
+            inner join namespace_admin na
+            on n.id = na.namespace_id
+            where na.user_sub = :user_sub;
+            """.trimIndent(),
+            mapOf(
+                "user_sub" to userSub,
+            ),
+            ROW_MAPPER,
+        )
+
     override fun findAllByName(
         name: String?,
         pageable: Pageable,

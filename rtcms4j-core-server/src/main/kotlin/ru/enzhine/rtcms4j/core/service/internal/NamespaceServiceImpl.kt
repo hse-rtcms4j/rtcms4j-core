@@ -1,5 +1,6 @@
 package ru.enzhine.rtcms4j.core.service.internal
 
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
@@ -12,6 +13,7 @@ import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.builder.newNamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.builder.userNotFoundException
+import ru.enzhine.rtcms4j.core.config.CacheConfig
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepository
@@ -134,6 +136,11 @@ class NamespaceServiceImpl(
             .findByNamespaceIdAndUserSub(namespaceEntity.id, sub) != null
     }
 
+    @CacheEvict(
+        cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
+        key = "#sub",
+    )
+    @Transactional
     override fun addAdmin(
         assigner: UUID,
         namespaceId: Long,
@@ -159,6 +166,10 @@ class NamespaceServiceImpl(
         }
     }
 
+    @CacheEvict(
+        cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
+        key = "#sub",
+    )
     @Transactional
     override fun removeAdmin(
         namespaceId: Long,

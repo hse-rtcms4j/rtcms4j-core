@@ -63,7 +63,7 @@ class CoreController(
                     .findAvailableNamespaces(
                         name = name,
                         pageable = pageable,
-                        userSub = keycloakPrincipal.sub,
+                        subject = keycloakPrincipal.sub,
                     ).map { it.toApi() },
             )
 
@@ -88,7 +88,7 @@ class CoreController(
                     .findAvailableApplications(
                         name = name,
                         pageable = pageable,
-                        userSub = keycloakPrincipal.sub,
+                        subject = keycloakPrincipal.sub,
                     ).map { it.toApi() },
             )
 

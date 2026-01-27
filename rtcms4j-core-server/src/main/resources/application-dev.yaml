@@ -7,6 +7,8 @@
 #    org.springframework.web.cors: TRACE
 #    org.springframework.web.filter.CorsFilter: TRACE
 #    org.springframework.web.servlet.DispatcherServlet: DEBUG
+#    org.springframework.cache: TRACE
+#    org.springframework.data.redis: DEBUG
 
 cors:
   allowed-origins: http://localhost:5173

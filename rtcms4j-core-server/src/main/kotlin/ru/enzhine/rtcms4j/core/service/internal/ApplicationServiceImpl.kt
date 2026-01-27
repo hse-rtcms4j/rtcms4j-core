@@ -1,6 +1,7 @@
 package ru.enzhine.rtcms4j.core.service.internal
 
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
@@ -14,6 +15,7 @@ import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
 import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
 import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
 import ru.enzhine.rtcms4j.core.builder.userNotFoundException
+import ru.enzhine.rtcms4j.core.config.CacheConfig
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
@@ -290,6 +292,10 @@ class ApplicationServiceImpl(
             .findByApplicationIdAndUserSub(applicationEntity.id, sub) != null
     }
 
+    @CacheEvict(
+        cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
+        key = "#sub",
+    )
     @Transactional
     override fun addManager(
         assigner: UUID,
@@ -327,6 +333,10 @@ class ApplicationServiceImpl(
         }
     }
 
+    @CacheEvict(
+        cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
+        key = "#sub",
+    )
     @Transactional
     override fun removeManager(
         namespaceId: Long,

@@ -18,7 +18,6 @@ class AvailableResourcesCacheServiceImpl(
         cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
     )
     override fun getAvailableResourcesOrCache(subject: UUID): AvailableResources {
-        println("UNCACHED;")
         val namespaces =
             namespaceEntityRepository
                 .findAllByUserSub(subject)

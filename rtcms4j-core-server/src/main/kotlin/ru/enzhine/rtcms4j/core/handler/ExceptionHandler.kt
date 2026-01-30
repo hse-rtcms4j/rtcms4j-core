@@ -43,7 +43,10 @@ class ExceptionHandler {
                     detailMessage = ex.message,
                 )
 
-            else -> newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+            else -> {
+                logger.error("An unknown condition failure handled!", ex)
+                newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+            }
         }
 
     @ExceptionHandler(value = [MethodArgumentNotValidException::class])

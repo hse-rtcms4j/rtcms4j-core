@@ -117,5 +117,5 @@ create table config_commit(
 );
 --rollback drop table if exists config_commit;
 
-create unique index ix_config_commit__config_schema_id_json_values on config_commit (config_schema_id, json_values);
+create unique index ix_config_commit__config_schema_id_json_values on config_commit (config_schema_id, (json_values->>'version'));
 --rollback drop index if exists ix_config_commit__config_schema_id_json_values;

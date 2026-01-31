@@ -546,7 +546,8 @@ class ConfigurationServiceImpl(
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
-    ): List<ConfigurationCommit> {
+        pageable: Pageable?,
+    ): Page<ConfigurationCommit> {
         val application = applicationService.getApplicationById(namespaceId, applicationId, false)
 
         val configurationEntity =
@@ -557,8 +558,12 @@ class ConfigurationServiceImpl(
             throw configurationNotFoundException(configurationId)
         }
 
+        val pageable =
+            pageable
+                ?: PageRequest.of(0, defaultPaginationProperties.pageSize)
+
         return configCommitEntityRepository
-            .findAllByConfigurationId(configurationEntity.id)
+            .findAllByConfigurationId(configurationEntity.id, pageable)
             .map {
                 it.toService(
                     namespaceId = application.namespaceId,

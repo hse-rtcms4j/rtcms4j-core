@@ -139,10 +139,10 @@ class ConfigCommitEntityRepositoryImplTest {
     }
 
     private val jsonValues =
-        $$"""{"key": "values"}"""
+        $$"""{"key": "values", "version": "1.0.0"}"""
 
     private val jsonValues2 =
-        $$"""{"key1": "values2"}"""
+        $$"""{"key1": "values2", "version": "1.0.1"}"""
 
     @Test
     fun save_positive_success() {
@@ -196,7 +196,7 @@ class ConfigCommitEntityRepositoryImplTest {
     }
 
     @Test
-    fun findAllByConfigurationId_positive_success() {
+    fun findAllByConfigSchemaId_positive_success() {
         val created =
             listOf(
                 configCommitEntityRepository

@@ -744,21 +744,23 @@ class CoreController(
         nid: Long,
         aid: Long,
         cid: Long,
-    ): ResponseEntity<List<ConfigurationCommitDto>> {
+        pageable: Pageable?,
+    ): ResponseEntity<PagedModel<ConfigurationCommitDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
         }
 
         val responseBody =
-            configurationService
-                .getConfigurationCommits(
-                    namespaceId = nid,
-                    applicationId = aid,
-                    configurationId = cid,
-                ).map {
-                    it.toApi()
-                }
+            PagedModel(
+                configurationService
+                    .getConfigurationCommits(
+                        namespaceId = nid,
+                        applicationId = aid,
+                        configurationId = cid,
+                        pageable = pageable,
+                    ).map { it.toApi() },
+            )
 
         return ResponseEntity
             .ok(responseBody)

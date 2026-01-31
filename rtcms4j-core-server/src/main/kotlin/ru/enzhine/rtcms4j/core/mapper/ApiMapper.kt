@@ -85,6 +85,7 @@ fun ConfigurationCommit.toApi() =
         commitId = id,
         sourceType = sourceType.toApi(),
         sourceIdentity = sourceIdentity,
+        commitVersion = version,
     )
 
 fun ConfigurationCommitDetailed.toApi() =
@@ -95,6 +96,7 @@ fun ConfigurationCommitDetailed.toApi() =
         commitId = id,
         sourceType = sourceType.toApi(),
         sourceIdentity = sourceIdentity,
+        commitVersion = version,
         jsonSchema = jsonSchema,
         jsonValues = jsonValues,
     )

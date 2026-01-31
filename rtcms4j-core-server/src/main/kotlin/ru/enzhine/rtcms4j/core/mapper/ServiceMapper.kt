@@ -60,6 +60,7 @@ fun ConfigCommitEntity.toService(
     configurationId = configurationId,
     sourceType = sourceType.toService(),
     sourceIdentity = sourceIdentity,
+    version = version,
 )
 
 fun ConfigCommitDetailedEntity.toService(
@@ -74,6 +75,7 @@ fun ConfigCommitDetailedEntity.toService(
     configurationId = configurationId,
     sourceType = sourceType.toService(),
     sourceIdentity = sourceIdentity,
+    version = version,
     jsonSchema = jsonSchema,
     jsonValues = jsonValues,
 )

@@ -9,4 +9,5 @@ data class ConfigCommitEntity(
     val configurationId: Long,
     val sourceType: SourceType,
     val sourceIdentity: String,
+    val version: String,
 )

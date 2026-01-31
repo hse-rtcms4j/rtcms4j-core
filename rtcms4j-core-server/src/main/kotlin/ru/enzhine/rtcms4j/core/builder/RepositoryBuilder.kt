@@ -113,5 +113,6 @@ fun newConfigCommitDetailedEntity(
     configurationId = configurationId,
     sourceType = sourceType,
     sourceIdentity = sourceIdentity,
+    version = "",
     jsonValues = jsonValues,
 )

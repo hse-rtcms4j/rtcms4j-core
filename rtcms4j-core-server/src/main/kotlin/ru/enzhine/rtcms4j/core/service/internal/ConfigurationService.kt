@@ -85,7 +85,8 @@ interface ConfigurationService {
         namespaceId: Long,
         applicationId: Long,
         configurationId: Long,
-    ): List<ConfigurationCommit>
+        pageable: Pageable?,
+    ): Page<ConfigurationCommit>
 
     @Throws(ConditionFailureException.NotFound::class)
     fun deleteConfigurationCommit(

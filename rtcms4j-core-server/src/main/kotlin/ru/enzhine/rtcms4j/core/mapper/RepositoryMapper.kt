@@ -30,4 +30,5 @@ fun ConfigCommitDetailedEntity.toUndetailed() =
         configurationId = configurationId,
         sourceType = sourceType,
         sourceIdentity = sourceIdentity,
+        version = version,
     )

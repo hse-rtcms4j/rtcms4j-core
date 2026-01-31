@@ -2,6 +2,8 @@ package ru.enzhine.rtcms4j.core.repository.db
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigCommitEntity
 import kotlin.jvm.Throws
@@ -16,7 +18,10 @@ interface ConfigCommitEntityRepository {
 
     fun findAllByConfigSchemaId(configSchemaId: Long): List<ConfigCommitEntity>
 
-    fun findAllByConfigurationId(configurationId: Long): List<ConfigCommitEntity>
+    fun findAllByConfigurationId(
+        configurationId: Long,
+        pageable: Pageable,
+    ): Page<ConfigCommitEntity>
 
     fun findById(id: Long): ConfigCommitDetailedEntity?
 

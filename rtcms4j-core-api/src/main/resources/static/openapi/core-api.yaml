@@ -1802,8 +1802,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/ConfigurationCommitDto'
         - type: object
+          required:
+            - jsonSchema
+            - jsonValues
           properties:
-            jsonValues:
-              $ref: '#/components/schemas/ConfigurationJsonValues'
             jsonSchema:
               $ref: '#/components/schemas/ConfigurationJsonSchema'
+            jsonValues:
+              $ref: '#/components/schemas/ConfigurationJsonValues'

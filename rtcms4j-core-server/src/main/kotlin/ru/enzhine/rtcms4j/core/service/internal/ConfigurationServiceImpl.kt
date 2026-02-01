@@ -315,7 +315,7 @@ class ConfigurationServiceImpl(
         }
 
         val configurationSchemaSourceType = configurationEntity.schemaSourceType.toService()
-        if (configurationSchemaSourceType != sourceType) {
+        if (jsonSchema != null && configurationSchemaSourceType != sourceType) {
             throw ConditionFailureException(
                 message =
                     "Configuration schema push by $sourceType with identity $sourceIdentity" +

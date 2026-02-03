@@ -6,21 +6,21 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
+import ru.enzhine.rtcms4j.core.api.event.NotificationEventDto
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
-import ru.enzhine.rtcms4j.core.repository.kv.dto.NotifyEventDto
 
 @Configuration
 class RedisConfig {
     @Bean
-    fun redisTemplateNotifyEventDto(
+    fun redisTemplateNotificationEventDto(
         objectMapper: ObjectMapper,
         redisConnectionFactory: RedisConnectionFactory,
-    ): RedisTemplate<String, NotifyEventDto> =
-        RedisTemplate<String, NotifyEventDto>()
+    ): RedisTemplate<String, NotificationEventDto> =
+        RedisTemplate<String, NotificationEventDto>()
             .apply {
                 connectionFactory = redisConnectionFactory
-                valueSerializer = Jackson2JsonRedisSerializer(objectMapper, NotifyEventDto::class.java)
+                valueSerializer = Jackson2JsonRedisSerializer(objectMapper, NotificationEventDto::class.java)
             }
 
     @Bean

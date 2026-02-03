@@ -96,7 +96,7 @@ class CoreController(
             .ok(responseBody)
     }
 
-    override fun hasAccessToAllNamespaces(): ResponseEntity<Unit> {
+    override fun hasAccessToAllNamespaces(): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
             throw forbiddenAccessException("At least Super-Admin access required.")
@@ -187,7 +187,7 @@ class CoreController(
             .ok(responseBody)
     }
 
-    override fun deleteNamespace(nid: Long): ResponseEntity<Unit> {
+    override fun deleteNamespace(nid: Long): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
             throw forbiddenAccessException("At least Super-Admin access required.")
@@ -205,7 +205,7 @@ class CoreController(
     override fun addNamespaceAdmin(
         nid: Long,
         uid: UUID,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -246,7 +246,7 @@ class CoreController(
     override fun removeNamespaceAdmin(
         nid: Long,
         uid: UUID,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -268,7 +268,7 @@ class CoreController(
             .build()
     }
 
-    override fun hasAccessToNamespace(nid: Long): ResponseEntity<Unit> {
+    override fun hasAccessToNamespace(nid: Long): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -376,7 +376,7 @@ class CoreController(
     override fun deleteApplication(
         nid: Long,
         aid: Long,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
@@ -400,7 +400,7 @@ class CoreController(
         nid: Long,
         aid: Long,
         uid: UUID,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
@@ -448,7 +448,7 @@ class CoreController(
         nid: Long,
         aid: Long,
         uid: UUID,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
@@ -514,7 +514,7 @@ class CoreController(
     override fun hasAccessToApplication(
         nid: Long,
         aid: Long,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
@@ -636,7 +636,7 @@ class CoreController(
         nid: Long,
         aid: Long,
         cid: Long,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
@@ -662,7 +662,7 @@ class CoreController(
         aid: Long,
         cid: Long,
         ctid: Long,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
@@ -771,7 +771,7 @@ class CoreController(
         aid: Long,
         cid: Long,
         ctid: Long,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")

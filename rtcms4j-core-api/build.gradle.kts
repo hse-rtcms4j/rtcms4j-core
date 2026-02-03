@@ -43,8 +43,8 @@ fun extractPagedModelComponents(
 val projectBuildDir = layout.buildDirectory.get()
 
 tasks.openApiGenerate {
-    // DOCS: https://openapi-generator.tech/docs/generators/kotlin-spring/
-    generatorName = "kotlin-spring"
+    // DOCS: https://openapi-generator.tech/docs/generators/spring/
+    generatorName = "spring"
 
     outputDir = "$projectBuildDir/generated"
     inputSpec = "$projectDir/src/main/resources/static/openapi/core-api.yaml"
@@ -58,10 +58,10 @@ tasks.openApiGenerate {
             "useTags" to "true",
             "skipDefaultInterface" to "true",
             "documentationProvider" to "none",
-            "exceptionHandler" to "false",
             "useSwaggerUI" to "false",
-            "useResponseEntity" to "false",
+            "useResponseEntity" to "true",
             "requestMappingMode" to "none",
+            "openApiNullable" to "false",
         ),
     )
 
@@ -73,7 +73,7 @@ tasks.openApiGenerate {
         ) + mappings,
     )
 
-    openapiGeneratorIgnoreList = listOf("**/ApiUtil.kt")
+    openapiGeneratorIgnoreList = listOf("**/ApiUtil.java", "**/EnumConverterConfiguration.java")
 }
 
 tasks.runKtlintCheckOverMainSourceSet {
@@ -87,7 +87,7 @@ tasks.compileKotlin {
 sourceSets {
     main {
         java {
-            srcDir("$projectBuildDir/generated/src/main/kotlin")
+            srcDir("$projectBuildDir/generated/src/main/java")
         }
     }
 }

@@ -44,11 +44,11 @@ subprojects {
     dependencyManagement {
         imports {
             val springBootVersion: String by project
-            val springCloudVersion: String by project
+//            val springCloudVersion: String by project
             val embeddedPostgresBinariesBomVersion: String by project
 
             mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+//            mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
             mavenBom("io.zonky.test.postgres:embedded-postgres-binaries-bom:$embeddedPostgresBinariesBomVersion")
         }
 

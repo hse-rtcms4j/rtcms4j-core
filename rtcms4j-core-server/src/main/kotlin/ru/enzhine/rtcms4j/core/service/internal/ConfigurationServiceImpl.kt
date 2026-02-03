@@ -33,7 +33,7 @@ import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheKey
-import ru.enzhine.rtcms4j.core.repository.kv.dto.NotifyEventDto
+import ru.enzhine.rtcms4j.core.repository.kv.dto.NotificationEvent
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommitDetailed
@@ -484,12 +484,12 @@ class ConfigurationServiceImpl(
 
         try {
             pubSubProducer.publishEvent(
-                NotifyEventDto(
+                NotificationEvent(
                     namespaceId = namespaceId,
                     applicationId = applicationId,
-                    passwordRotatedEvent = null,
+                    secretRotatedEvent = null,
                     configUpdatedEvent =
-                        NotifyEventDto.ConfigUpdatedEvent(
+                        NotificationEvent.ConfigUpdatedEvent(
                             configurationId = configurationId,
                             payload = jsonValues,
                         ),

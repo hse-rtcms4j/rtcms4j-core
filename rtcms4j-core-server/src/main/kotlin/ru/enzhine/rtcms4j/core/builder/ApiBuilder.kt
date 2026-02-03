@@ -10,10 +10,11 @@ fun newErrorResponseEntity(
     detailMessage: String? = null,
 ) = ResponseEntity(
     ErrorResponseDto(
-        httpCode = httpStatus.value(),
-        httpStatus = httpStatus.reasonPhrase,
-        detailCode = detailCode,
-        detailMessage = detailMessage,
-    ),
+        httpStatus.value(),
+        httpStatus.reasonPhrase,
+    ).also { api ->
+        api.detailCode = detailCode
+        api.detailMessage = detailMessage
+    },
     httpStatus,
 )

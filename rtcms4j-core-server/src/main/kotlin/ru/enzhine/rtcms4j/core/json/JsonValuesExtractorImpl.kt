@@ -11,8 +11,8 @@ class JsonValuesExtractorImpl(
     private val objectMapper: ObjectMapper,
     @param:Value($$"${json.version-field.name}")
     private val versionFieldName: String,
-    @Value($$"${json.version-field.pattern}")
-    versionFieldPatternString: String,
+    @param:Value($$"${json.version-field.pattern}")
+    private val versionFieldPatternString: String,
 ) : JsonValuesExtractor {
     private val versionFieldPattern = Regex(versionFieldPatternString)
 
@@ -34,7 +34,7 @@ class JsonValuesExtractorImpl(
         val version = versionNode.textValue()
 
         if (!versionFieldPattern.matches(version)) {
-            throw jsonValuesVersionException("Json values field '$versionFieldName' must contain semVer string.")
+            throw jsonValuesVersionException("Json values field '$versionFieldName' must match '$versionFieldPatternString' pattern.")
         }
 
         return version

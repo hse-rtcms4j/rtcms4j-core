@@ -8,6 +8,8 @@ import ru.enzhine.rtcms4j.core.api.dto.ConfigurationDto
 import ru.enzhine.rtcms4j.core.api.dto.KeycloakClientDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.api.dto.UserRoleDto
+import ru.enzhine.rtcms4j.core.api.event.NotificationEventDto
+import ru.enzhine.rtcms4j.core.repository.kv.dto.NotificationEvent
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.Configuration
 import ru.enzhine.rtcms4j.core.service.internal.dto.ConfigurationCommit
@@ -21,49 +23,51 @@ import ru.enzhine.rtcms4j.core.api.dto.SourceType as ApiSourceType
 
 fun Namespace.toApi() =
     NamespaceDto(
-        id = id,
-        name = name,
-        description = description,
+        id,
+        name,
+        description,
     )
 
 fun Application.toApi() =
     ApplicationDto(
-        id = id,
-        namespaceId = namespaceId,
-        name = name,
-        description = description,
-        creationByService = creationByService,
+        id,
+        namespaceId,
+        name,
+        description,
+        creationByService,
     )
 
 fun KeycloakClient.toApi() =
     KeycloakClientDto(
-        clientId = clientId,
-        secret = clientSecret,
+        clientId,
+        clientSecret,
     )
 
 fun Configuration.toApi() =
     ConfigurationDto(
-        id = id,
-        namespaceId = namespaceId,
-        applicationId = applicationId,
-        name = name,
-        schemaSourceType = schemaSourceType.toApi(),
-        commitId = actualCommitId,
-        commitVersion = actualCommitVersion,
-    )
+        id,
+        namespaceId,
+        applicationId,
+        name,
+        schemaSourceType.toApi(),
+    ).also { api ->
+        api.commitId = actualCommitId
+        api.commitVersion = actualCommitVersion
+    }
 
 fun ConfigurationDetailed.toApi() =
     ConfigurationDetailedDto(
-        id = id,
-        namespaceId = namespaceId,
-        applicationId = applicationId,
-        name = name,
-        schemaSourceType = schemaSourceType.toApi(),
-        commitId = actualCommitId,
-        commitVersion = actualCommitVersion,
-        jsonSchema = jsonSchema,
-        jsonValues = jsonValues,
-    )
+        id,
+        namespaceId,
+        applicationId,
+        name,
+        schemaSourceType.toApi(),
+    ).also { api ->
+        api.commitId = actualCommitId
+        api.commitVersion = actualCommitVersion
+        api.jsonSchema = jsonSchema
+        api.jsonValues = jsonValues
+    }
 
 fun SourceType.toApi() =
     when (this) {
@@ -79,33 +83,53 @@ fun ApiSourceType.toService() =
 
 fun ConfigurationCommit.toApi() =
     ConfigurationCommitDto(
-        namespaceId = namespaceId,
-        applicationId = applicationId,
-        configurationId = configurationId,
-        commitId = id,
-        sourceType = sourceType.toApi(),
-        sourceIdentity = sourceIdentity,
-        commitVersion = version,
+        namespaceId,
+        applicationId,
+        configurationId,
+        id,
+        version,
+        sourceType.toApi(),
+        sourceIdentity,
     )
 
 fun ConfigurationCommitDetailed.toApi() =
     ConfigurationCommitDetailedDto(
-        namespaceId = namespaceId,
-        applicationId = applicationId,
-        configurationId = configurationId,
-        commitId = id,
-        sourceType = sourceType.toApi(),
-        sourceIdentity = sourceIdentity,
-        commitVersion = version,
-        jsonSchema = jsonSchema,
-        jsonValues = jsonValues,
+        namespaceId,
+        applicationId,
+        configurationId,
+        id,
+        version,
+        sourceType.toApi(),
+        sourceIdentity,
+        jsonSchema,
+        jsonValues,
     )
 
 fun UserRole.toApi() =
     UserRoleDto(
-        subject = subject,
-        assignerSubject = assignerSubject,
-        username = username,
-        firstName = firstName,
-        lastName = lastName,
+        subject,
+        assignerSubject,
+    ).also { api ->
+        api.username = username
+        api.firstName = firstName
+        api.lastName = lastName
+    }
+
+fun NotificationEvent.toApi() =
+    NotificationEventDto(
+        namespaceId = namespaceId,
+        applicationId = applicationId,
+        secretRotatedEvent = secretRotatedEvent?.toApi(),
+        configurationUpdatedEvent = configUpdatedEvent?.toApi(),
+    )
+
+fun NotificationEvent.ConfigUpdatedEvent.toApi() =
+    NotificationEventDto.ConfigurationUpdatedEventDto(
+        configurationId = configurationId,
+        payload = payload,
+    )
+
+fun NotificationEvent.SecretRotatedEvent.toApi() =
+    NotificationEventDto.SecretRotatedEventDto(
+        newSecret = newSecret,
     )

@@ -22,7 +22,7 @@ import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
-import ru.enzhine.rtcms4j.core.repository.kv.dto.NotifyEventDto
+import ru.enzhine.rtcms4j.core.repository.kv.dto.NotificationEvent
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
@@ -206,12 +206,12 @@ class ApplicationServiceImpl(
         newSecret: String,
     ) = try {
         pubSubProducer.publishEvent(
-            NotifyEventDto(
+            NotificationEvent(
                 namespaceId = namespaceId,
                 applicationId = applicationId,
                 configUpdatedEvent = null,
-                passwordRotatedEvent =
-                    NotifyEventDto.PasswordRotatedEvent(
+                secretRotatedEvent =
+                    NotificationEvent.SecretRotatedEvent(
                         newSecret = newSecret,
                     ),
             ),

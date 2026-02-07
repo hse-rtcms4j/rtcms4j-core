@@ -95,7 +95,7 @@ subprojects {
             }
         }
         repositories {
-//            github("hse-rtcms4j/rtcms4j-core")
+            github("hse-rtcms4j/rtcms4j-core")
         }
     }
 }

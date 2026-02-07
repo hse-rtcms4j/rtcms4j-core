@@ -21,6 +21,4 @@ pluginManagement {
 }
 
 include("${rootProject.name}-api")
-include("${rootProject.name}-client")
-include("${rootProject.name}-client-starter")
 include("${rootProject.name}-server")

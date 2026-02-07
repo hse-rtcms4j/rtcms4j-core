@@ -1,0 +1,54 @@
+---
+#logging:
+#  level:
+#    org.springframework.security: TRACE
+#    org.springframework.security.web: TRACE
+#    org.springframework.security.web.firewall: TRACE
+#    org.springframework.web.cors: TRACE
+#    org.springframework.web.filter.CorsFilter: TRACE
+#    org.springframework.web.servlet.DispatcherServlet: DEBUG
+#    org.springframework.cache: TRACE
+#    org.springframework.data.redis: DEBUG
+
+cors:
+  allowed-origins: http://localhost:5173
+
+server:
+  port: 8081
+
+spring:
+  liquibase:
+    enabled: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      username: valkey
+      password: valkey
+      database: 0
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rtcms4j_db
+    username: rtcms4j_user
+    password: rtcms4j
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/rtcms4j
+
+keycloak:
+  server-url: http://localhost:8080
+  realm: rtcms4j
+  retries-limit: 5
+  admin:
+    client-id: rtcms4j-admin
+    client-secret: 3OWjIdxNVcaGZP5PcXR6uxpIVXtmfDFi

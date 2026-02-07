@@ -1,0 +1,13 @@
+package ru.enzhine.rtcms4j.core.repository.db.dto
+
+import java.time.OffsetDateTime
+import java.util.UUID
+
+data class NamespaceAdminEntity(
+    val id: Long,
+    val createdAt: OffsetDateTime,
+    val updatedAt: OffsetDateTime,
+    val namespaceId: Long,
+    val assignerSub: UUID,
+    val userSub: UUID,
+)

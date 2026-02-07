@@ -1,6 +1,39 @@
 spring:
+  cache:
+    type: redis
   liquibase:
     enabled: false
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    default-property-inclusion: non_null
 
 server:
   port: 8080
+
+access-token:
+  prefix: AT.
+
+key-val-repository:
+  global-prefix: RTCMS4J_CORE_SCOPE_
+  topic: NOTIFY_EVENT_TOPIC
+
+json:
+  meta-schema-class-path: json/schema/meta-schema.json
+  version-field:
+    name: version
+    pattern: ^[0-9]+\.[0-9]+\.[0-9]+$
+
+default:
+  pagination:
+    page-size: 10
+
+roles:
+  super-admin-role: rtcms4j-super-admin
+
+keycloak:
+  resource-prefix: RTCMS4J_CORE_SCOPE_
+
+cache:
+  keycloak-users-ttl: 10m
+  available-resources-ttl: 1h

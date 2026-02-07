@@ -1,0 +1,366 @@
+package ru.enzhine.rtcms4j.core.service.internal
+
+import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.dao.DuplicateKeyException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
+import ru.enzhine.rtcms4j.core.builder.nameKeyDuplicatedException
+import ru.enzhine.rtcms4j.core.builder.namespaceNotFoundException
+import ru.enzhine.rtcms4j.core.builder.newApplicationEntity
+import ru.enzhine.rtcms4j.core.builder.newApplicationManagerEntity
+import ru.enzhine.rtcms4j.core.builder.userNotFoundException
+import ru.enzhine.rtcms4j.core.config.CacheConfig
+import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
+import ru.enzhine.rtcms4j.core.mapper.toService
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
+import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
+import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
+import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
+import ru.enzhine.rtcms4j.core.repository.kv.dto.NotificationEvent
+import ru.enzhine.rtcms4j.core.service.external.KeycloakService
+import ru.enzhine.rtcms4j.core.service.internal.dto.Application
+import ru.enzhine.rtcms4j.core.service.internal.dto.KeycloakClient
+import ru.enzhine.rtcms4j.core.service.internal.dto.UserRole
+import ru.enzhine.rtcms4j.core.service.internal.tx.registerCommitCallback
+import java.util.UUID
+
+@Service
+class ApplicationServiceImpl(
+    private val applicationEntityRepository: ApplicationEntityRepository,
+    private val applicationManagerEntityRepository: ApplicationManagerEntityRepository,
+    private val defaultPaginationProperties: DefaultPaginationProperties,
+    private val namespaceService: NamespaceService,
+    private val keycloakService: KeycloakService,
+    private val pubSubProducer: PubSubProducer,
+) : ApplicationService {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    @Transactional
+    override fun createApplication(
+        creator: UUID,
+        namespaceId: Long,
+        name: String,
+        description: String,
+        creationByService: Boolean,
+    ): Application {
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
+
+        val applicationEntity =
+            try {
+                applicationEntityRepository.save(
+                    newApplicationEntity(
+                        namespaceId = namespace.id,
+                        creatorSub = creator,
+                        name = name,
+                        description = description,
+                        creationByService = creationByService,
+                    ),
+                )
+            } catch (ex: DuplicateKeyException) {
+                throw nameKeyDuplicatedException(ex)
+            } catch (_: DataIntegrityViolationException) {
+                throw namespaceNotFoundException(namespaceId)
+            }
+
+        registerCommitCallback {
+            try {
+                keycloakService.createNewApplicationClient(namespaceId, applicationEntity.id)
+            } catch (ex: Throwable) {
+                logger.error("Unable to create client for application with id ${applicationEntity.id}", ex)
+            }
+        }
+
+        return applicationEntity.toService()
+    }
+
+    override fun getApplicationById(
+        namespaceId: Long,
+        applicationId: Long,
+        forShare: Boolean,
+    ): Application {
+        val namespace = namespaceService.getNamespaceById(namespaceId, forShare)
+
+        val application =
+            applicationEntityRepository
+                .findById(
+                    id = applicationId,
+                    modifier = if (forShare) QueryModifier.FOR_SHARE else QueryModifier.NONE,
+                )?.toService()
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (application.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        return application
+    }
+
+    @Transactional
+    override fun updateApplication(
+        namespaceId: Long,
+        applicationId: Long,
+        name: String?,
+        description: String?,
+        creationByService: Boolean?,
+    ): Application {
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_UPDATE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        if (name == null && description == null && creationByService == null) {
+            return applicationEntity.toService()
+        }
+
+        name?.let { applicationEntity.name = name }
+        description?.let { applicationEntity.description = description }
+        creationByService?.let { applicationEntity.creationByService = creationByService }
+
+        try {
+            val updatedApplicationEntity =
+                applicationEntityRepository.update(applicationEntity)
+
+            return updatedApplicationEntity.toService()
+        } catch (ex: DuplicateKeyException) {
+            throw nameKeyDuplicatedException(ex)
+        }
+    }
+
+    override fun findApplications(
+        namespaceId: Long,
+        name: String?,
+        pageable: Pageable?,
+    ): Page<Application> {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val pageable =
+            pageable
+                ?: PageRequest.of(0, defaultPaginationProperties.pageSize)
+
+        return applicationEntityRepository
+            .findAllByNamespaceIdAndName(namespace.id, name, pageable)
+            .map { it.toService() }
+    }
+
+    override fun getApplicationClientCredentials(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val applicationEntity =
+            applicationEntityRepository
+                .findById(applicationId)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
+        return keycloakService
+            .findApplicationClient(clientId)
+            .toService()
+    }
+
+    override fun rotateApplicationClientCredentials(
+        namespaceId: Long,
+        applicationId: Long,
+        propagate: Boolean,
+    ): KeycloakClient {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val applicationEntity =
+            applicationEntityRepository
+                .findById(applicationId)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
+        val keycloakClient = keycloakService.rotateApplicationClientPassword(clientId)
+
+        if (propagate) {
+            propagateSecretRotation(namespaceId, applicationId, keycloakClient.clientSecret)
+        }
+
+        return keycloakClient.toService()
+    }
+
+    private fun propagateSecretRotation(
+        namespaceId: Long,
+        applicationId: Long,
+        newSecret: String,
+    ) = try {
+        pubSubProducer.publishEvent(
+            NotificationEvent(
+                namespaceId = namespaceId,
+                applicationId = applicationId,
+                configUpdatedEvent = null,
+                secretRotatedEvent =
+                    NotificationEvent.SecretRotatedEvent(
+                        newSecret = newSecret,
+                    ),
+            ),
+        )
+    } catch (ex: Throwable) {
+        logger.error("Unable to publish pub/sub secret rotation event for application with id $applicationId", ex)
+    }
+
+    @Transactional
+    override fun deleteApplication(
+        namespaceId: Long,
+        applicationId: Long,
+    ): Boolean {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_UPDATE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        val deleted = applicationEntityRepository.removeById(applicationId)
+        if (deleted) {
+            val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
+            keycloakService.deleteApplicationClient(clientId)
+        }
+        return deleted
+    }
+
+    override fun listManagers(
+        namespaceId: Long,
+        applicationId: Long,
+    ): List<UserRole> {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        return applicationManagerEntityRepository
+            .findAllByApplicationId(applicationId)
+            .map {
+                val keycloakUser =
+                    keycloakService.getUserOrCache(it.userSub)
+
+                UserRole(
+                    subject = it.userSub,
+                    assignerSubject = it.assignerSub,
+                    username = keycloakUser?.username,
+                    firstName = keycloakUser?.firstName,
+                    lastName = keycloakUser?.lastName,
+                )
+            }
+    }
+
+    override fun hasManager(
+        namespaceId: Long,
+        applicationId: Long,
+        sub: UUID,
+    ): Boolean {
+        val namespace = namespaceService.getNamespaceById(namespaceId, false)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        return applicationManagerEntityRepository
+            .findByApplicationIdAndUserSub(applicationEntity.id, sub) != null
+    }
+
+    @CacheEvict(
+        cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
+        key = "#sub",
+    )
+    @Transactional
+    override fun addManager(
+        assigner: UUID,
+        namespaceId: Long,
+        applicationId: Long,
+        sub: UUID,
+    ): Boolean {
+        if (!keycloakService.isUserExists(sub)) {
+            throw userNotFoundException(sub)
+        }
+
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        try {
+            applicationManagerEntityRepository.save(
+                newApplicationManagerEntity(
+                    applicationId = applicationId,
+                    assignerSub = assigner,
+                    userSub = sub,
+                ),
+            )
+            return true
+        } catch (_: DuplicateKeyException) {
+            return false
+        } catch (_: DataIntegrityViolationException) {
+            throw applicationNotFoundException(applicationId)
+        }
+    }
+
+    @CacheEvict(
+        cacheNames = [CacheConfig.AVAILABLE_RESOURCES_CACHE],
+        key = "#sub",
+    )
+    @Transactional
+    override fun removeManager(
+        namespaceId: Long,
+        applicationId: Long,
+        sub: UUID,
+    ): Boolean {
+        val namespace = namespaceService.getNamespaceById(namespaceId, true)
+
+        val applicationEntity =
+            applicationEntityRepository.findById(applicationId, QueryModifier.FOR_SHARE)
+                ?: throw applicationNotFoundException(applicationId)
+
+        if (applicationEntity.namespaceId != namespace.id) {
+            throw applicationNotFoundException(applicationId)
+        }
+
+        val manager =
+            applicationManagerEntityRepository.findByApplicationIdAndUserSub(
+                applicationId = applicationId,
+                userSub = sub,
+                modifier = QueryModifier.FOR_UPDATE,
+            )
+                ?: return false
+
+        return applicationManagerEntityRepository.removeById(manager.id)
+    }
+}

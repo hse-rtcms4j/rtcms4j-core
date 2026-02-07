@@ -5,14 +5,36 @@ info:
 servers:
   - url: /api/v1
 
+security:
+  - bearerAuth: [ ]
+
 paths:
-########################
-# Managing namespaces: #
-########################
+  ########################
+  # Managing namespaces: #
+  ########################
   /namespace:
+    head:
+      tags:
+        - Core
+      summary: Check access to all namespaces
+      operationId: hasAccessToAllNamespaces
+      responses:
+        '204':
+          description: Access granted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       tags:
-        - Namespace
+        - Core
       summary: Get all namespaces
       operationId: findAllNamespaces
       parameters:
@@ -46,7 +68,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Namespace
+        - Core
       summary: Create new namespace
       operationId: createNamespace
       requestBody:
@@ -56,7 +78,7 @@ paths:
             schema:
               $ref: '#/components/schemas/NamespaceCreateRequest'
       responses:
-        '200':
+        '201':
           description: Successful operation
           content:
             application/json:
@@ -76,7 +98,7 @@ paths:
   /namespace/{nid}:
     get:
       tags:
-        - Namespace
+        - Core
       summary: Get namespace
       operationId: getNamespace
       parameters:
@@ -105,14 +127,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Namespace
+        - Core
       summary: Update namespace
       operationId: updateNamespace
       parameters:
@@ -147,14 +169,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Namespace
+        - Core
       summary: Delete namespace
       operationId: deleteNamespace
       parameters:
@@ -166,7 +188,7 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -179,7 +201,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -188,7 +210,7 @@ paths:
   /namespace/{nid}/admin:
     get:
       tags:
-        - Namespace
+        - Core
       summary: Get namespace admins
       operationId: getNamespaceAdmins
       parameters:
@@ -207,7 +229,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserInfoDto'
+                  $ref: '#/components/schemas/UserRoleDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -222,7 +244,7 @@ paths:
   /namespace/{nid}/admin/{uid}:
     post:
       tags:
-        - Namespace
+        - Core
       summary: Add namespace admin
       operationId: addNamespaceAdmin
       parameters:
@@ -241,25 +263,27 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        '204':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfoDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Namespace
+        - Core
       summary: Remove namespace admin
       operationId: removeNamespaceAdmin
       parameters:
@@ -278,7 +302,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -291,19 +315,46 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-##########################
-# Managing applications: #
-##########################
+  ##########################
+  # Managing applications: #
+  ##########################
   /namespace/{nid}/application:
+    head:
+      tags:
+        - Core
+      summary: Check access to namespace
+      operationId: hasAccessToNamespace
+      parameters:
+        - name: nid
+          description: Namespace id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Access granted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       tags:
-        - Application
+        - Core
       summary: Get all namespace applications
       operationId: findAllApplications
       parameters:
@@ -344,7 +395,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Application
+        - Core
       summary: Create new namespace application
       operationId: createApplication
       parameters:
@@ -362,7 +413,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationCreateRequest'
       responses:
-        '200':
+        '201':
           description: Successful operation
           content:
             application/json:
@@ -382,7 +433,7 @@ paths:
   /namespace/{nid}/application/{aid}:
     get:
       tags:
-        - Application
+        - Core
       summary: Get namespace application
       operationId: getApplication
       parameters:
@@ -418,14 +469,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Application
+        - Core
       summary: Update namespace application
       operationId: updateApplication
       parameters:
@@ -467,14 +518,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Application
+        - Core
       summary: Delete namespace application
       operationId: deleteApplication
       parameters:
@@ -493,7 +544,7 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -506,7 +557,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
@@ -515,7 +566,7 @@ paths:
   /namespace/{nid}/application/{aid}/manager:
     get:
       tags:
-        - Application
+        - Core
       summary: Get namespace application managers
       operationId: getApplicationManagers
       parameters:
@@ -541,7 +592,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserInfoDto'
+                  $ref: '#/components/schemas/UserRoleDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -556,7 +607,7 @@ paths:
   /namespace/{nid}/application/{aid}/manager/{uid}:
     post:
       tags:
-        - Application
+        - Core
       summary: Add namespace application manager
       operationId: addApplicationManager
       parameters:
@@ -582,25 +633,27 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        '204':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfoDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Application
+        - Core
       summary: Remove namespace application manager
       operationId: removeApplicationManager
       parameters:
@@ -626,7 +679,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -639,18 +692,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /namespace/{nid}/application/{aid}/access-token:
+  /namespace/{nid}/application/{aid}/client:
     get:
       tags:
-        - Application
-      summary: Get namespace application token
-      operationId: getApplicationAccessToken
+        - Core
+      summary: Get namespace application client
+      operationId: getApplicationClient
       parameters:
         - name: nid
           description: Namespace id
@@ -672,7 +725,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessTokenDto'
+                $ref: '#/components/schemas/KeycloakClientDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -683,11 +736,11 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    put:
+    patch:
       tags:
-        - Application
-      summary: Update namespace application token
-      operationId: updateApplicationAccessToken
+        - Core
+      summary: Rotate namespace application client
+      operationId: rotateApplicationClientPassword
       parameters:
         - name: nid
           description: Namespace id
@@ -703,19 +756,19 @@ paths:
           schema:
             type: integer
             format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccessTokenDto'
+        - name: propagate
+          description: Propagate rotated secret
+          in: query
+          required: true
+          schema:
+            type: boolean
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessTokenDto'
+                $ref: '#/components/schemas/KeycloakClientDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -727,10 +780,47 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  ############################
+  # Managing configurations: #
+  ############################
   /namespace/{nid}/application/{aid}/configuration:
+    head:
+      tags:
+        - Core
+      summary: Check access to all configurations under application under namespace
+      operationId: hasAccessToApplication
+      parameters:
+        - name: nid
+          description: Namespace id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: aid
+          description: Application id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Access granted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configurations
       operationId: findAllConfigurations
       parameters:
@@ -778,7 +868,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Configuration
+        - Core
       summary: Create new namespace application configuration
       operationId: createConfiguration
       parameters:
@@ -803,12 +893,12 @@ paths:
             schema:
               $ref: '#/components/schemas/ConfigurationDtoCreateRequest'
       responses:
-        '200':
+        '201':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationDto'
+                $ref: '#/components/schemas/ConfigurationDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -823,7 +913,7 @@ paths:
   /namespace/{nid}/application/{aid}/configuration/{cid}:
     get:
       tags:
-        - Configuration
+        - Core
       summary: Get namespace application configuration
       operationId: getConfiguration
       parameters:
@@ -842,7 +932,7 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
@@ -854,7 +944,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationDto'
+                $ref: '#/components/schemas/ConfigurationDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -866,14 +956,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-        - Configuration
+        - Core
       summary: Update namespace application configuration
       operationId: updateConfiguration
       parameters:
@@ -892,7 +982,7 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
@@ -923,7 +1013,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Configuration
+        - Core
       summary: Delete namespace application configuration
       operationId: deleteConfiguration
       parameters:
@@ -942,14 +1032,14 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
             type: integer
             format: int64
       responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -962,18 +1052,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /namespace/{nid}/application/{aid}/configuration/{cid}/values:
+  /namespace/{nid}/application/{aid}/configuration/{cid}/commit:
     get:
       tags:
-        - Configuration
-      summary: Get namespace application configuration values
-      operationId: getConfigurationValues
+        - Core
+      summary: Get namespace application configuration commits
+      operationId: getConfigurationCommits
       parameters:
         - name: nid
           description: Namespace id
@@ -990,40 +1080,39 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
             type: integer
             format: int64
+        - name: pageable
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Pageable'
       responses:
         '200':
           description: Successful operation
           content:
-            application/octet-stream:
+            application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationValuesData'
+                $ref: '#/components/schemas/PagedModelConfigurationCommitDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          description: ConfigurationDto not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-        - Configuration
-      summary: Update namespace application configuration values
-      operationId: updateConfigurationValues
+        - Core
+      summary: Commit namespace application configuration
+      operationId: commitConfiguration
       parameters:
         - name: nid
           description: Namespace id
@@ -1040,7 +1129,7 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
@@ -1049,16 +1138,16 @@ paths:
       requestBody:
         required: true
         content:
-          application/octet-stream:
+          application/json:
             schema:
-              $ref: '#/components/schemas/ConfigurationValuesData'
+              $ref: '#/components/schemas/ConfigurationCommitRequest'
       responses:
-        '200':
+        '201':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationVersion'
+                $ref: '#/components/schemas/ConfigurationCommitDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1070,12 +1159,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /namespace/{nid}/application/{aid}/configuration/{cid}/schema:
+  /namespace/{nid}/application/{aid}/configuration/{cid}/commit/{ctid}:
     get:
       tags:
-        - Configuration
-      summary: Get namespace application configuration schema
-      operationId: getConfigurationSchema
+        - Core
+      summary: Get namespace application configuration commit
+      operationId: getConfigurationCommit
       parameters:
         - name: nid
           description: Namespace id
@@ -1092,7 +1181,14 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: ctid
+          description: Commit id
           in: path
           required: true
           schema:
@@ -1102,9 +1198,9 @@ paths:
         '200':
           description: Successful operation
           content:
-            application/octet-stream:
+            application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationSchemaData'
+                $ref: '#/components/schemas/ConfigurationCommitDetailedDto'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1112,20 +1208,20 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: ConfigurationDto not found
+          description: ConfigurationCommitDetailedDto not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    post:
+    patch:
       tags:
-        - Configuration
-      summary: Update namespace application configuration schema
-      operationId: updateConfigurationSchema
+        - Core
+      summary: Apply namespace application configuration commit
+      operationId: applyConfigurationCommit
       parameters:
         - name: nid
           description: Namespace id
@@ -1142,128 +1238,21 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
             type: integer
             format: int64
-      requestBody:
-        required: true
-        content:
-          application/octet-stream:
-            schema:
-              $ref: '#/components/schemas/ConfigurationSchemaData'
+        - name: ctid
+          description: Commit id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigurationVersion'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '405':
-          $ref: '#/components/responses/MethodNotAllowed'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /namespace/{nid}/application/{aid}/configuration/{cid}/version/{commitHash}:
-    get:
-      tags:
-        - Configuration
-      summary: Get namespace application configuration version
-      operationId: getConfigurationVersion
-      parameters:
-        - name: nid
-          description: Namespace id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: aid
-          description: Application id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: cid
-          description: Container id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: commitHash
-          description: Version commit hash
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigurationVersionWithState'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          description: ConfigurationVersionWithState not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '405':
-          $ref: '#/components/responses/MethodNotAllowed'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      tags:
-        - Configuration
-      summary: Delete namespace application configuration version
-      operationId: switchConfigurationVersion
-      parameters:
-        - name: nid
-          description: Namespace id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: aid
-          description: Application id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: cid
-          description: Container id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: commitHash
-          description: Version commit hash
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -1272,20 +1261,20 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: ConfigurationVersionWithState not found
+          description: ConfigurationCommitDetailedDto not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-        - Configuration
-      summary: Delete namespace application configuration version
-      operationId: deleteConfigurationVersion
+        - Core
+      summary: Delete namespace application configuration commit
+      operationId: deleteConfigurationCommit
       parameters:
         - name: nid
           description: Namespace id
@@ -1302,20 +1291,21 @@ paths:
             type: integer
             format: int64
         - name: cid
-          description: Container id
+          description: Configuration id
           in: path
           required: true
           schema:
             type: integer
             format: int64
-        - name: commitHash
-          description: Version commit hash
+        - name: ctid
+          description: Commit id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
-        '200':
+        '204':
           description: Successful operation
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -1324,48 +1314,128 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: ConfigurationVersionWithState not found
+          description: ConfigurationCommitDetailedDto not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  ############################
+  # Available resources: #
+  ############################
+  /available/namespaces:
+    get:
+      tags:
+        - Core
+      summary: "Find available namespaces"
+      operationId: findAvailableNamespaces
+      parameters:
+        - name: name
+          description: Search by name param
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageable
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Pageable'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedModelNamespaceDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /available/applications:
+    get:
+      tags:
+        - Core
+      summary: "Find available  applications"
+      operationId: findAvailableApplications
+      parameters:
+        - name: name
+          description: Search by name param
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageable
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Pageable'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedModelApplicationDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   responses:
     BadRequest:
       description: Wrong or unexpected
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     Unauthorized:
       description: Wrong token or authorization failed
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     MethodNotAllowed:
       description: Wrong method
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     Forbidden:
       description: Not enough permissions to access
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
     InternalServerError:
       description: Error on server side
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseDto'
 
   schemas:
     Pageable:
@@ -1404,18 +1474,26 @@ components:
           format: int64
           description: The current page number
 
-    ErrorResponse:
+    ErrorResponseDto:
       type: object
       required:
-        - messageCode
-        - message
+        - httpCode
+        - httpStatus
       properties:
-        messageCode:
+        httpCode:
           type: integer
           format: int32
-        message:
+        httpStatus:
+          type: string
+        detailCode:
+          type: integer
+          format: int32
+        detailMessage:
           type: string
 
+    ############################
+    # Namespaces:
+    ############################
     PagedModelNamespaceDto:
       type: object
       properties:
@@ -1425,6 +1503,16 @@ components:
             $ref: '#/components/schemas/NamespaceDto'
         page:
           $ref: '#/components/schemas/PageMetadata'
+
+    NamespaceFieldName:
+      type: string
+      minLength: 1
+      maxLength: 64
+
+    NamespaceFieldDescription:
+      type: string
+      minLength: 0
+      maxLength: 512
 
     NamespaceDto:
       type: object
@@ -1437,13 +1525,9 @@ components:
           type: integer
           format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/NamespaceFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/NamespaceFieldDescription'
 
     NamespaceCreateRequest:
       type: object
@@ -1452,38 +1536,43 @@ components:
         - description
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/NamespaceFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/NamespaceFieldDescription'
 
     NamespaceUpdateRequest:
       type: object
-      required:
-        - name
-        - description
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/NamespaceFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/NamespaceFieldDescription'
 
-    UserInfoDto:
+    ############################
+    # UserInfo:
+    ############################
+    UserRoleDto:
       type: object
       required:
-        - sub
+        - subject
+        - assignerSubject
       properties:
-        sub:
+        subject:
           type: string
           format: uuid
+        assignerSubject:
+          type: string
+          format: uuid
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
 
+    ############################
+    # Applications:
+    ############################
     PagedModelApplicationDto:
       type: object
       properties:
@@ -1494,6 +1583,16 @@ components:
         page:
           $ref: '#/components/schemas/PageMetadata'
 
+    ApplicationFieldName:
+      type: string
+      minLength: 1
+      maxLength: 64
+
+    ApplicationFieldDescription:
+      type: string
+      minLength: 0
+      maxLength: 512
+
     ApplicationDto:
       type: object
       required:
@@ -1501,61 +1600,76 @@ components:
         - namespaceId
         - name
         - description
+        - creationByService
       properties:
         id:
           type: integer
           format: int64
+        namespaceId:
+          type: integer
+          format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ApplicationFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/ApplicationFieldDescription'
+        creationByService:
+          type: boolean
 
     ApplicationCreateRequest:
       type: object
       required:
         - name
         - description
+        - creationByService
       properties:
-        namespaceId:
-          type: integer
-          format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ApplicationFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/ApplicationFieldDescription'
+        creationByService:
+          type: boolean
 
     ApplicationUpdateRequest:
       type: object
-      required:
-        - name
-        - description
       properties:
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ApplicationFieldName'
         description:
-          type: string
-          minLength: 1
-          maxLength: 512
+          $ref: '#/components/schemas/ApplicationFieldDescription'
+        creationByService:
+          type: boolean
 
-    AccessTokenDto:
+    ############################
+    # Keycloak client:
+    ############################
+    KeycloakClientDto:
       type: object
       required:
-        - password
+        - clientId
+        - secret
       properties:
-        password:
+        clientId:
           type: string
           minLength: 64
           maxLength: 64
+        secret:
+          type: string
+          minLength: 64
+          maxLength: 64
+
+    ############################
+    # Configurations:
+    ############################
+    SourceType:
+      type: string
+      enum:
+        - USER
+        - SERVICE
+
+    ConfigurationFieldName:
+      type: string
+      minLength: 1
+      maxLength: 64
 
     PagedModelConfigurationDto:
       type: object
@@ -1574,8 +1688,8 @@ components:
         - namespaceId
         - applicationId
         - name
+        - schemaSourceType
       properties:
-        # not null
         id:
           type: integer
           format: int64
@@ -1586,62 +1700,113 @@ components:
           type: integer
           format: int64
         name:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/ConfigurationFieldName'
+        schemaSourceType:
+          $ref: '#/components/schemas/SourceType'
         # nullable
-        commitHash:
+        commitVersion:
           type: string
-        valuesData:
-          $ref: '#/components/schemas/ConfigurationValuesData'
-        schemaData:
-          $ref: '#/components/schemas/ConfigurationSchemaData'
+        commitId:
+          type: integer
+          format: int64
+
+    ConfigurationDetailedDto:
+      allOf:
+        - $ref: '#/components/schemas/ConfigurationDto'
+        - type: object
+          properties:
+            jsonValues:
+              $ref: '#/components/schemas/ConfigurationJsonValues'
+            jsonSchema:
+              $ref: '#/components/schemas/ConfigurationJsonSchema'
 
     ConfigurationDtoCreateRequest:
       type: object
       required:
         - name
+        - schemaSourceType
       properties:
         name:
-          type: string
-          minLength: 1
+          $ref: '#/components/schemas/ConfigurationFieldName'
+        schemaSourceType:
+          $ref: '#/components/schemas/SourceType'
 
     ConfigurationDtoUpdateRequest:
       type: object
-      required:
-        - name
       properties:
         name:
-          type: string
-          minLength: 1
+          $ref: '#/components/schemas/ConfigurationFieldName'
+        schemaSourceType:
+          $ref: '#/components/schemas/SourceType'
 
-    ConfigurationValuesData:
-      description: Json
-      type: string
-
-    ConfigurationSchemaData:
-      description: Json schema
-      type: string
-
-    ConfigurationVersion:
+    ConfigurationCommitRequest:
       type: object
       required:
-        - commitHash
+        - jsonValues
       properties:
-        commitHash:
-          description: Exact version identifier
-          type: string
-
-    ConfigurationVersionWithState:
-      type: object
-      required:
-        - commitHash
-      properties:
-        # not null
-        commitHash:
-          type: string
+        jsonValues:
+          $ref: '#/components/schemas/ConfigurationJsonValues'
         # nullable
-        valuesData:
-          $ref: '#/components/schemas/ConfigurationValuesData'
-        schemaData:
-          $ref: '#/components/schemas/ConfigurationSchemaData'
+        jsonSchema:
+          $ref: '#/components/schemas/ConfigurationJsonSchema'
+
+    ConfigurationJsonValues:
+      description: Configuration json
+      type: string
+
+    ConfigurationJsonSchema:
+      description: Configuration json schema
+      type: string
+
+    PagedModelConfigurationCommitDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigurationCommitDto'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    ConfigurationCommitDto:
+      type: object
+      required:
+        - namespaceId
+        - applicationId
+        - configurationId
+        - commitId
+        - commitVersion
+        - sourceType
+        - sourceIdentity
+      properties:
+        namespaceId:
+          type: integer
+          format: int64
+        applicationId:
+          type: integer
+          format: int64
+        configurationId:
+          type: integer
+          format: int64
+        commitId:
+          type: integer
+          format: int64
+        commitVersion:
+          type: string
+        sourceType:
+          $ref: '#/components/schemas/SourceType'
+        sourceIdentity:
+          type: string
+
+    ConfigurationCommitDetailedDto:
+      allOf:
+        - $ref: '#/components/schemas/ConfigurationCommitDto'
+        - type: object
+          required:
+            - jsonSchema
+            - jsonValues
+          properties:
+            jsonSchema:
+              $ref: '#/components/schemas/ConfigurationJsonSchema'
+            jsonValues:
+              $ref: '#/components/schemas/ConfigurationJsonValues'

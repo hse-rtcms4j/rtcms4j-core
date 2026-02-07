@@ -1,38 +1,59 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
 apply {
     plugin("org.springframework.boot")
 }
 
 dependencies {
-//    api(project(":frame-voice-api"))
+    api(project(":rtcms4j-core-api"))
 
-    runtimeOnly("org.springdoc:springdoc-openapi-starter-webmvc-ui")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.liquibase:liquibase-core")
-
-    implementation("org.springframework.kafka:spring-kafka")
-    implementation("org.springframework:spring-context-support")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
+//    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-rest")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework:spring-tx")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.liquibase:liquibase-core")
-
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-
+    implementation("org.keycloak:keycloak-admin-client")
+    implementation("com.networknt:json-schema-validator")
     runtimeOnly("org.postgresql:postgresql")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.cucumber:cucumber-jvm")
+    testImplementation("io.cucumber:cucumber-spring")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine")
+    testImplementation("org.junit.platform:junit-platform-suite")
+    testImplementation("io.zonky.test:embedded-postgres")
+    testImplementation("io.zonky.test:embedded-database-spring-test")
+    testImplementation("com.github.codemonstur:embedded-redis")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito.kotlin:mockito-kotlin")
 }
 
-tasks.getByName<BootJar>("bootJar") {
-    enabled = true
-}
+tasks {
+    bootJar {
+        enabled = true
+    }
 
-tasks.getByName<Jar>("jar") {
-    enabled = false
-}
+    jar {
+        enabled = false
+    }
 
-tasks.withType<PublishToMavenRepository> {
-    enabled = false
+    withType<PublishToMavenRepository> {
+        enabled = false
+    }
+
+    test {
+        // junit fix
+        useJUnitPlatform()
+        // test verbose logging
+        testLogging { exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
+        // mockito jvm arg
+        jvmArgs.add("-XX:+EnableDynamicAgentLoading")
+    }
 }

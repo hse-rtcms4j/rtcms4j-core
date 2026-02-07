@@ -4,7 +4,7 @@ import java.net.URI
 
 fun RepositoryHandler.github(repo: String) = maven {
     name = "GitHubPackages"
-    url = URI.create("https://maven.pkg.github.com/hse-rtcms4j/$repo")
+    url = URI.create("https://maven.pkg.github.com/$repo")
     credentials {
         // picks from: .../user/.gradle/gradle.properties
         username = System.getenv("GITHUB_ACTOR") ?: findProperty("GITHUB_LOGIN") as String?
@@ -44,25 +44,45 @@ subprojects {
     dependencyManagement {
         imports {
             val springBootVersion: String by project
-            val springCloudVersion: String by project
+//            val springCloudVersion: String by project
+            val embeddedPostgresBinariesBomVersion: String by project
 
             mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+//            mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+            mavenBom("io.zonky.test.postgres:embedded-postgres-binaries-bom:$embeddedPostgresBinariesBomVersion")
         }
 
         dependencies {
             val springDocVersion: String by project
             dependency("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
 
-//            dependency("ru.enzhine:rtcms4j-:")
+            val embeddedPostgresVersion: String by project
+            val embeddedDatabaseSpringTestVersion: String by project
+            dependency("io.zonky.test:embedded-postgres:$embeddedPostgresVersion")
+            dependency("io.zonky.test:embedded-database-spring-test:$embeddedDatabaseSpringTestVersion")
+
+            val embeddedRedisVersion: String by project
+            dependency("com.github.codemonstur:embedded-redis:$embeddedRedisVersion")
+
+            val keycloakAdminClientVersion: String by project
+            dependency("org.keycloak:keycloak-admin-client:$keycloakAdminClientVersion")
+
+            val jsonSchemaValidatorVersion: String by project
+            dependency("com.networknt:json-schema-validator:$jsonSchemaValidatorVersion")
+
+            val cucumberVersion: String by project
+            dependency("io.cucumber:cucumber-jvm:$cucumberVersion")
+            dependency("io.cucumber:cucumber-spring:$cucumberVersion")
+            dependency("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+
+            val mockitoKotlin: String by project
+            dependency("org.mockito.kotlin:mockito-kotlin:$mockitoKotlin")
         }
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
-
-//        github("hse-rtcms4j/rtcms4j-core")
     }
 
     publishing {
@@ -75,7 +95,7 @@ subprojects {
             }
         }
         repositories {
-//            github("")
+            github("hse-rtcms4j/rtcms4j-core")
         }
     }
 }

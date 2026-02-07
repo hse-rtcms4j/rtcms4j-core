@@ -17,10 +17,10 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
+import ru.enzhine.rtcms4j.core.producer.NotifyEventProducer
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
-import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.ApplicationServiceImpl
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceService
@@ -47,7 +47,7 @@ class ApplicationServiceImplTest {
     lateinit var keycloakService: KeycloakService
 
     @Mock
-    lateinit var pubSubProducer: PubSubProducer
+    lateinit var notifyEventProducer: NotifyEventProducer
 
     @InjectMocks
     lateinit var applicationService: ApplicationServiceImpl

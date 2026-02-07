@@ -1,7 +1,7 @@
-package ru.enzhine.rtcms4j.core.repository.kv
+package ru.enzhine.rtcms4j.core.producer
 
 import ru.enzhine.rtcms4j.core.repository.kv.dto.NotificationEvent
 
-interface PubSubProducer {
+interface NotifyEventProducer {
     fun publishEvent(event: NotificationEvent)
 }

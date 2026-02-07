@@ -18,10 +18,10 @@ import ru.enzhine.rtcms4j.core.builder.userNotFoundException
 import ru.enzhine.rtcms4j.core.config.CacheConfig
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
 import ru.enzhine.rtcms4j.core.mapper.toService
+import ru.enzhine.rtcms4j.core.producer.NotifyEventProducer
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
-import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
 import ru.enzhine.rtcms4j.core.repository.kv.dto.NotificationEvent
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
@@ -37,7 +37,7 @@ class ApplicationServiceImpl(
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val namespaceService: NamespaceService,
     private val keycloakService: KeycloakService,
-    private val pubSubProducer: PubSubProducer,
+    private val notifyEventProducer: NotifyEventProducer,
 ) : ApplicationService {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -205,7 +205,7 @@ class ApplicationServiceImpl(
         applicationId: Long,
         newSecret: String,
     ) = try {
-        pubSubProducer.publishEvent(
+        notifyEventProducer.publishEvent(
             NotificationEvent(
                 namespaceId = namespaceId,
                 applicationId = applicationId,

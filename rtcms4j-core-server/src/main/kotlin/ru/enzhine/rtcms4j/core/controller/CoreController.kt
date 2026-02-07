@@ -5,6 +5,7 @@ import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.enzhine.rtcms4j.core.api.CoreApi
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
@@ -39,6 +40,7 @@ import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import java.util.UUID
 
 @RestController
+@RequestMapping("/api/v1")
 class CoreController(
     private val namespaceService: NamespaceService,
     private val applicationService: ApplicationService,

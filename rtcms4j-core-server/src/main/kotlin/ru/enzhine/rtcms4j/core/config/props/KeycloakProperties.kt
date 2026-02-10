@@ -8,7 +8,6 @@ data class KeycloakProperties(
     val realm: String,
     val admin: AdminProperties,
     val retriesLimit: Int,
-    val resourcePrefix: String,
 ) {
     data class AdminProperties(
         val clientId: String,

@@ -12,7 +12,6 @@ import java.util.UUID
 class JwtKeycloakPrincipalConverter : Converter<Jwt, AbstractAuthenticationToken> {
     override fun convert(jwt: Jwt): AbstractAuthenticationToken? {
         val authorities = extractAuthorities(jwt)
-        val attributes = extractAttributes(jwt)
 
         val principal =
             KeycloakPrincipal(
@@ -20,7 +19,8 @@ class JwtKeycloakPrincipalConverter : Converter<Jwt, AbstractAuthenticationToken
                 username = jwt.getClaimAsString("preferred_username"),
                 clientId = jwt.getClaimAsString("azp"),
                 roles = authorities.map { it.authority }.toSet(),
-                attributes = attributes,
+                namespaceId = (jwt.claims["namespace_id"] as String?)?.toLong(),
+                applicationId = (jwt.claims["application_id"] as String?)?.toLong(),
             )
 
         return JwtAuthenticationToken(
@@ -50,9 +50,5 @@ class JwtKeycloakPrincipalConverter : Converter<Jwt, AbstractAuthenticationToken
             ?.forEach { roles.add(it.toString()) }
 
         return roles.map { SimpleGrantedAuthority(it) }
-    }
-
-    private fun extractAttributes(jwt: Jwt): Map<String, String> {
-        return emptyMap() // TODO: parse jwt attributes
     }
 }

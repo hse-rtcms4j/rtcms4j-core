@@ -2,6 +2,7 @@ package ru.enzhine.rtcms4j.core.service.external
 
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.representations.idm.ClientRepresentation
+import org.keycloak.representations.idm.ProtocolMapperRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.event.ContextRefreshedEvent
@@ -20,8 +21,8 @@ class KeycloakServiceImpl(
     private val keycloakProperties: KeycloakProperties,
 ) : KeycloakService {
     companion object {
-        const val ATTRIBUTE_KEY_NAMESPACE_ID = "NAMESPACE_ID"
-        const val ATTRIBUTE_KEY_APPLICATION_ID = "APPLICATION_ID"
+        const val ATTRIBUTE_KEY_NAMESPACE_ID = "RTCMS4J_CORE_SCOPE_NAMESPACE_ID"
+        const val ATTRIBUTE_KEY_APPLICATION_ID = "RTCMS4J_CORE_SCOPE_APPLICATION_ID"
     }
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -171,15 +172,42 @@ class KeycloakServiceImpl(
     ) = ClientRepresentation().apply {
         this.clientId = buildClientId(namespaceId, applicationId)
         this.name = "Application client $clientId"
-        this.attributes =
-            mapOf(
-                keycloakProperties.resourcePrefix + ATTRIBUTE_KEY_NAMESPACE_ID to namespaceId.toString(),
-                keycloakProperties.resourcePrefix + ATTRIBUTE_KEY_APPLICATION_ID to applicationId.toString(),
-            )
         this.isPublicClient = false
         this.isServiceAccountsEnabled = true
         this.isDirectAccessGrantsEnabled = false
         this.isStandardFlowEnabled = false
         this.isEnabled = true
+        this.protocolMappers =
+            listOf(
+                createAttributeProtocolMapper(
+                    name = "namespaceId",
+                    claimName = "namespace_id",
+                    claimValue = namespaceId.toString(),
+                ),
+                createAttributeProtocolMapper(
+                    name = "applicationId",
+                    claimName = "application_id",
+                    claimValue = applicationId.toString(),
+                ),
+            )
+    }
+
+    private fun createAttributeProtocolMapper(
+        name: String,
+        claimName: String,
+        claimValue: String,
+    ) = ProtocolMapperRepresentation().apply {
+        this.name = name
+        this.protocol = "openid-connect"
+        this.protocolMapper = "oidc-hardcoded-claim-mapper"
+        this.config =
+            mapOf(
+                "claim.name" to claimName,
+                "claim.value" to claimValue,
+                "jsonType.label" to "String",
+                "userinfo.token.claim" to "true",
+                "id.token.claim" to "true",
+                "access.token.claim" to "true",
+            )
     }
 }

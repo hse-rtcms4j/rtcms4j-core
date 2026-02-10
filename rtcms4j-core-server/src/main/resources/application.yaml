@@ -31,9 +31,6 @@ default:
 roles:
   super-admin-role: rtcms4j-super-admin
 
-keycloak:
-  resource-prefix: RTCMS4J_CORE_SCOPE_
-
 cache:
   keycloak-users-ttl: 10m
   available-resources-ttl: 1h

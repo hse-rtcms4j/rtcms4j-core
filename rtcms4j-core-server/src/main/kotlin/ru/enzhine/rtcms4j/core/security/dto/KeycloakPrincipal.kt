@@ -7,8 +7,9 @@ data class KeycloakPrincipal(
     val username: String?,
     val clientId: String?,
     val roles: Set<String>,
-    val attributes: Map<String, String>,
+    val namespaceId: Long?,
+    val applicationId: Long?,
 ) {
     val isClient: Boolean
-        get() = username == null
+        get() = namespaceId != null && applicationId != null
 }

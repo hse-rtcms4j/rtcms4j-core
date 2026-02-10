@@ -1,15 +1,12 @@
 package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.stereotype.Service
-import ru.enzhine.rtcms4j.core.config.props.KeycloakProperties
 import ru.enzhine.rtcms4j.core.config.props.RolesConfig
 import ru.enzhine.rtcms4j.core.security.dto.KeycloakPrincipal
-import ru.enzhine.rtcms4j.core.service.external.KeycloakServiceImpl
 
 @Service
 class AccessControlServiceImpl(
     private val rolesConfig: RolesConfig,
-    private val keycloakProperties: KeycloakProperties,
     private val namespaceService: NamespaceService,
     private val applicationService: ApplicationService,
 ) : AccessControlService {
@@ -41,10 +38,8 @@ class AccessControlServiceImpl(
         applicationId: Long,
     ): Boolean =
         if (keycloakPrincipal.isClient) {
-            keycloakPrincipal.attributes[keycloakProperties.resourcePrefix + KeycloakServiceImpl.ATTRIBUTE_KEY_NAMESPACE_ID] ==
-                namespaceId.toString() &&
-                keycloakPrincipal.attributes[keycloakProperties.resourcePrefix + KeycloakServiceImpl.ATTRIBUTE_KEY_APPLICATION_ID] ==
-                applicationId.toString()
+            keycloakPrincipal.namespaceId == namespaceId &&
+                keycloakPrincipal.applicationId == applicationId
         } else {
             hasAccessToApplication(keycloakPrincipal, namespaceId, applicationId)
         }

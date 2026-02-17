@@ -65,7 +65,7 @@ jib {
     }
 
     to {
-        image = "ghcr.io/${project.group.toString().lowercase()}/${project.name.lowercase()}"
+        image = "ghcr.io/hse-rtcms4j/${project.name.lowercase()}"
         tags =
             setOf(
                 project.version.toString(),

@@ -20,6 +20,7 @@ plugins {
     id("org.openapi.generator") apply false
     id("io.spring.dependency-management")
     id("maven-publish")
+    id("com.google.cloud.tools.jib") apply false
 }
 
 subprojects {
@@ -31,6 +32,7 @@ subprojects {
         plugin("org.openapi.generator")
         plugin("org.springframework.boot")
         plugin("maven-publish")
+        plugin("com.google.cloud.tools.jib")
     }
 
     val groupId: String by project

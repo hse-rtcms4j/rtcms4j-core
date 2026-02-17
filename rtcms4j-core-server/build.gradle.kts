@@ -66,10 +66,11 @@ jib {
 
     to {
         image = "ghcr.io/${project.group.toString().lowercase()}/${project.name.lowercase()}"
-        tags = setOf(
-            project.version.toString(),
-            "latest"
-        )
+        tags =
+            setOf(
+                project.version.toString(),
+                "latest",
+            )
 
         auth {
             username = System.getenv("GITHUB_ACTOR") ?: ""

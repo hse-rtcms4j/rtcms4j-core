@@ -5,6 +5,7 @@ import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.enzhine.rtcms4j.core.api.CoreApi
 import ru.enzhine.rtcms4j.core.api.dto.ApplicationCreateRequest
@@ -22,6 +23,7 @@ import ru.enzhine.rtcms4j.core.api.dto.NamespaceCreateRequest
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceDto
 import ru.enzhine.rtcms4j.core.api.dto.NamespaceUpdateRequest
 import ru.enzhine.rtcms4j.core.api.dto.UserRoleDto
+import ru.enzhine.rtcms4j.core.aspect.Logged
 import ru.enzhine.rtcms4j.core.builder.applicationNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationCommitNotFoundException
 import ru.enzhine.rtcms4j.core.builder.configurationNotFoundException
@@ -39,6 +41,7 @@ import ru.enzhine.rtcms4j.core.service.internal.dto.SourceType
 import java.util.UUID
 
 @RestController
+@RequestMapping("/api/v1")
 class CoreController(
     private val namespaceService: NamespaceService,
     private val applicationService: ApplicationService,
@@ -46,6 +49,7 @@ class CoreController(
     private val accessControlService: AccessControlService,
     private val availableResourcesService: AvailableResourcesService,
 ) : CoreApi {
+    @Logged
     override fun findAvailableNamespaces(
         name: String?,
         pageable: Pageable?,
@@ -71,6 +75,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun findAvailableApplications(
         name: String?,
         pageable: Pageable?,
@@ -96,6 +101,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun hasAccessToAllNamespaces(): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -107,6 +113,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun createNamespace(namespaceCreateRequest: NamespaceCreateRequest): ResponseEntity<NamespaceDto> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -127,6 +134,7 @@ class CoreController(
             .body(responseBody)
     }
 
+    @Logged
     override fun updateNamespace(
         nid: Long,
         namespaceUpdateRequest: NamespaceUpdateRequest,
@@ -148,6 +156,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun getNamespace(nid: Long): ResponseEntity<NamespaceDto> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
@@ -165,6 +174,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun findAllNamespaces(
         name: String?,
         pageable: Pageable?,
@@ -187,6 +197,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun deleteNamespace(nid: Long): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -202,6 +213,7 @@ class CoreController(
         throw namespaceNotFoundException(nid)
     }
 
+    @Logged
     override fun addNamespaceAdmin(
         nid: Long,
         uid: UUID,
@@ -229,6 +241,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun getNamespaceAdmins(nid: Long): ResponseEntity<List<UserRoleDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
@@ -243,6 +256,7 @@ class CoreController(
         return ResponseEntity.ok(responseBody)
     }
 
+    @Logged
     override fun removeNamespaceAdmin(
         nid: Long,
         uid: UUID,
@@ -268,6 +282,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun hasAccessToNamespace(nid: Long): ResponseEntity<Void> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
@@ -279,6 +294,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun createApplication(
         nid: Long,
         applicationCreateRequest: ApplicationCreateRequest,
@@ -304,6 +320,7 @@ class CoreController(
             .body(responseBody)
     }
 
+    @Logged
     override fun updateApplication(
         nid: Long,
         aid: Long,
@@ -328,6 +345,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun getApplication(
         nid: Long,
         aid: Long,
@@ -349,6 +367,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun findAllApplications(
         nid: Long,
         name: String?,
@@ -373,6 +392,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun deleteApplication(
         nid: Long,
         aid: Long,
@@ -396,6 +416,7 @@ class CoreController(
         throw applicationNotFoundException(aid)
     }
 
+    @Logged
     override fun addApplicationManager(
         nid: Long,
         aid: Long,
@@ -425,6 +446,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun getApplicationManagers(
         nid: Long,
         aid: Long,
@@ -444,6 +466,7 @@ class CoreController(
         return ResponseEntity.ok(responseBody)
     }
 
+    @Logged
     override fun removeApplicationManager(
         nid: Long,
         aid: Long,
@@ -471,6 +494,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun getApplicationClient(
         nid: Long,
         aid: Long,
@@ -490,6 +514,7 @@ class CoreController(
         return ResponseEntity.ok(responseBody)
     }
 
+    @Logged
     override fun rotateApplicationClientPassword(
         nid: Long,
         aid: Long,
@@ -511,6 +536,7 @@ class CoreController(
         return ResponseEntity.ok(responseBody)
     }
 
+    @Logged
     override fun hasAccessToApplication(
         nid: Long,
         aid: Long,
@@ -525,6 +551,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun createConfiguration(
         nid: Long,
         aid: Long,
@@ -558,6 +585,7 @@ class CoreController(
             .body(responseBody)
     }
 
+    @Logged
     override fun updateConfiguration(
         nid: Long,
         aid: Long,
@@ -583,6 +611,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun getConfiguration(
         nid: Long,
         aid: Long,
@@ -606,6 +635,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun findAllConfigurations(
         nid: Long,
         aid: Long,
@@ -632,6 +662,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun deleteConfiguration(
         nid: Long,
         aid: Long,
@@ -657,6 +688,7 @@ class CoreController(
         throw configurationNotFoundException(cid)
     }
 
+    @Logged
     override fun applyConfigurationCommit(
         nid: Long,
         aid: Long,
@@ -680,6 +712,7 @@ class CoreController(
             .build()
     }
 
+    @Logged
     override fun commitConfiguration(
         nid: Long,
         aid: Long,
@@ -715,6 +748,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun getConfigurationCommit(
         nid: Long,
         aid: Long,
@@ -740,6 +774,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun getConfigurationCommits(
         nid: Long,
         aid: Long,
@@ -766,6 +801,7 @@ class CoreController(
             .ok(responseBody)
     }
 
+    @Logged
     override fun deleteConfigurationCommit(
         nid: Long,
         aid: Long,

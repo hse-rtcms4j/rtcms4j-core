@@ -1,11 +1,12 @@
 apply {
     plugin("org.springframework.boot")
+    plugin("com.google.cloud.tools.jib")
 }
 
 dependencies {
     api(project(":rtcms4j-core-api"))
 
-//    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -55,5 +56,54 @@ tasks {
         testLogging { exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
         // mockito jvm arg
         jvmArgs.add("-XX:+EnableDynamicAgentLoading")
+    }
+}
+
+jib {
+    from {
+        image = "eclipse-temurin:21-jre-alpine"
+        platforms {
+            platform {
+                architecture = "amd64"
+                os = "linux"
+            }
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
+    }
+
+    to {
+        image = "ghcr.io/${project.group}/${project.name}"
+        tags =
+            setOf(
+                project.version.toString(),
+                "latest",
+                System.getenv("GITHUB_SHA")?.take(8) ?: "latest",
+            )
+
+        auth {
+            username = System.getenv("GITHUB_ACTOR") ?: ""
+            password = System.getenv("GITHUB_TOKEN") ?: ""
+        }
+    }
+
+    container {
+        entrypoint = listOf("java", "-jar", "/app.jar")
+
+        jvmFlags =
+            listOf(
+                "-XX:+UseContainerSupport",
+                "-Djava.security.egd=file:/dev/./urandom",
+            )
+
+        labels =
+            mapOf(
+                "org.opencontainers.image.title" to project.name,
+                "org.opencontainers.image.version" to project.version.toString(),
+                "org.opencontainers.image.revision" to (System.getenv("GITHUB_SHA") ?: "unknown"),
+                "org.opencontainers.image.source" to "https://github.com/${System.getenv("GITHUB_REPOSITORY")}",
+            )
     }
 }

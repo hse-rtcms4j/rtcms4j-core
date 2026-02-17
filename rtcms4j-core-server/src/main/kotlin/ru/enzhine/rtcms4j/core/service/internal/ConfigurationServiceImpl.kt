@@ -24,12 +24,12 @@ import ru.enzhine.rtcms4j.core.json.JsonValuesExtractor
 import ru.enzhine.rtcms4j.core.mapper.toDetailed
 import ru.enzhine.rtcms4j.core.mapper.toRepository
 import ru.enzhine.rtcms4j.core.mapper.toService
+import ru.enzhine.rtcms4j.core.producer.NotifyEventProducer
 import ru.enzhine.rtcms4j.core.repository.db.ConfigCommitEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ConfigSchemaEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.ConfigurationEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.util.QueryModifier
 import ru.enzhine.rtcms4j.core.repository.kv.KeyValueRepository
-import ru.enzhine.rtcms4j.core.repository.kv.PubSubProducer
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonSchema
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheJsonValues
 import ru.enzhine.rtcms4j.core.repository.kv.dto.CacheKey
@@ -50,7 +50,7 @@ class ConfigurationServiceImpl(
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val applicationService: ApplicationService,
     private val keyValueRepository: KeyValueRepository,
-    private val pubSubProducer: PubSubProducer,
+    private val notifyEventProducer: NotifyEventProducer,
     private val jsonSchemaValidator: JsonSchemaValidator,
     private val jsonValuesExtractor: JsonValuesExtractor,
 ) : ConfigurationService {
@@ -483,7 +483,7 @@ class ConfigurationServiceImpl(
         }
 
         try {
-            pubSubProducer.publishEvent(
+            notifyEventProducer.publishEvent(
                 NotificationEvent(
                     namespaceId = namespaceId,
                     applicationId = applicationId,

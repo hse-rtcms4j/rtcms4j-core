@@ -17,11 +17,14 @@ import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 
 @RestControllerAdvice(basePackageClasses = [CoreController::class])
 class ExceptionHandler {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    companion object {
+        private val logger = LoggerFactory.getLogger(this::class.java)
+    }
 
     @ExceptionHandler(value = [ConditionFailureException::class])
-    fun conditionFailureExceptionHandler(ex: ConditionFailureException): ResponseEntity<ErrorResponseDto> =
-        when (ex) {
+    fun conditionFailureExceptionHandler(ex: ConditionFailureException): ResponseEntity<ErrorResponseDto> {
+        logger.error("An error handled!", ex)
+        return when (ex) {
             is ConditionFailureException.NotFound ->
                 newErrorResponseEntity(
                     httpStatus = HttpStatus.NOT_FOUND,
@@ -44,38 +47,46 @@ class ExceptionHandler {
                 )
 
             else -> {
-                logger.error("An unknown condition failure handled!", ex)
                 newErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
             }
         }
+    }
 
     @ExceptionHandler(value = [MethodArgumentNotValidException::class])
-    fun methodArgumentNotValidExceptionHandler(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponseDto> =
-        newErrorResponseEntity(
+    fun methodArgumentNotValidExceptionHandler(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponseDto> {
+        logger.error("An error handled!", ex)
+        return newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = humanizeError(ex),
         )
+    }
 
     @ExceptionHandler(value = [MethodArgumentTypeMismatchException::class])
-    fun methodArgumentTypeMismatchExceptionHandler(ex: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponseDto> =
-        newErrorResponseEntity(
+    fun methodArgumentTypeMismatchExceptionHandler(ex: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponseDto> {
+        logger.error("An error handled!", ex)
+        return newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = ex.localizedMessage,
         )
+    }
 
     @ExceptionHandler(value = [HandlerMethodValidationException::class])
-    fun handlerMethodValidationExceptionHandler(ex: HandlerMethodValidationException): ResponseEntity<ErrorResponseDto> =
-        newErrorResponseEntity(
+    fun handlerMethodValidationExceptionHandler(ex: HandlerMethodValidationException): ResponseEntity<ErrorResponseDto> {
+        logger.error("An error handled!", ex)
+        return newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = humanizeError(ex),
         )
+    }
 
     @ExceptionHandler(value = [ConstraintViolationException::class])
-    fun constraintViolationExceptionHandler(ex: ConstraintViolationException): ResponseEntity<ErrorResponseDto> =
-        newErrorResponseEntity(
+    fun constraintViolationExceptionHandler(ex: ConstraintViolationException): ResponseEntity<ErrorResponseDto> {
+        logger.error("An error handled!", ex)
+        return newErrorResponseEntity(
             httpStatus = HttpStatus.BAD_REQUEST,
             detailMessage = ex.localizedMessage,
         )
+    }
 
     @ExceptionHandler
     fun anyHandler(ex: Throwable): ResponseEntity<ErrorResponseDto> {

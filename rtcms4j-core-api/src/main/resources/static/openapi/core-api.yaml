@@ -1496,6 +1496,9 @@ components:
     ############################
     PagedModelNamespaceDto:
       type: object
+      required:
+        - content
+        - page
       properties:
         content:
           type: array
@@ -1575,6 +1578,9 @@ components:
     ############################
     PagedModelApplicationDto:
       type: object
+      required:
+        - content
+        - page
       properties:
         content:
           type: array
@@ -1631,6 +1637,9 @@ components:
 
     ApplicationUpdateRequest:
       type: object
+      required:
+        - content
+        - page
       properties:
         name:
           $ref: '#/components/schemas/ApplicationFieldName'
@@ -1673,6 +1682,9 @@ components:
 
     PagedModelConfigurationDto:
       type: object
+      required:
+        - content
+        - page
       properties:
         content:
           type: array
@@ -1760,6 +1772,9 @@ components:
 
     PagedModelConfigurationCommitDto:
       type: object
+      required:
+        - content
+        - page
       properties:
         content:
           type: array

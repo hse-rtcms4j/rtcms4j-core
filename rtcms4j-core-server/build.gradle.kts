@@ -62,26 +62,14 @@ tasks {
 jib {
     from {
         image = "eclipse-temurin:21-jre-alpine"
-        platforms {
-            platform {
-                architecture = "amd64"
-                os = "linux"
-            }
-            platform {
-                architecture = "arm64"
-                os = "linux"
-            }
-        }
     }
 
     to {
-        image = "ghcr.io/${project.group}/${project.name}"
-        tags =
-            setOf(
-                project.version.toString(),
-                "latest",
-                System.getenv("GITHUB_SHA")?.take(8) ?: "latest",
-            )
+        image = "ghcr.io/${project.group.toString().lowercase()}/${project.name.lowercase()}"
+        tags = setOf(
+            project.version.toString(),
+            "latest"
+        )
 
         auth {
             username = System.getenv("GITHUB_ACTOR") ?: ""
@@ -91,19 +79,7 @@ jib {
 
     container {
         entrypoint = listOf("java", "-jar", "/app.jar")
-
-        jvmFlags =
-            listOf(
-                "-XX:+UseContainerSupport",
-                "-Djava.security.egd=file:/dev/./urandom",
-            )
-
-        labels =
-            mapOf(
-                "org.opencontainers.image.title" to project.name,
-                "org.opencontainers.image.version" to project.version.toString(),
-                "org.opencontainers.image.revision" to (System.getenv("GITHUB_SHA") ?: "unknown"),
-                "org.opencontainers.image.source" to "https://github.com/${System.getenv("GITHUB_REPOSITORY")}",
-            )
     }
+
+    setAllowInsecureRegistries(true)
 }

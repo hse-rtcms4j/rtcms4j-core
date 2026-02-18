@@ -17,10 +17,6 @@ class SecurityConfig {
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(CorsUtils::isPreFlightRequest)
-                    .permitAll()
-                    .requestMatchers(HttpMethod.OPTIONS, "/**")
-                    .permitAll()
                     .requestMatchers("/actuator/health")
                     .permitAll()
                     .anyRequest()

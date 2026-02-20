@@ -54,7 +54,9 @@ fun ConfigCommitEntity.toService(
     applicationId: Long,
     configurationId: Long,
 ) = ConfigurationCommit(
+    createdAt = createdAt,
     id = id,
+    schemaId = configSchemaId,
     namespaceId = namespaceId,
     applicationId = applicationId,
     configurationId = configurationId,
@@ -69,7 +71,9 @@ fun ConfigCommitDetailedEntity.toService(
     configurationId: Long,
     jsonSchema: String,
 ) = ConfigurationCommitDetailed(
+    createdAt = createdAt,
     id = id,
+    schemaId = configSchemaId,
     namespaceId = namespaceId,
     applicationId = applicationId,
     configurationId = configurationId,

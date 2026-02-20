@@ -2,10 +2,8 @@ package ru.enzhine.rtcms4j.core.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.web.cors.CorsUtils
 import ru.enzhine.rtcms4j.core.security.JwtKeycloakPrincipalConverter
 
 @Configuration
@@ -17,10 +15,6 @@ class SecurityConfig {
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(CorsUtils::isPreFlightRequest)
-                    .permitAll()
-                    .requestMatchers(HttpMethod.OPTIONS, "/**")
-                    .permitAll()
                     .requestMatchers("/actuator/health")
                     .permitAll()
                     .anyRequest()

@@ -62,10 +62,12 @@ tasks {
 jib {
     from {
         image = "eclipse-temurin:21-jre-alpine"
+//        image = "docker://eclipse-temurin:21-jre-alpine"
     }
 
     to {
         image = "ghcr.io/hse-rtcms4j/${project.name.lowercase()}"
+//        image = "local/${project.name.lowercase()}"
         tags =
             setOf(
                 project.version.toString(),

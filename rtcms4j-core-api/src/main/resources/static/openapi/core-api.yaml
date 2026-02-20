@@ -1786,14 +1786,19 @@ components:
     ConfigurationCommitDto:
       type: object
       required:
+        - createdAt
         - namespaceId
         - applicationId
         - configurationId
+        - commitSchemaId
         - commitId
         - commitVersion
         - sourceType
         - sourceIdentity
       properties:
+        createdAt:
+          type: string
+          format: date-time
         namespaceId:
           type: integer
           format: int64
@@ -1801,6 +1806,9 @@ components:
           type: integer
           format: int64
         configurationId:
+          type: integer
+          format: int64
+        commitSchemaId:
           type: integer
           format: int64
         commitId:

@@ -83,9 +83,11 @@ fun ApiSourceType.toService() =
 
 fun ConfigurationCommit.toApi() =
     ConfigurationCommitDto(
+        createdAt,
         namespaceId,
         applicationId,
         configurationId,
+        schemaId,
         id,
         version,
         sourceType.toApi(),
@@ -94,9 +96,11 @@ fun ConfigurationCommit.toApi() =
 
 fun ConfigurationCommitDetailed.toApi() =
     ConfigurationCommitDetailedDto(
+        createdAt,
         namespaceId,
         applicationId,
         configurationId,
+        schemaId,
         id,
         version,
         sourceType.toApi(),

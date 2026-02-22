@@ -49,6 +49,10 @@ tasks {
         enabled = false
     }
 
+    jreleaser {
+        enabled = false
+    }
+
     test {
         // junit fix
         useJUnitPlatform()

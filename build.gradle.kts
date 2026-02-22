@@ -77,41 +77,6 @@ subprojects {
         mavenLocal()
         mavenCentral()
     }
-
-    mavenPublishing {
-        publishToMavenCentral()
-        signAllPublications()
-    }
-
-    mavenPublishing {
-        coordinates(groupId, rootProject.name, versionId)
-
-        pom {
-            name.set(rootProject.name)
-            description.set(rootProject.description)
-            inceptionYear.set(LocalDateTime.now().year.toString())
-            url.set("https://github.com/hse-rtcms4j/rtcms4j-core/actions")
-            licenses {
-                license {
-                    name.set("The Apache License, Version 2.0")
-                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                }
-            }
-            developers {
-                developer {
-                    id.set("Enzhine")
-                    name.set("Onar")
-                    url.set("https://github.com/enzhine/")
-                }
-            }
-            scm {
-                url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
-                connection.set("scm:git:git://github.com/hse-rtcms4j/rtcms4j-core.git")
-                developerConnection.set("scm:git:ssh://git@github.com/hse-rtcms4j/rtcms4j-core.git")
-            }
-        }
-    }
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {

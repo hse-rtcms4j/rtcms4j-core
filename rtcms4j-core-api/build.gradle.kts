@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import java.time.LocalDateTime
 
 apply {
     plugin("org.openapi.generator")
@@ -108,8 +109,45 @@ tasks {
     jar {
         enabled = true
     }
+}
 
-    publishToMavenCentral {
-        enabled = true
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+}
+
+val groupId: String by rootProject
+
+val versionIdNumber: String by rootProject
+val versionIdStatus: String by rootProject
+val versionId: String = if (versionIdStatus.isEmpty()) versionIdNumber else "$versionIdNumber-$versionIdStatus"
+
+mavenPublishing {
+    coordinates(groupId, project.name, versionId)
+
+    pom {
+        name.set(rootProject.name)
+        description.set(rootProject.description)
+        inceptionYear.set(LocalDateTime.now().year.toString())
+        url.set("https://github.com/hse-rtcms4j/rtcms4j-core/actions")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("Enzhine")
+                name.set("Onar")
+                url.set("https://github.com/enzhine/")
+            }
+        }
+        scm {
+            url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+            connection.set("scm:git:git://github.com/hse-rtcms4j/rtcms4j-core.git")
+            developerConnection.set("scm:git:ssh://git@github.com/hse-rtcms4j/rtcms4j-core.git")
+        }
     }
 }

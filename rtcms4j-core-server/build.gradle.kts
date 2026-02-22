@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.invoke
+
 apply {
     plugin("org.springframework.boot")
     plugin("com.google.cloud.tools.jib")
@@ -42,10 +44,6 @@ tasks {
     }
 
     jar {
-        enabled = false
-    }
-
-    publishToMavenCentral {
         enabled = false
     }
 

@@ -112,8 +112,12 @@ jreleaser {
     }
 
     project {
+        name = project.name
+        description = project.description
+
         inceptionYear.set("2026")
         authors.set(listOf("Onar"))
+
         license.set("Apache-2.0")
         links {
             homepage.set("https://github.com/hse-rtcms4j/rtcms4j-core")

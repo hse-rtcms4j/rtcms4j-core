@@ -76,14 +76,6 @@ tasks.openApiGenerate {
     openapiGeneratorIgnoreList = listOf("**/ApiUtil.java", "**/EnumConverterConfiguration.java")
 }
 
-tasks.runKtlintCheckOverMainSourceSet {
-    enabled = false
-}
-
-tasks.compileKotlin {
-    dependsOn(tasks.openApiGenerate)
-}
-
 sourceSets {
     main {
         java {
@@ -92,10 +84,28 @@ sourceSets {
     }
 }
 
-tasks.bootJar {
-    enabled = false
-}
+tasks {
+    runKtlintCheckOverMainSourceSet {
+        enabled = false
+    }
 
-tasks.jar {
-    enabled = true
+    compileKotlin {
+        dependsOn(openApiGenerate)
+    }
+
+    bootJar {
+        enabled = false
+    }
+
+    jar {
+        enabled = true
+    }
+
+    withType<PublishToMavenRepository> {
+        enabled = true
+    }
+
+    jreleaser {
+        enabled = true
+    }
 }

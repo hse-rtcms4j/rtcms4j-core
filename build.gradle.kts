@@ -125,41 +125,38 @@ subprojects {
             }
         }
     }
-}
 
-jreleaser {
-    project {
-        inceptionYear.set("2026")
-        authors.set(listOf("Onar"))
+    jreleaser {
+        project {
+            inceptionYear.set("2026")
+            authors.set(listOf("Onar"))
 
-        license.set("Apache-2.0")
-        links {
-            homepage.set("https://github.com/hse-rtcms4j/rtcms4j-core")
-            documentation.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+            license.set("Apache-2.0")
+            links {
+                homepage.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+                documentation.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+            }
         }
-        java {
-            groupId = "ru.enzhine"
+        release {
+            github {
+                skipRelease = true
+            }
         }
-    }
-    release {
-        github {
-            skipRelease = true
+        signing {
+            active = Active.ALWAYS
+            armored = true
+            verify = true
         }
-    }
-    signing {
-        active = Active.ALWAYS
-        armored = true
-        verify = true
-    }
-    deploy {
-        maven {
-            mavenCentral.create("sonatype") {
-                namespace = "ru.enzhine"
-                active = Active.ALWAYS
-                url = "https://central.sonatype.com/api/v1/publisher"
-                stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
-                setAuthorization("Basic")
-                retryDelay = 60
+        deploy {
+            maven {
+                mavenCentral.create("sonatype") {
+                    namespace = "ru.enzhine"
+                    active = Active.ALWAYS
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
+                    setAuthorization("Basic")
+                    retryDelay = 60
+                }
             }
         }
     }

@@ -112,8 +112,8 @@ jreleaser {
     }
 
     project {
-        name = project.name
-        description = project.description
+        name = rootProject.name
+        description = rootProject.description
 
         inceptionYear.set("2026")
         authors.set(listOf("Onar"))

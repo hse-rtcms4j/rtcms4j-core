@@ -38,8 +38,11 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: ./gradlew publish
       env:
-        GITHUB_ACTOR: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
     - name: Login to GHCR
       uses: docker/login-action@v2

@@ -1,16 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import java.net.URI
-
-fun RepositoryHandler.github(repo: String) = maven {
-    name = "GitHubPackages"
-    url = URI.create("https://maven.pkg.github.com/$repo")
-    credentials {
-        // picks from: .../user/.gradle/gradle.properties
-        username = System.getenv("GITHUB_ACTOR") ?: findProperty("GITHUB_LOGIN") as String?
-        password = System.getenv("GITHUB_TOKEN") ?: findProperty("GITHUB_TOKEN") as String?
-    }
-}
 
 plugins {
     kotlin("jvm") apply false
@@ -19,8 +8,9 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") apply false
     id("org.openapi.generator") apply false
     id("io.spring.dependency-management")
-    id("maven-publish")
     id("com.google.cloud.tools.jib") apply false
+    id("maven-publish")
+    id("signing")
 }
 
 subprojects {
@@ -33,6 +23,7 @@ subprojects {
         plugin("org.springframework.boot")
         plugin("maven-publish")
         plugin("com.google.cloud.tools.jib")
+        plugin("signing")
     }
 
     val groupId: String by project
@@ -94,11 +85,54 @@ subprojects {
                 this.artifactId = project.name
                 this.version = versionId
                 from(components["java"])
+
+                pom {
+                    name.set(project.name)
+                    description.set("RTCMS4J Core-Api library")
+                    url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("Enzhine")
+                            name.set("Onar")
+                            email.set("shamaevonar@gmail.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:git://github.com/hse-rtcms4j/rtcms4j-core.git")
+                        developerConnection.set("scm:git:ssh://github.com/hse-rtcms4j/rtcms4j-core.git")
+                        url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+                    }
+                }
             }
         }
         repositories {
-            github("hse-rtcms4j/rtcms4j-core")
+            maven {
+                name = "OSSRH"
+                url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                credentials {
+                    username = System.getenv("OSSRH_USERNAME") ?: findProperty("ossrhUsername") as String?
+                    password = System.getenv("OSSRH_PASSWORD") ?: findProperty("ossrhPassword") as String?
+                }
+            }
         }
+    }
+
+    signing {
+        useInMemoryPgpKeys(
+            System.getenv("GPG_KEY_ID") ?: findProperty("signing.keyId") as String?,
+            System.getenv("GPG_PRIVATE_KEY") ?: findProperty("signing.privateKey") as String?,
+            System.getenv("GPG_PASSPHRASE") ?: findProperty("signing.password") as String?
+        )
+        sign(publishing.publications["maven"])
     }
 }
 

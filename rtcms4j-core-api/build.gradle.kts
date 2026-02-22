@@ -84,13 +84,13 @@ sourceSets {
     }
 }
 
+tasks.kotlinSourcesJar {
+    dependsOn(tasks.openApiGenerate)
+}
+
 tasks {
     runKtlintCheckOverMainSourceSet {
         enabled = false
-    }
-
-    compileKotlin {
-        dependsOn(openApiGenerate)
     }
 
     bootJar {
@@ -101,11 +101,7 @@ tasks {
         enabled = true
     }
 
-    withType<PublishToMavenRepository> {
-        enabled = true
-    }
-
-    jreleaser {
+    publishToMavenCentral {
         enabled = true
     }
 }

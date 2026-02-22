@@ -34,7 +34,7 @@ jobs:
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Publish to GitHub Packages
+    - name: Publish to Maven Central
       if: github.ref == 'refs/heads/main'
       run: |
         ./gradlew clean publish

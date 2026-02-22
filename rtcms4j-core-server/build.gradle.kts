@@ -45,11 +45,7 @@ tasks {
         enabled = false
     }
 
-    withType<PublishToMavenRepository> {
-        enabled = false
-    }
-
-    jreleaser {
+    publishToMavenCentral {
         enabled = false
     }
 

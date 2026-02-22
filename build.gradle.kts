@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import org.jreleaser.model.Active
+import org.joda.time.LocalDateTime
+import kotlin.time.Instant
 
 plugins {
     base
@@ -12,7 +13,7 @@ plugins {
     id("io.spring.dependency-management")
     id("com.google.cloud.tools.jib") apply false
     id("maven-publish")
-    id("org.jreleaser")
+    id("com.vanniktech.maven.publish")
 }
 
 subprojects {
@@ -25,7 +26,7 @@ subprojects {
         plugin("org.springframework.boot")
         plugin("maven-publish")
         plugin("com.google.cloud.tools.jib")
-        plugin("org.jreleaser")
+        plugin("com.vanniktech.maven.publish")
     }
 
     val groupId: String by project
@@ -80,85 +81,37 @@ subprojects {
         mavenCentral()
     }
 
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-
-                this.groupId = groupId
-                this.artifactId = project.name
-                this.version = versionId
-
-                pom {
-                    name.set(project.name)
-                    description.set("RTCMS4J Core-Api library")
-                    url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
-
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set("Enzhine")
-                            name.set("Onar")
-                            email.set("shamaevonar@gmail.com")
-                        }
-                    }
-
-                    scm {
-                        connection.set("scm:git:git://github.com/hse-rtcms4j/rtcms4j-core.git")
-                        developerConnection.set("scm:git:ssh://github.com/hse-rtcms4j/rtcms4j-core.git")
-                        url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
-                    }
-                }
-            }
-        }
-
-        repositories {
-            maven {
-                name = "staging"
-                url = uri(layout.buildDirectory.dir("staging-deploy"))
-            }
-        }
+    mavenPublishing {
+        publishToMavenCentral()
+        signAllPublications()
     }
 
-    jreleaser {
-        project {
-            inceptionYear.set("2026")
-            authors.set(listOf("Onar"))
-            license.set("Apache-2.0")
-            links {
-                homepage.set("https://github.com/hse-rtcms4j/rtcms4j-core")
-                documentation.set("https://github.com/hse-rtcms4j/rtcms4j-core")
-            }
+    mavenPublishing {
+        coordinates(groupId, rootProject.name, versionId)
 
-            java.groupId = groupId
-            version = versionId
-        }
-        release {
-            github {
-                skipRelease = true
-            }
-        }
-        signing {
-            active = Active.ALWAYS
-            armored = true
-            verify = true
-        }
-        deploy {
-            maven {
-                mavenCentral.create("sonatype") {
-                    namespace = "ru.enzhine"
-                    active = Active.ALWAYS
-                    url = "https://central.sonatype.com/api/v1/publisher"
-                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
-                    setAuthorization("Basic")
-                    retryDelay = 60
+        pom {
+            name.set(rootProject.name)
+            description.set(rootProject.description)
+            inceptionYear.set(LocalDateTime.now().year.toString())
+            url.set("https://github.com/hse-rtcms4j/rtcms4j-core/actions")
+            licenses {
+                license {
+                    name.set("The Apache License, Version 2.0")
+                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
                 }
+            }
+            developers {
+                developer {
+                    id.set("Enzhine")
+                    name.set("Onar")
+                    url.set("https://github.com/enzhine/")
+                }
+            }
+            scm {
+                url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+                connection.set("scm:git:git://github.com/hse-rtcms4j/rtcms4j-core.git")
+                developerConnection.set("scm:git:ssh://git@github.com/hse-rtcms4j/rtcms4j-core.git")
             }
         }
     }

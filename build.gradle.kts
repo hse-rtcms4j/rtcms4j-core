@@ -138,7 +138,7 @@ jreleaser {
             documentation.set("https://github.com/hse-rtcms4j/rtcms4j-core")
         }
         java {
-            groupId.set("ru.enzhine")
+            groupId = "ru.enzhine"
         }
     }
     release {
@@ -154,6 +154,7 @@ jreleaser {
     deploy {
         maven {
             mavenCentral.create("sonatype") {
+                namespace = "ru.enzhine"
                 active = Active.ALWAYS
                 url = "https://central.sonatype.com/api/v1/publisher"
                 stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())

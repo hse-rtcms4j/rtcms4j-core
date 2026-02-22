@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import org.joda.time.LocalDateTime
-import kotlin.time.Instant
+import java.time.LocalDateTime
 
 plugins {
     base
@@ -10,9 +9,8 @@ plugins {
     id("org.springframework.boot") apply false
     id("org.jlleitschuh.gradle.ktlint") apply false
     id("org.openapi.generator") apply false
-    id("io.spring.dependency-management")
     id("com.google.cloud.tools.jib") apply false
-    id("maven-publish")
+    id("io.spring.dependency-management")
     id("com.vanniktech.maven.publish")
 }
 
@@ -24,7 +22,6 @@ subprojects {
         plugin("org.jlleitschuh.gradle.ktlint")
         plugin("org.openapi.generator")
         plugin("org.springframework.boot")
-        plugin("maven-publish")
         plugin("com.google.cloud.tools.jib")
         plugin("com.vanniktech.maven.publish")
     }

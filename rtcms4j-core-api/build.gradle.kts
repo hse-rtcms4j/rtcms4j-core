@@ -84,11 +84,19 @@ sourceSets {
     }
 }
 
-tasks.kotlinSourcesJar {
-    dependsOn(tasks.openApiGenerate)
+plugins.withId("com.vanniktech.maven.publish") {
+    afterEvaluate {
+        tasks
+            .findByName("sourcesJar")
+            ?.dependsOn("openApiGenerate")
+    }
 }
 
 tasks {
+    compileKotlin {
+        dependsOn(openApiGenerate)
+    }
+
     runKtlintCheckOverMainSourceSet {
         enabled = false
     }

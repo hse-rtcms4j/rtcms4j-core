@@ -6,6 +6,7 @@ pluginManagement {
         val ktlintVersion: String by settings
         val openapiGeneratorVersion: String by settings
         val jibVersion: String by settings
+        val jReleaserVersion: String by settings
 
         kotlin("jvm") version jvmPluginVersion
         kotlin("plugin.spring") version jvmPluginVersion
@@ -14,6 +15,7 @@ pluginManagement {
         id("org.jlleitschuh.gradle.ktlint") version ktlintVersion
         id("org.openapi.generator") version openapiGeneratorVersion
         id("com.google.cloud.tools.jib") version jibVersion
+        id("org.jreleaser") version jReleaserVersion
     }
 
     repositories {

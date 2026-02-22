@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
+    base
     kotlin("jvm") apply false
     kotlin("plugin.spring") apply false
     id("org.springframework.boot") apply false
@@ -10,7 +11,7 @@ plugins {
     id("io.spring.dependency-management")
     id("com.google.cloud.tools.jib") apply false
     id("maven-publish")
-    id("signing")
+    id("org.jreleaser")
 }
 
 subprojects {
@@ -23,7 +24,7 @@ subprojects {
         plugin("org.springframework.boot")
         plugin("maven-publish")
         plugin("com.google.cloud.tools.jib")
-        plugin("signing")
+        plugin("org.jreleaser")
     }
 
     val groupId: String by project
@@ -116,23 +117,18 @@ subprojects {
         }
         repositories {
             maven {
-                name = "ossrh-staging-api"
-                url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-                credentials {
-                    username = System.getenv("OSSRH_USERNAME") ?: findProperty("ossrhUsername") as String?
-                    password = System.getenv("OSSRH_PASSWORD") ?: findProperty("ossrhPassword") as String?
-                }
+                name = "staging"
+                url = uri(layout.buildDirectory.dir("staging-deploy"))
             }
         }
     }
+}
 
-    signing {
-        useInMemoryPgpKeys(
-            System.getenv("GPG_KEY_ID") ?: findProperty("signing.keyId") as String?,
-            System.getenv("GPG_PRIVATE_KEY") ?: findProperty("signing.privateKey") as String?,
-            System.getenv("GPG_PASSPHRASE") ?: findProperty("signing.password") as String?
-        )
-        sign(publishing.publications["maven"])
+jreleaser {
+    release {
+        github {
+            enabled = false
+        }
     }
 }
 

@@ -143,7 +143,7 @@ jreleaser {
     }
     release {
         github {
-            enabled = false
+            skipRelease = true
         }
     }
     signing {

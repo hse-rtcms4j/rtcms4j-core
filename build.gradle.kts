@@ -83,10 +83,38 @@ subprojects {
     publishing {
         publications {
             create<MavenPublication>("maven") {
+                from(components["java"])
+
                 this.groupId = groupId
                 this.artifactId = project.name
                 this.version = versionId
-                from(components["java"])
+
+                pom {
+                    name.set(project.name)
+                    description.set("RTCMS4J Core-Api library")
+                    url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("Enzhine")
+                            name.set("Onar")
+                            email.set("shamaevonar@gmail.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:git://github.com/hse-rtcms4j/rtcms4j-core.git")
+                        developerConnection.set("scm:git:ssh://github.com/hse-rtcms4j/rtcms4j-core.git")
+                        url.set("https://github.com/hse-rtcms4j/rtcms4j-core")
+                    }
+                }
             }
         }
 
@@ -100,21 +128,7 @@ subprojects {
 }
 
 jreleaser {
-    signing {
-        active = Active.ALWAYS
-        armored = true
-        verify = true
-        mode = org.jreleaser.model.Signing.Mode.MEMORY
-
-        passphrase.set(System.getenv("JRELEASER_GPG_PASSPHRASE"))
-        publicKey.set(System.getenv("JRELEASER_GPG_PUBLIC_KEY"))
-        secretKey.set(System.getenv("JRELEASER_GPG_SECRET_KEY"))
-    }
-
     project {
-        name = rootProject.name
-        description = rootProject.description
-
         inceptionYear.set("2026")
         authors.set(listOf("Onar"))
 
@@ -124,26 +138,25 @@ jreleaser {
             documentation.set("https://github.com/hse-rtcms4j/rtcms4j-core")
         }
     }
-
+    release {
+        github {
+            enabled = false
+        }
+    }
+    signing {
+        active = Active.ALWAYS
+        armored = true
+        verify = true
+    }
     deploy {
         maven {
             mavenCentral.create("sonatype") {
                 active = Active.ALWAYS
                 url = "https://central.sonatype.com/api/v1/publisher"
                 stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
-
-                username.set(System.getenv("JRELEASER_MAVENCENTRAL_USERNAME"))
-                password.set(System.getenv("JRELEASER_MAVENCENTRAL_TOKEN"))
-                applyMavenCentralRules.set(true)
-
+                setAuthorization("Basic")
                 retryDelay = 60
             }
-        }
-    }
-
-    release {
-        github {
-            enabled = false
         }
     }
 }

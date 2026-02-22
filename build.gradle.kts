@@ -137,9 +137,8 @@ jreleaser {
             homepage.set("https://github.com/hse-rtcms4j/rtcms4j-core")
             documentation.set("https://github.com/hse-rtcms4j/rtcms4j-core")
         }
-
         java {
-            groupId = group as String
+            groupId.set("ru.enzhine")
         }
     }
     release {

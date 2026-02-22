@@ -116,8 +116,8 @@ subprojects {
         }
         repositories {
             maven {
-                name = "MavenCentral"
-                url = uri("https://central.sonatype.com/api/v1/publisher/upload")
+                name = "ossrh-staging-api"
+                url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
                 credentials {
                     username = System.getenv("OSSRH_USERNAME") ?: findProperty("ossrhUsername") as String?
                     password = System.getenv("OSSRH_PASSWORD") ?: findProperty("ossrhPassword") as String?

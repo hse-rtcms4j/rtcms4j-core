@@ -1,6 +1,7 @@
 package ru.enzhine.rtcms4j.core.service.internal
 
 import org.springframework.cache.annotation.CacheEvict
+import org.springframework.context.annotation.Lazy
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Page
@@ -15,6 +16,7 @@ import ru.enzhine.rtcms4j.core.builder.newNamespaceEntity
 import ru.enzhine.rtcms4j.core.builder.userNotFoundException
 import ru.enzhine.rtcms4j.core.config.CacheConfig
 import ru.enzhine.rtcms4j.core.config.props.DefaultPaginationProperties
+import ru.enzhine.rtcms4j.core.exception.ConditionFailureException
 import ru.enzhine.rtcms4j.core.mapper.toService
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceAdminEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepository
@@ -30,6 +32,8 @@ class NamespaceServiceImpl(
     private val namespaceAdminEntityRepository: NamespaceAdminEntityRepository,
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val keycloakService: KeycloakService,
+    @param:Lazy
+    private val applicationService: ApplicationService,
 ) : NamespaceService {
     override fun createNamespace(
         creator: UUID,
@@ -101,7 +105,32 @@ class NamespaceServiceImpl(
         return namespaceEntityRepository.findAllByName(name, pageable).map { it.toService() }
     }
 
-    override fun deleteNamespace(namespaceId: Long): Boolean = namespaceEntityRepository.removeById(namespaceId)
+    @Transactional
+    override fun deleteNamespace(namespaceId: Long): Boolean {
+        val pageSize = Int.MAX_VALUE
+        var currentPage = 0
+        var totalPages: Int
+        do {
+            val pageable = PageRequest.of(currentPage, pageSize)
+            val pagedModel = applicationService.findApplications(namespaceId, null, pageable)
+            pagedModel.content.forEach {
+                val deleted = applicationService.deleteApplication(namespaceId, it.id)
+                if (!deleted) {
+                    throw ConditionFailureException(
+                        message =
+                            "Namespace $namespaceId deletion process failed, " +
+                                "due to subordinary application ${it.id} deleteion failure. Try again.",
+                        cause = null,
+                        detailCode = null,
+                    )
+                }
+            }
+
+            totalPages = pagedModel.totalPages
+        } while (currentPage++ < totalPages)
+
+        return namespaceEntityRepository.removeById(namespaceId)
+    }
 
     override fun listAdmins(namespaceId: Long): List<UserRole> {
         val namespaceEntity =

@@ -49,3 +49,13 @@ keycloak:
   admin:
     client-id: rtcms4j-admin
     client-secret: 3OWjIdxNVcaGZP5PcXR6uxpIVXtmfDFi
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      probes:
+        enabled: true

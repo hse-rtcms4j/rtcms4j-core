@@ -15,7 +15,7 @@ class SecurityConfig {
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/actuator/health")
+                    .requestMatchers("/actuator/health/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated()

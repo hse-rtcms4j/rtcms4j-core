@@ -74,6 +74,18 @@ jobs:
           echo "publish_api=$PUBLISH_API" >> $GITHUB_OUTPUT
           echo "publish_docker=$PUBLISH_DOCKER" >> $GITHUB_OUTPUT
 
+  debug-outputs:
+    name: Debug Outputs
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check outputs
+        run: |
+          echo "publish_api: ${{ needs.build.outputs.publish_api }}"
+          echo "publish_docker: ${{ needs.build.outputs.publish_docker }}"
+          echo "Condition result: ${{ github.ref == 'refs/heads/main' && needs.build.outputs.publish_docker == 'true' }}"
+
   publish-maven-central:
     name: Publish to Maven Central
     needs: build

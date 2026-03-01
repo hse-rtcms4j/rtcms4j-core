@@ -57,6 +57,10 @@ tasks {
     }
 }
 
+val versionIdNumber: String by project
+val versionIdStatus: String by project
+val versionId: String = if (versionIdStatus.isEmpty()) versionIdNumber else "$versionIdNumber-$versionIdStatus"
+
 jib {
     from {
         image = "eclipse-temurin:21-jre-alpine"
@@ -68,7 +72,7 @@ jib {
 //        image = "local/${project.name.lowercase()}"
         tags =
             setOf(
-                project.version.toString(),
+                versionId,
                 "latest",
             )
 

@@ -50,19 +50,27 @@ jobs:
           PUBLISH_API=true
           PUBLISH_DOCKER=true
           
-          if [[ "${{ github.event.head_commit.message }}" == *"[skip api]"* ]]; then
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          echo "Commit message: $COMMIT_MSG"
+          
+          if [[ "$COMMIT_MSG" == *"[skip api]"* ]]; then
             PUBLISH_API=false
+            echo "Found [skip api] - setting PUBLISH_API=false"
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"[skip docker]"* ]]; then
+          if [[ "$COMMIT_MSG" == *"[skip docker]"* ]]; then
             PUBLISH_DOCKER=false
+            echo "Found [skip docker] - setting PUBLISH_DOCKER=false"
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"[publish only api]"* ]]; then
+          if [[ "$COMMIT_MSG" == *"[publish only api]"* ]]; then
             PUBLISH_DOCKER=false
+            echo "Found [publish only api] - setting PUBLISH_DOCKER=false"
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"[publish only docker]"* ]]; then
+          if [[ "$COMMIT_MSG" == *"[publish only docker]"* ]]; then
             PUBLISH_API=false
+            echo "Found [publish only docker] - setting PUBLISH_API=false"
           fi
           
+          echo "Final values: PUBLISH_API=$PUBLISH_API, PUBLISH_DOCKER=$PUBLISH_DOCKER"
           echo "publish_api=$PUBLISH_API" >> $GITHUB_OUTPUT
           echo "publish_docker=$PUBLISH_DOCKER" >> $GITHUB_OUTPUT
 

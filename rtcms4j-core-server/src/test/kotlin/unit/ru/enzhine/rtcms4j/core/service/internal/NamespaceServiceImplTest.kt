@@ -24,6 +24,7 @@ import ru.enzhine.rtcms4j.core.repository.db.NamespaceEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
+import ru.enzhine.rtcms4j.core.service.internal.ApplicationService
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceServiceImpl
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
 import java.time.OffsetDateTime
@@ -40,6 +41,9 @@ class NamespaceServiceImplTest {
 
     @Mock
     lateinit var keycloakService: KeycloakService
+
+    @Mock
+    lateinit var applicationService: ApplicationService
 
     @Spy
     val defaultPaginationProperties = DefaultPaginationProperties(10)
@@ -300,6 +304,14 @@ class NamespaceServiceImplTest {
     fun deleteNamespace_notDeleted_false() {
         val namespaceId = 1L
 
+        `when`(
+            applicationService.findApplications(
+                eq(namespaceId),
+                eq(null),
+                any(),
+            ),
+        ).thenReturn(PageImpl(emptyList()))
+
         `when`(namespaceEntityRepository.removeById(namespaceId)).thenReturn(false)
         val actual = namespaceService.deleteNamespace(namespaceId)
 
@@ -310,6 +322,14 @@ class NamespaceServiceImplTest {
     @Test
     fun deleteNamespace_deleted_true() {
         val namespaceId = 1L
+
+        `when`(
+            applicationService.findApplications(
+                eq(namespaceId),
+                eq(null),
+                any(),
+            ),
+        ).thenReturn(PageImpl(emptyList()))
 
         `when`(namespaceEntityRepository.removeById(namespaceId)).thenReturn(true)
         val actual = namespaceService.deleteNamespace(namespaceId)

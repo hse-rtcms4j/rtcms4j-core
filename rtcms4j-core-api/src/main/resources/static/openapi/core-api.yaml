@@ -44,11 +44,18 @@ paths:
           required: false
           schema:
             type: string
-        - name: pageable
+        - name: page
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Pageable'
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -371,11 +378,18 @@ paths:
           required: false
           schema:
             type: string
-        - name: pageable
+        - name: page
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Pageable'
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -844,11 +858,18 @@ paths:
           required: false
           schema:
             type: string
-        - name: pageable
+        - name: page
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Pageable'
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -1086,11 +1107,18 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: pageable
+        - name: page
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Pageable'
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -1340,11 +1368,18 @@ paths:
           required: false
           schema:
             type: string
-        - name: pageable
+        - name: page
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Pageable'
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -1375,11 +1410,18 @@ paths:
           required: false
           schema:
             type: string
-        - name: pageable
+        - name: page
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Pageable'
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -1438,17 +1480,6 @@ components:
             $ref: '#/components/schemas/ErrorResponseDto'
 
   schemas:
-    Pageable:
-      description: minimal Pageable query parameters
-      type: object
-      properties:
-        page:
-          type: integer
-          format: int64
-        size:
-          type: integer
-          format: int64
-
     PageMetadata:
       type: object
       required:

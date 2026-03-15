@@ -1,6 +1,6 @@
 package ru.enzhine.rtcms4j.core.controller
 
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -52,7 +52,8 @@ class CoreController(
     @Logged
     override fun findAvailableNamespaces(
         name: String?,
-        pageable: Pageable?,
+        page: Int?,
+        size: Int?,
     ): ResponseEntity<PagedModel<NamespaceDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -60,6 +61,13 @@ class CoreController(
                 .badRequest()
                 .build()
         }
+
+        val pageable =
+            if (page != null && size != null) {
+                PageRequest.of(page, size)
+            } else {
+                null
+            }
 
         val responseBody =
             PagedModel(
@@ -78,7 +86,8 @@ class CoreController(
     @Logged
     override fun findAvailableApplications(
         name: String?,
-        pageable: Pageable?,
+        page: Int?,
+        size: Int?,
     ): ResponseEntity<PagedModel<ApplicationDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
@@ -86,6 +95,13 @@ class CoreController(
                 .badRequest()
                 .build()
         }
+
+        val pageable =
+            if (page != null && size != null) {
+                PageRequest.of(page, size)
+            } else {
+                null
+            }
 
         val responseBody =
             PagedModel(
@@ -177,12 +193,20 @@ class CoreController(
     @Logged
     override fun findAllNamespaces(
         name: String?,
-        pageable: Pageable?,
+        page: Int?,
+        size: Int?,
     ): ResponseEntity<PagedModel<NamespaceDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToAllNamespaces(keycloakPrincipal)) {
             throw forbiddenAccessException("At least Super-Admin access required.")
         }
+
+        val pageable =
+            if (page != null && size != null) {
+                PageRequest.of(page, size)
+            } else {
+                null
+            }
 
         val responseBody =
             PagedModel(
@@ -371,12 +395,20 @@ class CoreController(
     override fun findAllApplications(
         nid: Long,
         name: String?,
-        pageable: Pageable?,
+        page: Int?,
+        size: Int?,
     ): ResponseEntity<PagedModel<ApplicationDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToNamespace(keycloakPrincipal, nid)) {
             throw forbiddenAccessException("At least Namespace-Admin access required.")
         }
+
+        val pageable =
+            if (page != null && size != null) {
+                PageRequest.of(page, size)
+            } else {
+                null
+            }
 
         val responseBody =
             PagedModel(
@@ -640,12 +672,20 @@ class CoreController(
         nid: Long,
         aid: Long,
         name: String?,
-        pageable: Pageable?,
+        page: Int?,
+        size: Int?,
     ): ResponseEntity<PagedModel<ConfigurationDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToConfigurations(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager or Application-Client access required.")
         }
+
+        val pageable =
+            if (page != null && size != null) {
+                PageRequest.of(page, size)
+            } else {
+                null
+            }
 
         val responseBody =
             PagedModel(
@@ -779,12 +819,20 @@ class CoreController(
         nid: Long,
         aid: Long,
         cid: Long,
-        pageable: Pageable?,
+        page: Int?,
+        size: Int?,
     ): ResponseEntity<PagedModel<ConfigurationCommitDto>> {
         val keycloakPrincipal = currentPrincipal()
         if (!accessControlService.hasAccessToApplication(keycloakPrincipal, nid, aid)) {
             throw forbiddenAccessException("At least Application-Manager access required.")
         }
+
+        val pageable =
+            if (page != null && size != null) {
+                PageRequest.of(page, size)
+            } else {
+                null
+            }
 
         val responseBody =
             PagedModel(

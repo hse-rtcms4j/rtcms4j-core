@@ -7,7 +7,7 @@ data class NotificationEvent(
     val configUpdatedEvent: ConfigUpdatedEvent?,
 ) {
     data class SecretRotatedEvent(
-        val newSecret: String,
+        val newSecret: String?,
     )
 
     data class ConfigUpdatedEvent(

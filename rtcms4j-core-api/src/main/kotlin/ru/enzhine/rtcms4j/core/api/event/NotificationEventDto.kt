@@ -7,7 +7,7 @@ data class NotificationEventDto(
     val configurationUpdatedEvent: ConfigurationUpdatedEventDto?,
 ) {
     data class SecretRotatedEventDto(
-        val newSecret: String,
+        val newSecret: String?,
     )
 
     data class ConfigurationUpdatedEventDto(

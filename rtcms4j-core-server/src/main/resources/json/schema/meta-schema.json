@@ -10,6 +10,23 @@
     "$id":      { "type": "string" },
     "title":    { "type": "string" },
     "description": { "type": "string" },
+    "$defs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": { "enum": ["string", "integer", "number"] },
+          "enum": {
+            "type": "array",
+            "items": {
+              "type": ["string", "number", "integer", "null"]
+            }
+          }
+        },
+        "required": ["type", "enum"],
+        "additionalProperties": false
+      }
+    },
 
     "type": {
       "const": "object"
@@ -78,11 +95,30 @@
         },
         {
           "type": "object",
-          "description": "Array of primitive values",
+          "description": "Reference to enum or array of primitive values",
+          "properties": {
+            "$ref": { "type": "string" }
+          },
+          "required": ["$ref"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "description": "Array of primitive values or enums",
           "properties": {
             "type": { "const": "array" },
             "items": {
-              "$ref": "#/$defs/primitiveSchemaBase"
+              "anyOf": [
+                { "$ref": "#/$defs/primitiveSchemaBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "$ref": { "type": "string" }
+                  },
+                  "required": ["$ref"],
+                  "additionalProperties": false
+                }
+              ]
             },
             "description": { "type": "string" },
             "title": { "type": "string" },
@@ -103,7 +139,6 @@
         {
           "not": {
             "anyOf": [
-              { "required": ["$ref"] },
               { "required": ["oneOf"] },
               { "required": ["anyOf"] },
               { "required": ["allOf"] },

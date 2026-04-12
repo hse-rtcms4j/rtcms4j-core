@@ -193,19 +193,21 @@ class ApplicationServiceImpl(
         val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
         val keycloakClient = keycloakService.rotateApplicationClientPassword(clientId)
 
-        if (propagate) {
-            propagateSecretRotation(namespaceId, applicationId, keycloakClient.clientSecret)
-        }
+        sendSecretRotationNotification(
+            namespaceId = namespaceId,
+            applicationId = applicationId,
+            newSecret = if (propagate) keycloakClient.clientSecret else null,
+        )
 
         return keycloakClient.toService()
     }
 
-    private fun propagateSecretRotation(
+    private fun sendSecretRotationNotification(
         namespaceId: Long,
         applicationId: Long,
-        newSecret: String,
+        newSecret: String?,
     ) = try {
-        notifyEventProducer.publishEvent(
+        val event =
             NotificationEvent(
                 namespaceId = namespaceId,
                 applicationId = applicationId,
@@ -214,8 +216,8 @@ class ApplicationServiceImpl(
                     NotificationEvent.SecretRotatedEvent(
                         newSecret = newSecret,
                     ),
-            ),
-        )
+            )
+        notifyEventProducer.publishEvent(event)
     } catch (ex: Throwable) {
         logger.error("Unable to publish pub/sub secret rotation event for application with id $applicationId", ex)
     }

@@ -7,6 +7,7 @@ import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigSchemaDetailedEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.ConfigurationEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceAdminEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.NamespaceEntity
+import ru.enzhine.rtcms4j.core.repository.db.dto.OutboxTaskKcClientEntity
 import ru.enzhine.rtcms4j.core.repository.db.dto.SourceType
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -115,4 +116,21 @@ fun newConfigCommitDetailedEntity(
     sourceIdentity = sourceIdentity,
     version = "",
     jsonValues = jsonValues,
+)
+
+fun newOutboxTaskKcClientEntity(
+    attempt: Int,
+    skip: Boolean,
+    createElseDelete: Boolean,
+    namespaceId: Long,
+    applicationId: Long,
+) = OutboxTaskKcClientEntity(
+    id = 0L,
+    createdAt = OffsetDateTime.MIN,
+    updatedAt = OffsetDateTime.MIN,
+    attempt = attempt,
+    skip = skip,
+    action = if (createElseDelete) OutboxTaskKcClientEntity.Action.CREATE else OutboxTaskKcClientEntity.Action.DELETE,
+    namespaceId = namespaceId,
+    applicationId = applicationId,
 )

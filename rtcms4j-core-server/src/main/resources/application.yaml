@@ -7,6 +7,11 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
     default-property-inclusion: non_null
+  redis:
+    timeout: 500ms
+    lettuce:
+      pool:
+        max-wait: 500ms
 
 server:
   port: 8080
@@ -34,3 +39,9 @@ roles:
 cache:
   keycloak-users-ttl: 10m
   available-resources-ttl: 1h
+
+job:
+  keycloak-retry:
+    cron: "0 */5 * * * *"
+    batch-size: 10
+    max-attempts: 90

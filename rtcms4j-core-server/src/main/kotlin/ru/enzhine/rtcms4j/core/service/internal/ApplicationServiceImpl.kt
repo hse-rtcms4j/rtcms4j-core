@@ -36,6 +36,7 @@ class ApplicationServiceImpl(
     private val applicationManagerEntityRepository: ApplicationManagerEntityRepository,
     private val defaultPaginationProperties: DefaultPaginationProperties,
     private val namespaceService: NamespaceService,
+    private val keycloakOutboxService: KeycloakOutboxService,
     private val keycloakService: KeycloakService,
     private val notifyEventProducer: NotifyEventProducer,
 ) : ApplicationService {
@@ -69,11 +70,7 @@ class ApplicationServiceImpl(
             }
 
         registerCommitCallback {
-            try {
-                keycloakService.createNewApplicationClient(namespaceId, applicationEntity.id)
-            } catch (ex: Throwable) {
-                logger.error("Unable to create client for application with id ${applicationEntity.id}", ex)
-            }
+            keycloakOutboxService.createKeycloakApplicationGuaranteed(namespaceId, applicationEntity.id)
         }
 
         return applicationEntity.toService()
@@ -168,9 +165,8 @@ class ApplicationServiceImpl(
             throw applicationNotFoundException(applicationId)
         }
 
-        val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
         return keycloakService
-            .findApplicationClient(clientId)
+            .findApplicationClient(namespaceId, applicationEntity.id)
             .toService()
     }
 
@@ -190,8 +186,8 @@ class ApplicationServiceImpl(
             throw applicationNotFoundException(applicationId)
         }
 
-        val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
-        val keycloakClient = keycloakService.rotateApplicationClientPassword(clientId)
+        val keycloakClient =
+            keycloakService.rotateApplicationClientPassword(namespaceId, applicationEntity.id)
 
         sendSecretRotationNotification(
             namespaceId = namespaceId,
@@ -217,7 +213,7 @@ class ApplicationServiceImpl(
                         newSecret = newSecret,
                     ),
             )
-        notifyEventProducer.publishEvent(event)
+        notifyEventProducer.publishEventRetrying(event)
     } catch (ex: Throwable) {
         logger.error("Unable to publish pub/sub secret rotation event for application with id $applicationId", ex)
     }
@@ -239,8 +235,7 @@ class ApplicationServiceImpl(
 
         val deleted = applicationEntityRepository.removeById(applicationId)
         if (deleted) {
-            val clientId = keycloakService.buildClientId(namespaceId, applicationEntity.id)
-            keycloakService.deleteApplicationClient(clientId)
+            keycloakOutboxService.deleteKeycloakApplicationGuaranteed(namespaceId, applicationEntity.id)
         }
         return deleted
     }

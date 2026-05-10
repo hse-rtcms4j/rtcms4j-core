@@ -1540,6 +1540,7 @@ components:
 
     NamespaceFieldName:
       type: string
+      pattern: '^[a-zA-Z\p{N}\p{P}]+$'
       minLength: 1
       maxLength: 64
 
@@ -1622,6 +1623,7 @@ components:
 
     ApplicationFieldName:
       type: string
+      pattern: '^[a-zA-Z\p{N}\p{P}]+$'
       minLength: 1
       maxLength: 64
 
@@ -1708,6 +1710,7 @@ components:
 
     ConfigurationFieldName:
       type: string
+      pattern: '^[a-zA-Z\p{N}\p{P}]+$'
       minLength: 1
       maxLength: 64
 

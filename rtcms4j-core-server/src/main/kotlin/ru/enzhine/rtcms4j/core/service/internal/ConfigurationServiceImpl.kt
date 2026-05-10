@@ -128,8 +128,26 @@ class ConfigurationServiceImpl(
                 applicationId = configuration.applicationId,
                 configurationId = configuration.id,
             )
-        var jsonSchema = keyValueRepository.getCacheJsonSchema(cacheKey)?.jsonSchema
-        var jsonValues = keyValueRepository.getCacheJsonValues(cacheKey)?.jsonValues
+        var jsonSchema =
+            try {
+                keyValueRepository.getCacheJsonSchema(cacheKey)?.jsonSchema
+            } catch (ex: Throwable) {
+                logger.error(
+                    "Unable to fetch json-schema cache for configurationId=${configuration.id} in namespaceId=${application.namespaceId}",
+                    ex,
+                )
+                null
+            }
+        var jsonValues =
+            try {
+                keyValueRepository.getCacheJsonValues(cacheKey)?.jsonValues
+            } catch (ex: Throwable) {
+                logger.error(
+                    "Unable to fetch json-values cache for configurationId=${configuration.id} in namespaceId=${application.namespaceId}",
+                    ex,
+                )
+                null
+            }
 
         // database retrieve attempt
         if (jsonSchema == null || jsonValues == null) {
@@ -347,7 +365,16 @@ class ConfigurationServiceImpl(
             }
 
             // cache retrieve attempt
-            val cache = keyValueRepository.getCacheJsonSchema(cacheKey)
+            val cache =
+                try {
+                    keyValueRepository.getCacheJsonSchema(cacheKey)
+                } catch (ex: Throwable) {
+                    logger.error(
+                        "Unable to fetch json-schema cache for configurationId=$configurationId in namespaceId=${application.namespaceId}",
+                        ex,
+                    )
+                    null
+                }
             if (cache != null) {
                 currentJsonSchemaId = cache.jsonSchemaId
                 currentJsonSchema = cache.jsonSchema
@@ -483,7 +510,7 @@ class ConfigurationServiceImpl(
         }
 
         try {
-            notifyEventProducer.publishEvent(
+            val event =
                 NotificationEvent(
                     namespaceId = namespaceId,
                     applicationId = applicationId,
@@ -493,8 +520,9 @@ class ConfigurationServiceImpl(
                             configurationId = configurationId,
                             payload = jsonValues,
                         ),
-                ),
-            )
+                )
+
+            notifyEventProducer.publishEventRetrying(event)
         } catch (ex: Throwable) {
             logger.error("Unable to publish pub/sub event for configuration with id $configurationId", ex)
         }

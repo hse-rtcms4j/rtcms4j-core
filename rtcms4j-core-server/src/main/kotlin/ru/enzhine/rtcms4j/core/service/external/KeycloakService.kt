@@ -14,14 +14,23 @@ interface KeycloakService {
 
     fun getUserOrCache(subject: UUID): KeycloakUser?
 
-    fun findApplicationClient(clientId: String): KeycloakClient
+    fun findApplicationClient(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient
 
     fun createNewApplicationClient(
         namespaceId: Long,
         applicationId: Long,
     ): KeycloakClient
 
-    fun rotateApplicationClientPassword(clientId: String): KeycloakClient
+    fun rotateApplicationClientPassword(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient
 
-    fun deleteApplicationClient(clientId: String): Boolean
+    fun deleteApplicationClient(
+        namespaceId: Long,
+        applicationId: Long,
+    )
 }

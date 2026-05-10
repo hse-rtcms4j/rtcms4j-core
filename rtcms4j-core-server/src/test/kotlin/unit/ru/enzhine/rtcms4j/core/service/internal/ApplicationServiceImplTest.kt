@@ -23,6 +23,7 @@ import ru.enzhine.rtcms4j.core.repository.db.ApplicationManagerEntityRepository
 import ru.enzhine.rtcms4j.core.repository.db.dto.ApplicationEntity
 import ru.enzhine.rtcms4j.core.service.external.KeycloakService
 import ru.enzhine.rtcms4j.core.service.internal.ApplicationServiceImpl
+import ru.enzhine.rtcms4j.core.service.internal.KeycloakOutboxService
 import ru.enzhine.rtcms4j.core.service.internal.NamespaceService
 import ru.enzhine.rtcms4j.core.service.internal.dto.Application
 import ru.enzhine.rtcms4j.core.service.internal.dto.Namespace
@@ -42,6 +43,9 @@ class ApplicationServiceImplTest {
 
     @Mock
     lateinit var namespaceService: NamespaceService
+
+    @Mock
+    lateinit var keycloakOutboxService: KeycloakOutboxService
 
     @Mock
     lateinit var keycloakService: KeycloakService
@@ -125,7 +129,8 @@ class ApplicationServiceImplTest {
             )
         Assertions.assertEquals(expected, actual)
 
-        verify(keycloakService, times(1)).createNewApplicationClient(anyOrNull(), anyOrNull())
+        verify(keycloakOutboxService, times(1))
+            .createKeycloakApplicationGuaranteed(eq(namespaceId), eq(applicationId))
     }
 
     @Test
@@ -161,6 +166,6 @@ class ApplicationServiceImplTest {
             applicationService.createApplication(creator, namespaceId, name, description, creationByService)
         }
 
-        verify(keycloakService, never()).createNewApplicationClient(anyOrNull(), anyOrNull())
+        verify(keycloakOutboxService, never()).createKeycloakApplicationGuaranteed(anyOrNull(), anyOrNull())
     }
 }

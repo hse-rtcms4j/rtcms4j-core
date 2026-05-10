@@ -20,11 +20,6 @@ class KeycloakServiceImpl(
     private val keycloakAdminClient: Keycloak,
     private val keycloakProperties: KeycloakProperties,
 ) : KeycloakService {
-    companion object {
-        const val ATTRIBUTE_KEY_NAMESPACE_ID = "RTCMS4J_CORE_SCOPE_NAMESPACE_ID"
-        const val ATTRIBUTE_KEY_APPLICATION_ID = "RTCMS4J_CORE_SCOPE_APPLICATION_ID"
-    }
-
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun isUserExists(subject: UUID): Boolean {
@@ -70,13 +65,26 @@ class KeycloakServiceImpl(
         applicationId: Long,
     ) = "ns${namespaceId}_app$applicationId"
 
-    override fun findApplicationClient(clientId: String): KeycloakClient {
+    override fun findApplicationClient(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient {
+        val clientId = buildClientId(namespaceId, applicationId)
+
         val clientRepresentation =
-            keycloakAdminClient
-                .realm(keycloakProperties.realm)
-                .clients()
-                .findByClientId(clientId)
-                .first()
+            try {
+                keycloakAdminClient
+                    .realm(keycloakProperties.realm)
+                    .clients()
+                    .findByClientId(clientId)
+                    .first()
+            } catch (ex: NoSuchElementException) {
+                throw ConditionFailureException(
+                    message = "Keycloak does not contain client with id '$clientId'",
+                    cause = ex,
+                    detailCode = null,
+                )
+            }
 
         return KeycloakClient(
             sub = UUID.fromString(clientRepresentation.id),
@@ -89,7 +97,6 @@ class KeycloakServiceImpl(
         namespaceId: Long,
         applicationId: Long,
     ): KeycloakClient {
-        val clientId = buildClientId(namespaceId, applicationId)
         val clientRepresentation = buildClientRepresentation(namespaceId, applicationId)
 
         val response =
@@ -99,9 +106,9 @@ class KeycloakServiceImpl(
                 .create(clientRepresentation)
 
         return when (response.status) {
-            in 200 until 300 -> findApplicationClient(clientId)
+            in 200 until 300 -> findApplicationClient(namespaceId, applicationId)
             409 -> throw ConditionFailureException(
-                message = "Keycloak already contains client with id '$clientId'",
+                message = "Keycloak already contains client with id '${clientRepresentation.clientId}'",
                 cause = null,
                 detailCode = response.status,
             )
@@ -110,8 +117,11 @@ class KeycloakServiceImpl(
         }
     }
 
-    override fun rotateApplicationClientPassword(clientId: String): KeycloakClient {
-        val keycloakClient = findApplicationClient(clientId)
+    override fun rotateApplicationClientPassword(
+        namespaceId: Long,
+        applicationId: Long,
+    ): KeycloakClient {
+        val keycloakClient = findApplicationClient(namespaceId, applicationId)
 
         val credentialRepresentation =
             keycloakAdminClient
@@ -127,8 +137,11 @@ class KeycloakServiceImpl(
         )
     }
 
-    override fun deleteApplicationClient(clientId: String): Boolean {
-        val keycloakClient = findApplicationClient(clientId)
+    override fun deleteApplicationClient(
+        namespaceId: Long,
+        applicationId: Long,
+    ) {
+        val keycloakClient = findApplicationClient(namespaceId, applicationId)
 
         val response =
             keycloakAdminClient
@@ -136,11 +149,11 @@ class KeycloakServiceImpl(
                 .clients()
                 .delete(keycloakClient.sub.toString())
 
-        return when (response.status) {
-            in 200 until 300 -> true
+        when (response.status) {
+            in 200 until 300 -> Unit
 
             404 -> throw ConditionFailureException(
-                message = "Keycloak does not contain client with id '$clientId'",
+                message = "Keycloak does not contain client with id '${keycloakClient.clientId}'",
                 cause = null,
                 detailCode = response.status,
             )
